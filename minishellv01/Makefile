@@ -10,4 +10,31 @@
 #                                                                              #
 # **************************************************************************** #
 
+CC = cc
 
+CFLAGS = -Wall -Wextra -Werror
+
+FLAGS = -lreadline
+
+NAME = minishell
+
+FILE = main.c
+
+SRC = ${FILE:.c=.o}
+
+all : ${NAME}
+
+${NAME}: ${SRC}
+	${CC} ${CFLAGS} -o $@ $^ ${FLAGS}
+
+%.o:%.c
+	${CC} ${CFLAGS} -c $^
+
+clean: 
+	rm -f main.o
+
+fclean:clean
+	rm -f minishell
+
+re:fclean
+	make
