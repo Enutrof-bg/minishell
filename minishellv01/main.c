@@ -17,11 +17,32 @@ int main(int argc, char **argv)
 	(void)argc;
 	(void)argv;
 
-	//test readline
-	char *Ptest = "Salut > ";
+	//TEST readline()
+	char *Ptest;
 	char *r1;
-	r1 = readline(Ptest);
-	printf("%s\n", r1);
 
+	while(1)
+	{
+		Ptest = "Salut > ";
+		r1 = readline(Ptest);
+		printf("%s\n", r1);
+	}
 
+/*
+	//TEST getcwd()
+	//obtenir le lien absolu actuel
+	char *pwd;
+	pwd = getcwd(NULL, 0);
+	printf("pwd: %s\n", pwd);
+
+	//TEST chdir()
+	//changer le lien aboslue actuel
+	pwd = getcwd(NULL, 0);
+	printf("pwd AVANT chdir: %s\n", pwd);
+
+	chdir("/home/kevwang/Desktop/gitenutrofbg/cercle4/minishell/minishellv01/dossiertest");
+
+	pwd = getcwd(NULL, 0);
+	printf("pwd APRES chdir: %s\n", pwd);
+*/
 }

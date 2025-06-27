@@ -27,6 +27,9 @@ all : ${NAME}
 ${NAME}: ${SRC}
 	${CC} ${CFLAGS} -o $@ $^ ${FLAGS}
 
+test: test.c
+	${CC} ${CFLAGS} -o $@ $^ ${FLAGS}
+
 %.o:%.c
 	${CC} ${CFLAGS} -c $^
 
