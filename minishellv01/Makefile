@@ -35,6 +35,7 @@ test: test.c
 
 clean: 
 	rm -f main.o
+	rm -f test
 
 fclean:clean
 	rm -f minishell
