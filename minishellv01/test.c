@@ -36,11 +36,34 @@ int main(int argc, char **argv)
 
 	char *test;
 	(void)test;
+	char *Ptest;
+	char *r1;
+	char *r2;
 
-	printf("%s\n", argv[1]);
+	// printf("%s\n", argv[1]);
 
-	test = ft_str_last(argv[1]);
-	printf("%s\n", test);
+	// test = ft_str_last(argv[1]);
+	// printf("%s\n", test);
+
+	Ptest = "Salut > ";
+	r1 = readline(Ptest);
+
+	add_history(r1);
+
+	r2 = ft_str_last(r1);
+	// nbr_pipe = ft_count_pipe(r1);
+	printf("%s\n", r1);
+	printf("%s\n", r2);
+	// id1 = fork();
+	// if (id1 == 0)
+	// {
+	// 	exec(r2, env);
+	// }
+	// else
+	// {
+	// 	wait(NULL);
+	// }
+	free(r1);
 /*
 	//TEST fork()
 	pid_t child_pid = fork();
