@@ -12,11 +12,36 @@
 
 #include "minishell.h"
 
+//jsp si c ce quil faut
+char *ft_str_last(char *str)
+{
+	int i;
+	int j;
+
+	j = 0;
+	i = 0;
+	while (str[i])
+		i++;
+	while (str[i-j] != '/' && j < i)
+		j++;
+	if (str[i-j] == '/')
+		j--;
+	return (&str[i-j]);
+}
+
 int main(int argc, char **argv)
 {
 	(void)argc;
 	(void)argv;
 
+	char *test;
+	(void)test;
+
+	printf("%s\n", argv[1]);
+
+	test = ft_str_last(argv[1]);
+	printf("%s\n", test);
+/*
 	//TEST fork()
 	pid_t child_pid = fork();
         
@@ -30,7 +55,7 @@ int main(int argc, char **argv)
         printf("### Parent ###\nCurrent PID: %d and Child PID: %d\n",
                getpid(), child_pid);
     }
-
+*/
 /*
 	//TEST isatty()
 	//#include <unistd.h>

@@ -28,6 +28,24 @@ int ft_count_pipe(char *str)
 	return (count);
 }
 
+//jsp si c ce quil faut
+//ex: str="/bin/ls" return "ls"
+char *ft_str_last(char *str)
+{
+	int i;
+	int j;
+
+	j = 0;
+	i = 0;
+	while (str[i])
+		i++;
+	while (str[i-j] != '/' && j < i)
+		j++;
+	if (str[i-j] == '/')
+		j--;
+	return (&str[i-j]);
+}
+
 int main(int argc, char **argv, char **env)
 {
 	(void)argc;
@@ -43,6 +61,7 @@ int main(int argc, char **argv, char **env)
 	{
 		Ptest = "Salut > ";
 		r1 = readline(Ptest);
+		r1 = ft_str_last(r1);
 		nbr_pipe = ft_count_pipe(r1);
 		// printf("%s\n", r1);
 		id1 = fork();

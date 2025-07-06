@@ -35,4 +35,6 @@ void	ft_free_double_tab(char **tab);
 //minishell_utils
 size_t	ft_strlen(const char *str);
 int		ft_strncmp(char *s1, char *s2, unsigned int n);
+void	ft_print_tab(char **tab);
+
 #endif
