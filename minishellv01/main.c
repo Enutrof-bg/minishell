@@ -71,7 +71,7 @@ int main(int argc, char **argv, char **env)
 		id1 = fork();
 		if (id1 == 0)
 		{
-			exec(r1, env);
+			exec(r2, env);
 		}
 		else
 		{
