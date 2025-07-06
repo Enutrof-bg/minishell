@@ -60,7 +60,7 @@ int main(int argc, char **argv, char **env)
 	// int loop = 1;
 	while(1)
 	{
-		Ptest = "Salut > ";
+		Ptest = "kevwang@Minishell > ";
 		r1 = readline(Ptest);
 
 		add_history(r1);
