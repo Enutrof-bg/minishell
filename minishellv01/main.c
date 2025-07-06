@@ -12,7 +12,23 @@
 
 #include "minishell.h"
 
-int main(int argc, char **argv)
+int ft_count_pipe(char *str)
+{
+	int i;
+	int count;
+
+	i = 0;
+	count = 0;
+	while (str[i])
+	{
+		if (str[i] == '|')
+			count++;
+		i++;
+	}
+	return (count);
+}
+
+int main(int argc, char **argv, char **env)
 {
 	(void)argc;
 	(void)argv;
@@ -20,12 +36,25 @@ int main(int argc, char **argv)
 	//TEST readline()
 	char *Ptest;
 	char *r1;
-
+	int id1;
+	int nbr_pipe;
+	// int loop = 1;
 	while(1)
 	{
 		Ptest = "Salut > ";
 		r1 = readline(Ptest);
-		printf("%s\n", r1);
+		nbr_pipe = ft_count_pipe(r1);
+		// printf("%s\n", r1);
+		id1 = fork();
+		if (id1 == 0)
+		{
+			exec(r1, env);
+		}
+		else
+		{
+			wait(NULL);
+		}
+		// printf("testtoto\n");
 	}
 
 /*

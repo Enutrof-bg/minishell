@@ -18,7 +18,12 @@ FLAGS = -lreadline
 
 NAME = minishell
 
-FILE = main.c
+FILE = main.c \
+ft_split.c \
+ft_strjoin.c \
+minishell_exec.c \
+minishell_free.c \
+minishell_utils.c
 
 SRC = ${FILE:.c=.o}
 
@@ -34,8 +39,13 @@ test: test.c
 	${CC} ${CFLAGS} -c $^
 
 clean: 
-	rm -f main.o
-	rm -f test
+	rm -f main.o \
+	test \
+	ft_split.o \
+	ft_strjoin.o \
+	minishell_exec.o \
+	minishell_free.o \
+	minishell_utils.o
 
 fclean:clean
 	rm -f minishell
