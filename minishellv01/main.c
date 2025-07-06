@@ -54,6 +54,7 @@ int main(int argc, char **argv, char **env)
 	//TEST readline()
 	char *Ptest;
 	char *r1;
+	char *r2;
 	int id1;
 	int nbr_pipe;
 	// int loop = 1;
@@ -61,7 +62,10 @@ int main(int argc, char **argv, char **env)
 	{
 		Ptest = "Salut > ";
 		r1 = readline(Ptest);
-		r1 = ft_str_last(r1);
+
+		add_history(r1);
+
+		r2 = ft_str_last(r1);
 		nbr_pipe = ft_count_pipe(r1);
 		// printf("%s\n", r1);
 		id1 = fork();
@@ -73,6 +77,7 @@ int main(int argc, char **argv, char **env)
 		{
 			wait(NULL);
 		}
+		free(r1);
 		// printf("testtoto\n");
 	}
 
