@@ -21,6 +21,11 @@
 #include <sys/types.h>//wait
 #include <sys/wait.h>//wait
 
+typedef struct s_minishell
+{
+		
+}t_minishell;
+
 char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);
 

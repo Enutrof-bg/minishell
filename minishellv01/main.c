@@ -65,13 +65,22 @@ int main(int argc, char **argv, char **env)
 
 		add_history(r1);
 
+		if (ft_strncmp(r1, "exit", 5) == 0)
+		{
+			// rl_clear_history();
+			break ;
+		}
 		r2 = ft_str_last(r1);
 		nbr_pipe = ft_count_pipe(r1);
 		// printf("%s\n", r1);
 		id1 = fork();
 		if (id1 == 0)
 		{
-			exec(r2, env);
+			if (ft_strncmp(r1, "history -c", 11) == 0)
+					rl_clear_history();
+			else
+				exec(r2, env);
+			// id2 = fork()
 		}
 		else
 		{

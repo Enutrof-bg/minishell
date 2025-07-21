@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 	// test = ft_str_last(argv[1]);
 	// printf("%s\n", test);
 
-	Ptest = "kevwang@Minishell > ";
+	Ptest = "kevinlamenace@Minishell > ";
 	r1 = readline(Ptest);
 
 	add_history(r1);
