@@ -105,6 +105,7 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	return (newstr);
 }
 
+//caca parsing_test.c minishell_utils.c 
 int main(int argc, char **argv)
 {
 	// if (argc > 1)
@@ -123,17 +124,28 @@ int main(int argc, char **argv)
 		{
 			if (str[i] == ' ')
 				i++;
-			else
+			else if (str[i] == '"')
 			{
-				while (str[i + j] != ' ' && str[i + j] != '\0')
+				i++; // Passer le guillemet ouvrant
+				while (str[i + j] != '"' && str[i + j] != '\0')
+				{
 					j++;
+				}
 				temp = ft_substr(str, i, j);
-				// printf("%s\n", temp);
 				tab = ft_add_double_tab(temp, tab);
 				free(temp);
-				// j = 0;
-				// ft_print_tab(tab);
-				// printf("\n");
+				i = i + j;
+				if (str[i] == '"') // Passer le guillemet fermant si présent
+					i++;
+				j = 0;
+			}
+			else
+			{
+				while (str[i + j] != ' ' && str[i + j] != '"' && str[i + j] != '\0')
+					j++;
+				temp = ft_substr(str, i, j);
+				tab = ft_add_double_tab(temp, tab);
+				free(temp);
 				i = i + j;
 				j = 0;
 			}
