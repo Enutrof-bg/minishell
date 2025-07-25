@@ -220,11 +220,14 @@ int main(int argc, char **argv, char **env)
 				i++; // Passer le guillemet ouvrant
 				while (str[i + j] != '"' && str[i + j] != '\0')
 					j++;
-				temp = ft_substr(str, i, j);
-				// tab = ft_add_double_tab(temp, tab);
-				ft_add(&shell, temp, 1);
-				// printf("double:%s i:%d j:%d\n", temp, i, j);
-				free(temp);
+				if (j > 0)
+				{
+					temp = ft_substr(str, i, j);
+					// tab = ft_add_double_tab(temp, tab);
+					ft_add(&shell, temp, DOUBLEQUOTE);
+					// printf("double:%s i:%d j:%d\n", temp, i, j);
+					free(temp);
+				}
 				i = i + j;
 				if (str[i] == '"') // Passer le guillemet fermant si présent
 					i++;
@@ -235,11 +238,14 @@ int main(int argc, char **argv, char **env)
 				i++; // Passer le guillemet ouvrant
 				while (str[i + j] != '\'' && str[i + j] != '\0')
 					j++;
-				temp = ft_substr(str, i, j);
-				// tab = ft_add_double_tab(temp, tab);
-				ft_add(&shell, temp, 2);
-				// printf("single:%s i:%d j:%d\n", temp, i, j);
-				free(temp);
+				if (j > 0)
+				{
+					temp = ft_substr(str, i, j);
+					// tab = ft_add_double_tab(temp, tab);
+					ft_add(&shell, temp, SINGLEQUOTE);
+					// printf("single:%s i:%d j:%d\n", temp, i, j);
+					free(temp);
+				}
 				i = i + j;
 				if (str[i] == '\'') // Passer le guillemet fermant si présent
 					i++;
@@ -247,13 +253,16 @@ int main(int argc, char **argv, char **env)
 			}
 			else
 			{
-				while (str[i + j] != ' ' && str[i + j] != '"' && str[i + j] != '\'' && str[i + j] != '\0')
+				while (str[i + j] != ' ' && str[i + j] != '"' && str[i + j] != '\'' /*&& str[i + j] != '|' */&& str[i + j] != '\0')
 					j++;
-				temp = ft_substr(str, i, j);
-				// tab = ft_add_double_tab(temp, tab);
-				ft_add(&shell, temp, 3);
-				// printf("space:%s i:%d j:%d\n", temp, i, j);
-				free(temp);
+				if (j > 0)
+				{
+					temp = ft_substr(str, i, j);
+					// tab = ft_add_double_tab(temp, tab);
+					ft_add(&shell, temp, NORMAL);
+					// printf("space:%s i:%d j:%d\n", temp, i, j);
+					free(temp);
+				}
 				i = i + j;
 				j = 0;
 			}

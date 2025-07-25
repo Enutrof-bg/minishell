@@ -24,6 +24,13 @@
 #define SINGLEQUOTE 1
 #define DOUBLEQUOTE 2
 #define NORMAL 3
+#define CMD 4
+#define PIPE 5
+#define ARG 6
+#define INPUT 7
+#define TRUNC 8
+#define HEREDOC 9
+#define APPEND 10
 
 typedef struct s_minishell
 {
