@@ -21,10 +21,16 @@
 #include <sys/types.h>//wait
 #include <sys/wait.h>//wait
 
+#define SINGLEQUOTE 1
+#define DOUBLEQUOTE 2
+#define NORMAL 3
+
 typedef struct s_minishell
 {
-		
-}t_minishell;
+	char *str;
+	int state;
+	struct s_minishell *next;
+}t_list;
 
 char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);

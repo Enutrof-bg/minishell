@@ -105,53 +105,164 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	return (newstr);
 }
 
+t_list	*ft_lst(char *str)
+{
+	t_list	*newlist;
+
+	newlist = malloc(sizeof(t_list));
+	if (!newlist)
+	{
+		return (NULL);
+	}
+	newlist->str = ft_strdup(str);
+	newlist->next = NULL;
+	return (newlist);
+}
+
+void	ft_lstadd_back(t_list **lst, t_list *new)
+{
+	t_list	*temp;
+
+	temp = *lst;
+	if (*lst == NULL)
+	{
+		*lst = new;
+		return ;
+	}
+	while ((*lst)->next != NULL)
+	{
+		*lst = (*lst)->next;
+	}
+	(*lst)->next = new;
+	*lst = temp;
+}
+
+void ft_add(t_list **lst, char *str, int state)
+{
+	if (!(*lst))
+	{
+		(*lst) = ft_lst(str);
+		return ;
+	}
+	t_list *temp = *lst;
+	while ((*lst)->next)
+	{
+		(*lst) = (*lst)->next;
+	}
+	(*lst)->next = ft_lst(str);
+	(*lst)->state = state;
+	(*lst) = temp;
+}
+
+int ft_size(t_list *lst)
+{
+	int size = 0;
+	while (lst)
+	{
+		size++;
+		lst = lst->next;
+	}
+	return size;
+}
+
+void ft_print(t_list *lst)
+{
+	if (lst)
+	{
+		int size = ft_size(lst);
+		// printf("size:%d\n", size);
+		int i = 0;
+		while (i < size)
+		{
+			printf("%d:%s\n", i,lst->str);
+			lst = lst->next;
+			i++;
+		}
+		// printf("%d\n", lst->val);
+	}
+}
+
 //caca parsing_test.c minishell_utils.c 
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **env)
 {
 	// if (argc > 1)
 	(void)argc;
 	(void)argv;
+	(void)env;
 
-	char **tab = NULL;
+	t_list *shell;
+	
+	// t_list *temp;
+
+	shell = malloc(sizeof(t_list));
+	if (!shell)
+		return (1);
+	shell = NULL;
+	// char **tab = NULL;
 	char *temp;
+	char *str;
 	int i = 0;
 	int j = 0;
-	if (argc >1)
+	if (argc == 1)
 	{
-		char *str = argv[1];
+		// char *str = argv[1];
+		// while (1)
+		// {
+		str = readline("test >");
+		add_history(str);
 		// printf("%s\n", str);
 		while (str[i])
 		{
 			if (str[i] == ' ')
 				i++;
-			else if (str[i] == '"')
+			if (str[i] == '"')
 			{
 				i++; // Passer le guillemet ouvrant
 				while (str[i + j] != '"' && str[i + j] != '\0')
-				{
 					j++;
-				}
 				temp = ft_substr(str, i, j);
-				tab = ft_add_double_tab(temp, tab);
+				// tab = ft_add_double_tab(temp, tab);
+				ft_add(&shell, temp, 1);
+				// printf("double:%s i:%d j:%d\n", temp, i, j);
 				free(temp);
 				i = i + j;
 				if (str[i] == '"') // Passer le guillemet fermant si présent
 					i++;
 				j = 0;
 			}
-			else
+			else if (str[i] == '\'')
 			{
-				while (str[i + j] != ' ' && str[i + j] != '"' && str[i + j] != '\0')
+				i++; // Passer le guillemet ouvrant
+				while (str[i + j] != '\'' && str[i + j] != '\0')
 					j++;
 				temp = ft_substr(str, i, j);
-				tab = ft_add_double_tab(temp, tab);
+				// tab = ft_add_double_tab(temp, tab);
+				ft_add(&shell, temp, 2);
+				// printf("single:%s i:%d j:%d\n", temp, i, j);
+				free(temp);
+				i = i + j;
+				if (str[i] == '\'') // Passer le guillemet fermant si présent
+					i++;
+				j = 0;
+			}
+			else
+			{
+				while (str[i + j] != ' ' && str[i + j] != '"' && str[i + j] != '\'' && str[i + j] != '\0')
+					j++;
+				temp = ft_substr(str, i, j);
+				// tab = ft_add_double_tab(temp, tab);
+				ft_add(&shell, temp, 3);
+				// printf("space:%s i:%d j:%d\n", temp, i, j);
 				free(temp);
 				i = i + j;
 				j = 0;
 			}
 		}
-		ft_print_tab(tab);
-		ft_free_double_tab(tab);
+		// ft_print_tab(tab);
+		ft_print(shell);
+		// }
+
+		// ft_free_double_tab(tab);
 	}
 	// char **copy = ft_copy_double_tab(argv);
 	// ft_print_tab(copy);
