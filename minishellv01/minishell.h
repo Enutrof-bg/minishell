@@ -55,5 +55,6 @@ size_t	ft_strlen(const char *str);
 int		ft_strncmp(char *s1, char *s2, unsigned int n);
 void	ft_print_tab(char **tab);
 char	*ft_strdup(char *s);
+char	*ft_substr(char const *s, unsigned int start, size_t len);
 
 #endif

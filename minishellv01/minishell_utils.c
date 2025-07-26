@@ -67,3 +67,31 @@ char	*ft_strdup(char *s)
 	newstr[i] = '\0';
 	return (newstr);
 }
+
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	unsigned int	i;
+	char			*newstr;
+	size_t			s_len;
+
+	i = 0;
+	s_len = ft_strlen(s);
+	if (start > s_len)
+	{
+		return (ft_strdup(""));
+	}
+	if (s_len - start > len)
+		newstr = malloc(sizeof(char) * len + 1);
+	else
+		newstr = malloc(sizeof(char) * (s_len - start) + 1);
+	if (newstr == NULL)
+		return (NULL);
+	while (i < len && s[start + i] != '\0'
+		&& (size_t)start < ft_strlen(s))
+	{
+		newstr[i] = s[start + i];
+		i++;
+	}
+	newstr[i] = '\0';
+	return (newstr);
+}

@@ -67,6 +67,7 @@ int main(int argc, char **argv, char **env)
 
 		if (ft_strncmp(r1, "exit", 5) == 0)
 		{
+			free(r1);  // Libérer la mémoire avant de sortir
 			// rl_clear_history();
 			break ;
 		}
