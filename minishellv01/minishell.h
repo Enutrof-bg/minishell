@@ -28,14 +28,20 @@
 #define PIPE 5
 #define ARG 6
 #define INPUT 7
-#define TRUNC 8
+#define OUTPUT 8
 #define HEREDOC 9
 #define APPEND 10
+#define ERROR 99
+
+#define INFILE 20
+#define OUTFILE 21
+#define OUTFILEAPPEND 22
 
 typedef struct s_minishell
 {
 	char *str;
 	int state;
+	int redir;
 	struct s_minishell *next;
 }t_list;
 

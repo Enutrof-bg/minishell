@@ -1,1 +1,3 @@
-echo *
+echo \\\\\\
+
+<<<infile cat -e| cat -e>outfile 

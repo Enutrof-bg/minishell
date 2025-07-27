@@ -147,8 +147,9 @@ void ft_print(t_list *lst)
 		int i = 0;
 		while (i < size)
 		{
-			// printf("%d:%s:%d\n", i,lst->str, lst->state);
-			printf("%d:'%s'\n", i,lst->str);
+			// printf("%d:%s:%d:%d\n", i,lst->str, lst->state, lst->redir);
+			printf("%d:%s:%d\n", i,lst->str, lst->state);
+			// printf("%d:'%s'\n", i,lst->str);
 			lst = lst->next;
 			i++;
 		}
@@ -201,6 +202,13 @@ void	ft_lstiter_env(t_list **lst, char **env)
 				(*lst)->str = new_str;
 			}
 		}
+		(*lst)->redir = -1;
+		if ((*lst)->state == INPUT)
+			(*lst)->next->state = INFILE;
+		if ((*lst)->state == OUTPUT)
+			(*lst)->next->state = OUTFILE;
+		if ((*lst)->state == APPEND)
+			(*lst)->next->state = OUTFILEAPPEND;
 		(*lst) = (*lst)->next;
 	}
 	*lst = temp;
@@ -289,7 +297,10 @@ int main(int argc, char **argv, char **env)
 					{
 						temp = ft_substr(str, i, j);
 						// tab = ft_add_double_tab(temp, tab);
-						ft_add(&shell, temp, SINGLEQUOTE);
+						if (ft_strlen(temp) == 1)
+							ft_add(&shell, temp, PIPE);
+						else
+							ft_add(&shell, temp, ERROR);
 						// printf("single:%s i:%d j:%d\n", temp, i, j);
 						free(temp);
 					}
@@ -307,7 +318,12 @@ int main(int argc, char **argv, char **env)
 					{
 						temp = ft_substr(str, i, j);
 						// tab = ft_add_double_tab(temp, tab);
-						ft_add(&shell, temp, SINGLEQUOTE);
+						if (ft_strlen(temp) == 1)
+							ft_add(&shell, temp, OUTPUT);
+						else if (ft_strlen(temp) == 2)
+							ft_add(&shell, temp, APPEND);
+						else
+							ft_add(&shell, temp, ERROR);
 						// printf("single:%s i:%d j:%d\n", temp, i, j);
 						free(temp);
 					}
@@ -325,7 +341,12 @@ int main(int argc, char **argv, char **env)
 					{
 						temp = ft_substr(str, i, j);
 						// tab = ft_add_double_tab(temp, tab);
-						ft_add(&shell, temp, SINGLEQUOTE);
+						if (ft_strlen(temp) == 1)
+							ft_add(&shell, temp, INPUT);
+						else if (ft_strlen(temp) == 2)
+							ft_add(&shell, temp, HEREDOC);
+						else
+							ft_add(&shell, temp, ERROR);
 						// printf("single:%s i:%d j:%d\n", temp, i, j);
 						free(temp);
 					}
