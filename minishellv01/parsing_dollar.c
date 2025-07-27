@@ -94,13 +94,13 @@ char *replace_dollar_vars(char *str, char **env)
 		{
 			env_name = get_env_name(str, i + 1);
 
-			printf("%s\n", env_name);
+			// printf("%s\n", env_name);
 			if (env_name)
 			{
 				env_var = get_env_var(env_name, env);
 				if (env_var)
 				{
-				printf("%s\n", env_var);
+				// printf("%s\n", env_var);
 
 				temp = ft_strjoin(result, env_var);
 				free(result);
@@ -112,7 +112,7 @@ char *replace_dollar_vars(char *str, char **env)
 			else
 			{
 				len = ft_strlen(result);
-				temp = malloc(sizeof(char) * (len + 1));
+				temp = malloc(sizeof(char) * (len + 2));
 				if (!temp)
 					return (NULL);
 				ft_strcpy(temp, result);
@@ -141,7 +141,7 @@ char *replace_dollar_vars(char *str, char **env)
 	// return ("caca");
 	return (result);
 }
-
+/*
 int main(int argc, char **argv, char **env)
 {
 	char *str;
@@ -173,4 +173,4 @@ int main(int argc, char **argv, char **env)
 		printf("%s\n", str);
 	}
 	return (0);
-}
+}*/

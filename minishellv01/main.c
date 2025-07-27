@@ -65,11 +65,12 @@ int main(int argc, char **argv, char **env)
 
 		add_history(r1);
 
-		if (ft_strncmp(r1, "exit", 5) == 0)
+		if (ft_strncmp(r1, "exit", 4) == 0)
 		{
 			free(r1);  // Libérer la mémoire avant de sortir
 			// rl_clear_history();
-			break ;
+			// break ;
+			exit(1);
 		}
 		r2 = ft_str_last(r1);
 		nbr_pipe = ft_count_pipe(r1);

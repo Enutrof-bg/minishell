@@ -57,4 +57,7 @@ void	ft_print_tab(char **tab);
 char	*ft_strdup(char *s);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 
+//parsing_dollar
+char *replace_dollar_vars(char *str, char **env);
+
 #endif

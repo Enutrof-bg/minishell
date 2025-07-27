@@ -147,7 +147,8 @@ void ft_print(t_list *lst)
 		int i = 0;
 		while (i < size)
 		{
-			printf("%d:%s:%d\n", i,lst->str, lst->state);
+			// printf("%d:%s:%d\n", i,lst->str, lst->state);
+			printf("%d:'%s'\n", i,lst->str);
 			lst = lst->next;
 			i++;
 		}
@@ -183,156 +184,6 @@ int ft_check(char *str, char c)
 	return (0);
 }
 
-// Fonction ft_strcpy utilitaire
-char *ft_strcpy(char *dest, char *src)
-{
-	int i;
-	
-	i = 0;
-	while (src[i])
-	{
-		dest[i] = src[i];
-		i++;
-	}
-	dest[i] = '\0';
-	return (dest);
-}
-
-// Fonction pour vérifier si un caractère est alphanumérique
-int ft_isalnum(char c)
-{
-	return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'));
-}
-
-// Fonction pour trouver une variable d'environnement
-char *get_env_var(char *var_name, char **env)
-{
-	int i;
-	int var_len;
-	
-	if (!var_name || !env)
-		return (NULL);
-	
-	var_len = ft_strlen(var_name);
-	i = 0;
-	while (env[i])
-	{
-		if (ft_strncmp(env[i], var_name, var_len) == 0 && env[i][var_len] == '=')
-			return (&env[i][var_len + 1]);
-		i++;
-	}
-	return (NULL);
-}
-
-// Fonction pour extraire le nom de la variable après $
-char *extract_var_name(char *str, int start)
-{
-	int i;
-	int len;
-	
-	i = start;
-	len = 0;
-	
-	// Compter la longueur du nom de variable (lettres, chiffres, underscore)
-	while (str[i] && (ft_isalnum(str[i]) || str[i] == '_'))
-	{
-		len++;
-		i++;
-	}
-	
-	if (len == 0)
-		return (NULL);
-		
-	return (ft_substr(str, start, len));
-}
-
-// Fonction pour vérifier si un caractère est alphanumérique
-// int ft_isalnum(char c)
-// {
-// 	return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'));
-// }
-
-// Fonction principale pour remplacer les variables d'environnement
-char *replace_dollar_vars(char *str, char **env)
-{
-	char *result;
-	char *var_name;
-	char *var_value;
-	char *temp;
-	int i;
-	int result_len;
-	
-	if (!str)
-		return (NULL);
-		
-	// Calculer la taille nécessaire pour le résultat
-	result_len = ft_strlen(str) * 2; // Estimation large
-	result = malloc(result_len);
-	if (!result)
-		return (NULL);
-	
-	result[0] = '\0';
-	i = 0;
-	
-	while (str[i])
-	{
-		if (str[i] == '$' && str[i + 1])
-		{
-			var_name = extract_var_name(str, i + 1);
-			if (var_name)
-			{
-				var_value = get_env_var(var_name, env);
-				if (var_value)
-				{
-					temp = ft_strjoin(result, var_value);
-					free(result);
-					result = temp;
-				}
-				i += ft_strlen(var_name) + 1; // +1 pour le $
-				free(var_name);
-			}
-			else
-			{
-				// Si pas de nom de variable valide après $, garder le $
-				temp = malloc(ft_strlen(result) + 2);
-				ft_strcpy(temp, result);
-				temp[ft_strlen(result)] = '$';
-				temp[ft_strlen(result) + 1] = '\0';
-				free(result);
-				result = temp;
-				i++;
-			}
-		}
-		else
-		{
-			// Copier le caractère normal
-			temp = malloc(ft_strlen(result) + 2);
-			ft_strcpy(temp, result);
-			temp[ft_strlen(result)] = str[i];
-			temp[ft_strlen(result) + 1] = '\0';
-			free(result);
-			result = temp;
-			i++;
-		}
-	}
-	
-	return (result);
-}
-
-void replace_dollar(char *str)
-{
-	printf("iter:%s\n", str);
-	int i;
-
-	i = 0;
-	if (ft_check(str, '$') == 1)
-	{
-		printf("il y a un $\n");
-		// La vraie logique de remplacement sera faite dans la fonction principale
-		// car on a besoin d'accès aux variables d'environnement
-	}
-}
-
 void	ft_lstiter_env(t_list **lst, char **env)
 {
 	t_list *temp;
@@ -341,7 +192,7 @@ void	ft_lstiter_env(t_list **lst, char **env)
 	temp = *lst;
 	while (*lst != NULL)
 	{
-		if ((*lst)->state == DOUBLEQUOTE)
+		if ((*lst)->state == DOUBLEQUOTE || (*lst)->state == NORMAL)
 		{
 			new_str = replace_dollar_vars((*lst)->str, env);
 			if (new_str)
@@ -386,7 +237,7 @@ int main(int argc, char **argv, char **env)
 			if (!shell)
 				return (1);
 			shell = NULL;
-			str = readline("test >");
+			str = readline("CacaTest >");
 			add_history(str);
 			// printf("%s\n", str);
 			while (str[i])
@@ -395,7 +246,7 @@ int main(int argc, char **argv, char **env)
 					i++;
 				if (str[i] == '"')
 				{
-					i++; // Passer le guillemet ouvrant
+					i++;
 					while (str[i + j] != '"' && str[i + j] != '\0')
 						j++;
 					if (j > 0)
@@ -407,13 +258,13 @@ int main(int argc, char **argv, char **env)
 						free(temp);
 					}
 					i = i + j;
-					if (str[i] == '"') // Passer le guillemet fermant si présent
+					if (str[i] == '"')
 						i++;
 					j = 0;
 				}
 				else if (str[i] == '\'')
 				{
-					i++; // Passer le guillemet ouvrant
+					i++;
 					while (str[i + j] != '\'' && str[i + j] != '\0')
 						j++;
 					if (j > 0)
@@ -425,13 +276,67 @@ int main(int argc, char **argv, char **env)
 						free(temp);
 					}
 					i = i + j;
-					if (str[i] == '\'') // Passer le guillemet fermant si présent
+					if (str[i] == '\'')
+						i++;
+					j = 0;
+				}
+				else if (str[i] == '|')
+				{
+					j++;
+					while (str[i + j] == '|' && str[i + j] != '\0')
+						j++;
+					if (j > 0)
+					{
+						temp = ft_substr(str, i, j);
+						// tab = ft_add_double_tab(temp, tab);
+						ft_add(&shell, temp, SINGLEQUOTE);
+						// printf("single:%s i:%d j:%d\n", temp, i, j);
+						free(temp);
+					}
+					i = i + j;
+					if (str[i] == '|')
+						i++;
+					j = 0;
+				}
+				else if (str[i] == '>')
+				{
+					j++;
+					while (str[i + j] == '>' && str[i + j] != '\0')
+						j++;
+					if (j > 0)
+					{
+						temp = ft_substr(str, i, j);
+						// tab = ft_add_double_tab(temp, tab);
+						ft_add(&shell, temp, SINGLEQUOTE);
+						// printf("single:%s i:%d j:%d\n", temp, i, j);
+						free(temp);
+					}
+					i = i + j;
+					if (str[i] == '>')
+						i++;
+					j = 0;
+				}
+				else if (str[i] == '<')
+				{
+					j++;
+					while (str[i + j] == '<' && str[i + j] != '\0')
+						j++;
+					if (j > 0)
+					{
+						temp = ft_substr(str, i, j);
+						// tab = ft_add_double_tab(temp, tab);
+						ft_add(&shell, temp, SINGLEQUOTE);
+						// printf("single:%s i:%d j:%d\n", temp, i, j);
+						free(temp);
+					}
+					i = i + j;
+					if (str[i] == '<')
 						i++;
 					j = 0;
 				}
 				else
 				{
-					while (str[i + j] != ' ' && str[i + j] != '"' && str[i + j] != '\'' /*&& str[i + j] != '|' */&& str[i + j] != '\0')
+					while (str[i + j] != ' ' && str[i + j] != '"' && str[i + j] != '\'' && str[i + j] != '|' && str[i + j] != '\0')
 						j++;
 					if (j > 0)
 					{
