@@ -157,6 +157,20 @@ void ft_print(t_list *lst)
 	}
 }
 
+// void ft_print_tab(char **tab)
+// {
+// 	int i = 0;
+// 	if (tab)
+// 	{
+// 		while (tab[i])
+// 		{
+// 			printf("%s\n", tab[i]);
+// 			i++;
+// 		}
+// 	}
+// }
+
+
 void	ft_clear(t_list **lst)
 {
 	t_list	*del;
@@ -214,7 +228,99 @@ void	ft_lstiter_env(t_list **lst, char **env)
 	*lst = temp;
 }
 
-//caca parsing_test.c minishell_utils.c 
+int ft_count_commands(t_list *lst)
+{
+	int count;
+
+	count = 1;
+	while (lst)
+	{
+		if (lst->state == PIPE)
+			count++;
+		lst = lst->next;
+	}
+	return (count);
+}
+
+
+int	ft_open_pipe(t_commande *t_cmd)
+{
+	int	i;
+
+	i = 0;
+	while (i < t_cmd->nbr_cmd - 1)
+	{
+		if (pipe(t_cmd->cmd_tab[i].fd) == -1)
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
+void	ft_close_pipe(t_commande *t_cmd)
+{
+	int	i;
+
+	i = 0;
+	while (i < t_cmd->nbr_cmd - 1)
+	{
+		close(t_cmd->cmd_tab[i].fd[0]);
+		close(t_cmd->cmd_tab[i].fd[1]);
+		i++;
+	}
+}
+
+void	ft_waitpid(t_commande *t_cmd)
+{
+	int	j;
+
+	j = 0;
+	while (j < t_cmd->nbr_cmd)
+	{
+		waitpid(t_cmd->cmd_tab[j].id1, &t_cmd->status, 0);
+		j++;
+	}
+}
+
+int	ft_dup(int fd0, int fd1)
+{
+	if (dup2(fd0, 0) == -1)
+		return (-1);
+	if (dup2(fd1, 1) == -1)
+		return (-1);
+	return (0);
+}
+
+// int	ft_redir(t_cmd *p, char **argv, int argc)
+// {
+// 	if (p->nbr_cmd == 1)
+// 	{
+// 		if (ft_dup(p->infd, p->outfd) == -1)
+// 			return (ft_close_pipe(p), free(p->pipefd), free(p), 1);
+// 	}
+// 	else if (p->pos == 0)
+// 	{
+// 		p->infd = open(argv[1], O_RDONLY, 0644);
+// 		if (p->infd < 0)
+// 			ft_close_all(p, EXIT);
+// 		if (ft_dup(p->infd, p->pipefd[p->pos].fd[1]) == -1)
+// 			return (ft_close_pipe(p), free(p->pipefd), free(p), 1);
+// 	}
+// 	else if (p->pos == p->nbr_cmd -1)
+// 	{
+// 		p->outfd = open(argv[argc -1], O_WRONLY | O_TRUNC | O_CREAT, 0644);
+// 		if (p->outfd < 0)
+// 			ft_close_all(p, EXIT);
+// 		if (ft_dup(p->pipefd[p->pos - 1].fd[0], p->outfd) == -1)
+// 			return (ft_close_pipe(p), free(p->pipefd), free(p), 1);
+// 	}
+// 	else
+// 		if (ft_dup(p->pipefd[p->pos - 1].fd[0], p->pipefd[p->pos].fd[1]) == -1)
+// 			return (ft_close_pipe(p), free(p->pipefd), free(p), 1);
+// 	return (0);
+// }
+
+//caca parsing_test.c pipex_path.c parsing_dollar.c  minishell_utils.c ft_strjoin.c ft_split.c -lreadline
 int main(int argc, char **argv, char **env)
 {
 	// if (argc > 1)
@@ -375,9 +481,124 @@ int main(int argc, char **argv, char **env)
 			ft_lstiter_env(&shell, env);
 
 			ft_print(shell);
+
+
+
+			t_commande *t_cmd = malloc(sizeof(t_commande));
+			t_cmd->nbr_cmd = ft_count_commands(shell);
+			printf("nbr commande: %d\n", t_cmd->nbr_cmd);
+			
+			t_redir *t_red = malloc(sizeof(t_redir));
+			t_red->infd = -1;
+			t_red->outfd = -1;
+
+			t_list *temp = shell;
+			//le main il en peut plus la
+			while (shell)
+			{
+				// printf("fd state%d\n", shell->state);
+				if (shell->state == INFILE)
+				{
+					printf("test\n");
+					t_red->infd = open(shell->str, O_RDONLY, 0644);
+					if (t_red->infd < 0)
+					{
+						perror("infd error");
+					}
+					printf("test:%d\n", t_red->infd);
+				}
+				if (shell->state == OUTFILE)
+					t_red->outfd = open(shell->str, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+				if (shell->state == OUTFILEAPPEND)
+					t_red->outfd = open(shell->str, O_WRONLY | O_APPEND | O_CREAT, 0644);
+				// printf("fd:%d\n", t_red->infd);
+				shell = shell->next;
+			}
+			shell = temp;
+			printf("infd:%d outfd:%d\n", t_red->infd, t_red->outfd);
+			t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * t_cmd->nbr_cmd);
+			if (!t_cmd->cmd_tab)
+				return (1);
+
+			int i = 0;
+			while (i < t_cmd->nbr_cmd)
+			{
+				t_cmd->cmd_tab[i].cmd_args = NULL;
+				i++;
+			}
+			// t_list *temp;
+			i = 0;
+			temp = shell;
+			while (shell != NULL)
+			{
+				if (shell->state == NORMAL || shell->state == DOUBLEQUOTE || shell->state == SINGLEQUOTE)
+					t_cmd->cmd_tab[i].cmd_args = ft_add_double_tab(shell->str, t_cmd->cmd_tab[i].cmd_args);
+				if (shell->state == PIPE)
+					i++;
+				shell = shell->next;
+			}
+			shell = temp;
+
+			int j = 0;
+			while (j < t_cmd->nbr_cmd)
+			{
+				if (t_cmd->cmd_tab[j].cmd_args)
+				{
+					printf("tab:%d\n", j);
+					ft_print_tab(t_cmd->cmd_tab[j].cmd_args);
+				}
+				j++;
+			}
+			ft_open_pipe(t_cmd);
+			//le main il veut vraiment pas finir hein
+			i = 0;
+			while (i < t_cmd->nbr_cmd)
+			{
+				t_cmd->cmd_tab[i].id1 = fork();
+
+				if (t_cmd->cmd_tab[i].id1 == 0)
+				{
+					if (i == 0)
+					{
+						if (t_red->infd >= 0)
+							dup2(t_red->infd, 0);
+						if (t_cmd->nbr_cmd > 1)
+							dup2(t_cmd->cmd_tab[i].fd[1], 1);
+						else if (t_red->outfd >= 0)
+							dup2(t_red->outfd, 1);
+					}
+					else if (i == t_cmd->nbr_cmd - 1)
+					{
+						dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
+						if (t_red->outfd >= 0)
+							dup2(t_red->outfd, 1);
+					}
+					else
+					{
+						dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
+						dup2(t_cmd->cmd_tab[i].fd[1], 1);
+					}
+					ft_close_pipe(t_cmd);
+					exec(t_cmd->cmd_tab[i].cmd_args, env);
+					exit(1);
+				}
+				i++;
+			}
+			ft_close_pipe(t_cmd);
+			ft_waitpid(t_cmd);
+
+			j = 0;
+			while (j < t_cmd->nbr_cmd && t_cmd->cmd_tab[j].cmd_args)
+			{
+				ft_free_double_tab(t_cmd->cmd_tab[j].cmd_args);
+				j++;
+			}
+			free(t_cmd->cmd_tab);
+			free(t_cmd);
+			free(t_red);
+
 			free(str);
 			ft_clear(&shell);
-			free(shell);
 		// }
 
 		// ft_free_double_tab(tab);

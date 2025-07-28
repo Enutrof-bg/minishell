@@ -1,31 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test2.c                                            :+:      :+:    :+:   */
+/*   builtin.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kevwang <kevwang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/20 15:12:08 by kevwang           #+#    #+#             */
-/*   Updated: 2025/07/20 15:12:10 by kevwang          ###   ########.fr       */
+/*   Created: 2025/07/28 10:40:47 by kevwang           #+#    #+#             */
+/*   Updated: 2025/07/28 10:40:49 by kevwang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+
+int check_builtin()
+{
+	
+}
+
 int main(int argc, char **argv, char **env)
 {
-	(void)argc;
-	(void)argv;
-	(void)env;
-
-	char *args[3];
-
-	args[0] = "ls -l";
-	// args[1] = "b-l";
-	args[1] = NULL;
-
-	if (execve("/bin/ls", args, NULL) == -1)
+	if (argc == 2)
 	{
-		perror("execve erreur");
+
 	}
+
 }
