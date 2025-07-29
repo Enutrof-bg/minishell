@@ -141,6 +141,7 @@ char *replace_dollar_vars(char *str, char **env)
 	// return ("caca");
 	return (result);
 }
+
 /*
 int main(int argc, char **argv, char **env)
 {

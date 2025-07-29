@@ -170,7 +170,6 @@ void ft_print(t_list *lst)
 // 	}
 // }
 
-
 void	ft_clear(t_list **lst)
 {
 	t_list	*del;
@@ -291,39 +290,296 @@ int	ft_dup(int fd0, int fd1)
 	return (0);
 }
 
-// int	ft_redir(t_cmd *p, char **argv, int argc)
-// {
-// 	if (p->nbr_cmd == 1)
-// 	{
-// 		if (ft_dup(p->infd, p->outfd) == -1)
-// 			return (ft_close_pipe(p), free(p->pipefd), free(p), 1);
-// 	}
-// 	else if (p->pos == 0)
-// 	{
-// 		p->infd = open(argv[1], O_RDONLY, 0644);
-// 		if (p->infd < 0)
-// 			ft_close_all(p, EXIT);
-// 		if (ft_dup(p->infd, p->pipefd[p->pos].fd[1]) == -1)
-// 			return (ft_close_pipe(p), free(p->pipefd), free(p), 1);
-// 	}
-// 	else if (p->pos == p->nbr_cmd -1)
-// 	{
-// 		p->outfd = open(argv[argc -1], O_WRONLY | O_TRUNC | O_CREAT, 0644);
-// 		if (p->outfd < 0)
-// 			ft_close_all(p, EXIT);
-// 		if (ft_dup(p->pipefd[p->pos - 1].fd[0], p->outfd) == -1)
-// 			return (ft_close_pipe(p), free(p->pipefd), free(p), 1);
-// 	}
-// 	else
-// 		if (ft_dup(p->pipefd[p->pos - 1].fd[0], p->pipefd[p->pos].fd[1]) == -1)
-// 			return (ft_close_pipe(p), free(p->pipefd), free(p), 1);
-// 	return (0);
-// }
+int ft_parse_double_quote(char *str, t_list **shell, int *i)
+{
+	int j;
+	char *temp;
+
+	j = 0;
+	while (str[*i + j] != '"' && str[*i + j] != '\0')
+		j++;
+	if (j > 0)
+	{
+		temp = ft_substr(str, *i, j);
+		// tab = ft_add_double_tab(temp, tab);
+		ft_add(shell, temp, DOUBLEQUOTE);
+		// printf("double:%s i:%d j:%d\n", temp, i, j);
+		free(temp);
+	}
+	*i = *i + j;
+	if (str[*i] == '"')
+		(*i)++;
+	return (0);
+}
+
+int ft_parse_singlequote(char *str, t_list **shell, int *i)
+{
+	int j;
+	char *temp;
+
+	j = 0;
+	while (str[*i + j] != '\'' && str[*i + j] != '\0')
+		j++;
+	if (j > 0)
+	{
+		temp = ft_substr(str, *i, j);
+		// tab = ft_add_double_tab(temp, tab);
+		ft_add(shell, temp, SINGLEQUOTE);
+		// printf("single:%s i:%d j:%d\n", temp, i, j);
+		free(temp);
+	}
+	*i = *i + j;
+	if (str[*i] == '\'')
+		(*i)++;
+	j = 0;
+	return (0);
+}
+
+int ft_parse_pipe(char *str, t_list **shell, int *i)
+{
+	int j;
+	char *temp;
+
+	j = 0;
+	j++;
+	while (str[*i + j] == '|' && str[*i + j] != '\0')
+		j++;
+	if (j > 0)
+	{
+		temp = ft_substr(str, *i, j);
+		// tab = ft_add_double_tab(temp, tab);
+		if (ft_strlen(temp) == 1)
+			ft_add(shell, temp, PIPE);
+		else
+			ft_add(shell, temp, ERROR);
+		// printf("single:%s i:%d j:%d\n", temp, i, j);
+		free(temp);
+	}
+	*i = *i + j;
+	if (str[*i] == '|')
+		(*i)++;
+	j = 0;
+	return (0);
+}
+
+int ft_parse_out(char *str, t_list **shell, int *i)
+{
+	int j;
+	char *temp;
+
+	j = 0;
+	j++;
+	while (str[*i + j] == '>' && str[*i + j] != '\0')
+		j++;
+	if (j > 0)
+	{
+		temp = ft_substr(str, *i, j);
+		// tab = ft_add_double_tab(temp, tab);
+		if (ft_strlen(temp) == 1)
+			ft_add(shell, temp, OUTPUT);
+		else if (ft_strlen(temp) == 2)
+			ft_add(shell, temp, APPEND);
+		else
+			ft_add(shell, temp, ERROR);
+		// printf("single:%s i:%d j:%d\n", temp, i, j);
+		free(temp);
+	}
+	*i = *i + j;
+	if (str[*i] == '>')
+		(*i)++;
+	j = 0;
+	return (0);
+}
+
+int ft_parse_in(char *str, t_list **shell, int *i)
+{
+	int j;
+	char *temp;
+
+	j = 0;
+	j++;
+	while (str[*i + j] == '<' && str[*i + j] != '\0')
+		j++;
+	if (j > 0)
+	{
+		temp = ft_substr(str, *i, j);
+		// tab = ft_add_double_tab(temp, tab);
+		if (ft_strlen(temp) == 1)
+			ft_add(shell, temp, INPUT);
+		else if (ft_strlen(temp) == 2)
+			ft_add(shell, temp, HEREDOC);
+		else
+			ft_add(shell, temp, ERROR);
+		// printf("single:%s i:%d j:%d\n", temp, i, j);
+		free(temp);
+	}
+	*i = *i + j;
+	if (str[*i] == '<')
+		(*i)++;
+	j = 0;
+	return (0);
+}
+
+int ft_parse_space(char *str, t_list **shell, int *i)
+{
+	int j;
+	char *temp;
+
+	j = 0;
+	while (str[*i + j] != ' ' && str[*i + j] != '"' && str[*i + j] != '\''
+		&& str[*i + j] != '|' && str[*i + j] != '\0')
+		j++;
+	if (j > 0)
+	{
+		temp = ft_substr(str, *i, j);
+		// tab = ft_add_double_tab(temp, tab);
+		ft_add(shell, temp, NORMAL);
+		// printf("space:%s i:%d j:%d\n", temp, i, j);
+		free(temp);
+	}
+	*i = *i + j;
+	j = 0;
+	return (0);
+}
+
+int ft_parse_decoupe(char *str, t_list **shell)
+{
+	int i = 0;
+	while (str[i])
+	{
+		if (str[i] == ' ')
+			i++;
+		if (str[i] == '"')
+		{
+			i++;
+			ft_parse_double_quote(str, shell, &i);
+			// while (str[i + j] != '"' && str[i + j] != '\0')
+			// 	j++;
+			// if (j > 0)
+			// {
+			// 	temp = ft_substr(str, i, j);
+			// 	// tab = ft_add_double_tab(temp, tab);
+			// 	ft_add(shell, temp, DOUBLEQUOTE);
+			// 	// printf("double:%s i:%d j:%d\n", temp, i, j);
+			// 	free(temp);
+			// }
+			// i = i + j;
+			// if (str[i] == '"')
+			// 	i++;
+			// j = 0;
+		}
+		else if (str[i] == '\'')
+		{
+			i++;
+			ft_parse_singlequote(str, shell, &i);
+			// while (str[i + j] != '\'' && str[i + j] != '\0')
+			// 	j++;
+			// if (j > 0)
+			// {
+			// 	temp = ft_substr(str, i, j);
+			// 	// tab = ft_add_double_tab(temp, tab);
+			// 	ft_add(shell, temp, SINGLEQUOTE);
+			// 	// printf("single:%s i:%d j:%d\n", temp, i, j);
+			// 	free(temp);
+			// }
+			// i = i + j;
+			// if (str[i] == '\'')
+			// 	i++;
+			// j = 0;
+		}
+		else if (str[i] == '|')
+		{
+			ft_parse_pipe(str, shell, &i);
+			// j++;
+			// while (str[i + j] == '|' && str[i + j] != '\0')
+			// 	j++;
+			// if (j > 0)
+			// {
+			// 	temp = ft_substr(str, i, j);
+			// 	// tab = ft_add_double_tab(temp, tab);
+			// 	if (ft_strlen(temp) == 1)
+			// 		ft_add(shell, temp, PIPE);
+			// 	else
+			// 		ft_add(shell, temp, ERROR);
+			// 	// printf("single:%s i:%d j:%d\n", temp, i, j);
+			// 	free(temp);
+			// }
+			// i = i + j;
+			// if (str[i] == '|')
+			// 	i++;
+			// j = 0;
+		}
+		else if (str[i] == '>')
+		{
+			ft_parse_out(str, shell, &i);
+			// j++;
+			// while (str[i + j] == '>' && str[i + j] != '\0')
+			// 	j++;
+			// if (j > 0)
+			// {
+			// 	temp = ft_substr(str, i, j);
+			// 	// tab = ft_add_double_tab(temp, tab);
+			// 	if (ft_strlen(temp) == 1)
+			// 		ft_add(shell, temp, OUTPUT);
+			// 	else if (ft_strlen(temp) == 2)
+			// 		ft_add(shell, temp, APPEND);
+			// 	else
+			// 		ft_add(shell, temp, ERROR);
+			// 	// printf("single:%s i:%d j:%d\n", temp, i, j);
+			// 	free(temp);
+			// }
+			// i = i + j;
+			// if (str[i] == '>')
+			// 	i++;
+			// j = 0;
+		}
+		else if (str[i] == '<')
+		{
+			ft_parse_in(str, shell, &i);
+			// j++;
+			// while (str[i + j] == '<' && str[i + j] != '\0')
+			// 	j++;
+			// if (j > 0)
+			// {
+			// 	temp = ft_substr(str, i, j);
+			// 	// tab = ft_add_double_tab(temp, tab);
+			// 	if (ft_strlen(temp) == 1)
+			// 		ft_add(shell, temp, INPUT);
+			// 	else if (ft_strlen(temp) == 2)
+			// 		ft_add(shell, temp, HEREDOC);
+			// 	else
+			// 		ft_add(shell, temp, ERROR);
+			// 	// printf("single:%s i:%d j:%d\n", temp, i, j);
+			// 	free(temp);
+			// }
+			// i = i + j;
+			// if (str[i] == '<')
+			// 	i++;
+			// j = 0;
+		}
+		else
+		{
+			ft_parse_space(str, shell, &i);
+			// while (str[i + j] != ' ' && str[i + j] != '"' && str[i + j] != '\'' && str[i + j] != '|' && str[i + j] != '\0')
+			// 	j++;
+			// if (j > 0)
+			// {
+			// 	temp = ft_substr(str, i, j);
+			// 	// tab = ft_add_double_tab(temp, tab);
+			// 	ft_add(shell, temp, NORMAL);
+			// 	// printf("space:%s i:%d j:%d\n", temp, i, j);
+			// 	free(temp);
+			// }
+			// i = i + j;
+			// j = 0;
+		}
+	}
+	return (0);
+}
 
 //caca parsing_test.c pipex_path.c parsing_dollar.c  minishell_utils.c ft_strjoin.c ft_split.c -lreadline
 int main(int argc, char **argv, char **env)
 {
-	// if (argc > 1)
 	(void)argc;
 	(void)argv;
 	(void)env;
@@ -334,10 +590,10 @@ int main(int argc, char **argv, char **env)
 
 	
 	// char **tab = NULL;
-	char *temp;
+	// char *temp;
 	char *str;
-	int i = 0;
-	int j = 0;
+	// int i = 0;
+	// int j = 0;
 	if (argc == 1)
 	{
 		// shell = malloc(sizeof(t_list));
@@ -353,7 +609,10 @@ int main(int argc, char **argv, char **env)
 			shell = NULL;
 			str = readline("CacaTest >");
 			add_history(str);
-			// printf("%s\n", str);
+
+			ft_parse_decoupe(str, &shell);
+			/*
+			printf("%s\n", str);
 			while (str[i])
 			{
 				if (str[i] == ' ')
@@ -477,7 +736,8 @@ int main(int argc, char **argv, char **env)
 					j = 0;
 				}
 			}
-			// ft_print_tab(tab);
+			ft_print_tab(tab);
+			*/
 			ft_lstiter_env(&shell, env);
 
 			ft_print(shell);
