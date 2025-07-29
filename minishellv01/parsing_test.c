@@ -479,6 +479,122 @@ int ft_parse_decoupe(char *str, t_list **shell)
 	return (0);
 }
 
+int ft_create_fd(t_list **shell, t_redir **t_red)
+{
+	t_list *temp;
+
+	temp = *shell;
+	while (*shell)
+	{
+		// printf("fd state%d\n", shell->state);
+		if ((*shell)->state == INFILE)
+		{
+			(*t_red)->infd = open((*shell)->str, O_RDONLY, 0644);
+			if ((*t_red)->infd < 0)
+				perror("infd error");
+		}
+		if ((*shell)->state == OUTFILE)
+			(*t_red)->outfd = open((*shell)->str, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+		if ((*shell)->state == OUTFILEAPPEND)
+			(*t_red)->outfd = open((*shell)->str, O_WRONLY | O_APPEND | O_CREAT, 0644);
+		// printf("fd:%d\n", (*t_red)->infd);
+		(*shell) = (*shell)->next;
+	}
+	(*shell) = temp;
+	printf("infd:%d outfd:%d\n", (*t_red)->infd, (*t_red)->outfd);
+	return (0);
+}
+
+// int ft_init()
+// {
+
+// }
+
+int ft_print_triple_tab(t_commande *t_cmd)
+{
+	int j;
+
+	j = 0;
+	while (j < t_cmd->nbr_cmd)
+	{
+		if (t_cmd->cmd_tab[j].cmd_args)
+		{
+			printf("tab:%d\n", j);
+			ft_print_tab(t_cmd->cmd_tab[j].cmd_args);
+		}
+		j++;
+	}
+	return (0);
+}
+
+int ft_set_triple_tab_null(t_commande *t_cmd)
+{
+	int i = 0;
+	while (i < t_cmd->nbr_cmd)
+	{
+		t_cmd->cmd_tab[i].cmd_args = NULL;
+		i++;
+	}
+	return (0);
+}
+
+int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd)
+{
+	int i = 0;
+
+	t_list *temp = *shell;
+	while (*shell != NULL)
+	{
+		if ((*shell)->state == NORMAL || (*shell)->state == DOUBLEQUOTE || (*shell)->state == SINGLEQUOTE)
+			(*t_cmd)->cmd_tab[i].cmd_args = ft_add_double_tab((*shell)->str, (*t_cmd)->cmd_tab[i].cmd_args);
+		if ((*shell)->state == PIPE)
+			i++;
+		(*shell) = (*shell)->next;
+	}
+	(*shell) = temp;
+	return (0);
+}
+
+int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, char **env)
+{
+	int i;
+
+	i = 0;
+	while (i < t_cmd->nbr_cmd)
+	{
+		t_cmd->cmd_tab[i].id1 = fork();
+
+		if (t_cmd->cmd_tab[i].id1 == 0)
+		{
+			if (i == 0)
+			{
+				if (t_red->infd >= 0)
+					dup2(t_red->infd, 0);
+				if (t_cmd->nbr_cmd > 1)
+					dup2(t_cmd->cmd_tab[i].fd[1], 1);
+				else if (t_red->outfd >= 0)
+					dup2(t_red->outfd, 1);
+			}
+			else if (i == t_cmd->nbr_cmd - 1)
+			{
+				dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
+				if (t_red->outfd >= 0)
+					dup2(t_red->outfd, 1);
+			}
+			else
+			{
+				dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
+				dup2(t_cmd->cmd_tab[i].fd[1], 1);
+			}
+			ft_close_pipe(t_cmd);
+			exec(t_cmd->cmd_tab[i].cmd_args, env);
+			exit(1);
+		}
+		i++;
+	}
+	return (0);
+}
+
 //caca parsing_test.c pipex_path.c parsing_dollar.c  minishell_utils.c ft_strjoin.c ft_split.c -lreadline
 int main(int argc, char **argv, char **env)
 {
@@ -509,9 +625,11 @@ int main(int argc, char **argv, char **env)
 			if (!shell)
 				return (1);
 			shell = NULL;
+
 			str = readline("CacaTest >");
 			add_history(str);
 
+			//parse_decoupe bah elle decoupe l'input en liste chaine
 			ft_parse_decoupe(str, &shell);
 
 			ft_lstiter_env(&shell, env);
@@ -528,102 +646,103 @@ int main(int argc, char **argv, char **env)
 			t_red->infd = -1;
 			t_red->outfd = -1;
 
-			t_list *temp = shell;
-			//le main il en peut plus la
-			while (shell)
-			{
-				// printf("fd state%d\n", shell->state);
-				if (shell->state == INFILE)
-				{
-					printf("test\n");
-					t_red->infd = open(shell->str, O_RDONLY, 0644);
-					if (t_red->infd < 0)
-					{
-						perror("infd error");
-					}
-					printf("test:%d\n", t_red->infd);
-				}
-				if (shell->state == OUTFILE)
-					t_red->outfd = open(shell->str, O_WRONLY | O_TRUNC | O_CREAT, 0644);
-				if (shell->state == OUTFILEAPPEND)
-					t_red->outfd = open(shell->str, O_WRONLY | O_APPEND | O_CREAT, 0644);
-				// printf("fd:%d\n", t_red->infd);
-				shell = shell->next;
-			}
-			shell = temp;
-			printf("infd:%d outfd:%d\n", t_red->infd, t_red->outfd);
+			ft_create_fd(&shell, &t_red);
+			// t_list *temp = shell;
+			// //le main il en peut plus la
+			// while (shell)
+			// {
+			// 	// printf("fd state%d\n", shell->state);
+			// 	if (shell->state == INFILE)
+			// 		t_red->infd = open(shell->str, O_RDONLY, 0644);
+			// 		if (t_red->infd < 0)
+			// 			perror("infd error");
+			// 	if (shell->state == OUTFILE)
+			// 		t_red->outfd = open(shell->str, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+			// 	if (shell->state == OUTFILEAPPEND)
+			// 		t_red->outfd = open(shell->str, O_WRONLY | O_APPEND | O_CREAT, 0644);
+			// 	// printf("fd:%d\n", t_red->infd);
+			// 	shell = shell->next;
+			// }
+			// shell = temp;
+			// printf("infd:%d outfd:%d\n", t_red->infd, t_red->outfd);
 			t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * t_cmd->nbr_cmd);
 			if (!t_cmd->cmd_tab)
 				return (1);
 
-			int i = 0;
-			while (i < t_cmd->nbr_cmd)
-			{
-				t_cmd->cmd_tab[i].cmd_args = NULL;
-				i++;
-			}
+			ft_set_triple_tab_null(t_cmd);
+			// int i = 0;
+			// while (i < t_cmd->nbr_cmd)
+			// {
+			// 	t_cmd->cmd_tab[i].cmd_args = NULL;
+			// 	i++;
+			// }
 			// t_list *temp;
-			i = 0;
-			temp = shell;
-			while (shell != NULL)
-			{
-				if (shell->state == NORMAL || shell->state == DOUBLEQUOTE || shell->state == SINGLEQUOTE)
-					t_cmd->cmd_tab[i].cmd_args = ft_add_double_tab(shell->str, t_cmd->cmd_tab[i].cmd_args);
-				if (shell->state == PIPE)
-					i++;
-				shell = shell->next;
-			}
-			shell = temp;
 
-			int j = 0;
-			while (j < t_cmd->nbr_cmd)
-			{
-				if (t_cmd->cmd_tab[j].cmd_args)
-				{
-					printf("tab:%d\n", j);
-					ft_print_tab(t_cmd->cmd_tab[j].cmd_args);
-				}
-				j++;
-			}
+			ft_create_triple_tab(&shell, &t_cmd);
+			// int i = 0;
+			// temp = shell;
+			// while (shell != NULL)
+			// {
+			// 	if (shell->state == NORMAL || shell->state == DOUBLEQUOTE || shell->state == SINGLEQUOTE)
+			// 		t_cmd->cmd_tab[i].cmd_args = ft_add_double_tab(shell->str, t_cmd->cmd_tab[i].cmd_args);
+			// 	if (shell->state == PIPE)
+			// 		i++;
+			// 	shell = shell->next;
+			// }
+			// shell = temp;
+
+			ft_print_triple_tab(t_cmd);
+			// int j = 0;
+			// while (j < t_cmd->nbr_cmd)
+			// {
+			// 	if (t_cmd->cmd_tab[j].cmd_args)
+			// 	{
+			// 		printf("tab:%d\n", j);
+			// 		ft_print_tab(t_cmd->cmd_tab[j].cmd_args);
+			// 	}
+			// 	j++;
+			// }
+
 			ft_open_pipe(t_cmd);
 			//le main il veut vraiment pas finir hein
-			i = 0;
-			while (i < t_cmd->nbr_cmd)
-			{
-				t_cmd->cmd_tab[i].id1 = fork();
+			ft_exec_commande(t_cmd, t_red, env);
+			// int i = 0;
+			// while (i < t_cmd->nbr_cmd)
+			// {
+			// 	t_cmd->cmd_tab[i].id1 = fork();
 
-				if (t_cmd->cmd_tab[i].id1 == 0)
-				{
-					if (i == 0)
-					{
-						if (t_red->infd >= 0)
-							dup2(t_red->infd, 0);
-						if (t_cmd->nbr_cmd > 1)
-							dup2(t_cmd->cmd_tab[i].fd[1], 1);
-						else if (t_red->outfd >= 0)
-							dup2(t_red->outfd, 1);
-					}
-					else if (i == t_cmd->nbr_cmd - 1)
-					{
-						dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
-						if (t_red->outfd >= 0)
-							dup2(t_red->outfd, 1);
-					}
-					else
-					{
-						dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
-						dup2(t_cmd->cmd_tab[i].fd[1], 1);
-					}
-					ft_close_pipe(t_cmd);
-					exec(t_cmd->cmd_tab[i].cmd_args, env);
-					exit(1);
-				}
-				i++;
-			}
+			// 	if (t_cmd->cmd_tab[i].id1 == 0)
+			// 	{
+			// 		if (i == 0)
+			// 		{
+			// 			if (t_red->infd >= 0)
+			// 				dup2(t_red->infd, 0);
+			// 			if (t_cmd->nbr_cmd > 1)
+			// 				dup2(t_cmd->cmd_tab[i].fd[1], 1);
+			// 			else if (t_red->outfd >= 0)
+			// 				dup2(t_red->outfd, 1);
+			// 		}
+			// 		else if (i == t_cmd->nbr_cmd - 1)
+			// 		{
+			// 			dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
+			// 			if (t_red->outfd >= 0)
+			// 				dup2(t_red->outfd, 1);
+			// 		}
+			// 		else
+			// 		{
+			// 			dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
+			// 			dup2(t_cmd->cmd_tab[i].fd[1], 1);
+			// 		}
+			// 		ft_close_pipe(t_cmd);
+			// 		exec(t_cmd->cmd_tab[i].cmd_args, env);
+			// 		exit(1);
+			// 	}
+			// 	i++;
+			// }
 			ft_close_pipe(t_cmd);
 			ft_waitpid(t_cmd);
 
-			j = 0;
+			int j = 0;
 			while (j < t_cmd->nbr_cmd && t_cmd->cmd_tab[j].cmd_args)
 			{
 				ft_free_double_tab(t_cmd->cmd_tab[j].cmd_args);
