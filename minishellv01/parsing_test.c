@@ -615,10 +615,10 @@ int main(int argc, char **argv, char **env)
 
 			if (ft_strncmp(str, "exit", 4) == 0)
 			{
-				free(str);  // Libérer la mémoire avant de sortir
+				free(str);
 				// rl_clear_history();
 				// break ;
-				exit(1);
+				exit(0);
 			}
 			//Parse_decoupe bah elle decoupe l'input en liste chaine
 			ft_parse_decoupe(str, &shell);
@@ -654,7 +654,7 @@ int main(int argc, char **argv, char **env)
 			int exit_status = 0;
 			if (WIFEXITED(t_cmd->status))
 				exit_status = WEXITSTATUS(t_cmd->status);
-			printf("exit:%d\n", exit_status)
+			printf("exit:%d\n", exit_status);
 
 			//free
 			int j = 0;
