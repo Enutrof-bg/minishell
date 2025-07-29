@@ -619,7 +619,8 @@ int main(int argc, char **argv, char **env)
 				// rl_clear_history();
 				// break ;
 				exit(0);
-			}
+			}g2
+			
 			//Parse_decoupe bah elle decoupe l'input en liste chaine
 			ft_parse_decoupe(str, &shell);
 			ft_lstiter_env(&shell, env);
