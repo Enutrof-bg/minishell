@@ -453,125 +453,27 @@ int ft_parse_decoupe(char *str, t_list **shell)
 		{
 			i++;
 			ft_parse_double_quote(str, shell, &i);
-			// while (str[i + j] != '"' && str[i + j] != '\0')
-			// 	j++;
-			// if (j > 0)
-			// {
-			// 	temp = ft_substr(str, i, j);
-			// 	// tab = ft_add_double_tab(temp, tab);
-			// 	ft_add(shell, temp, DOUBLEQUOTE);
-			// 	// printf("double:%s i:%d j:%d\n", temp, i, j);
-			// 	free(temp);
-			// }
-			// i = i + j;
-			// if (str[i] == '"')
-			// 	i++;
-			// j = 0;
 		}
 		else if (str[i] == '\'')
 		{
 			i++;
 			ft_parse_singlequote(str, shell, &i);
-			// while (str[i + j] != '\'' && str[i + j] != '\0')
-			// 	j++;
-			// if (j > 0)
-			// {
-			// 	temp = ft_substr(str, i, j);
-			// 	// tab = ft_add_double_tab(temp, tab);
-			// 	ft_add(shell, temp, SINGLEQUOTE);
-			// 	// printf("single:%s i:%d j:%d\n", temp, i, j);
-			// 	free(temp);
-			// }
-			// i = i + j;
-			// if (str[i] == '\'')
-			// 	i++;
-			// j = 0;
 		}
 		else if (str[i] == '|')
 		{
 			ft_parse_pipe(str, shell, &i);
-			// j++;
-			// while (str[i + j] == '|' && str[i + j] != '\0')
-			// 	j++;
-			// if (j > 0)
-			// {
-			// 	temp = ft_substr(str, i, j);
-			// 	// tab = ft_add_double_tab(temp, tab);
-			// 	if (ft_strlen(temp) == 1)
-			// 		ft_add(shell, temp, PIPE);
-			// 	else
-			// 		ft_add(shell, temp, ERROR);
-			// 	// printf("single:%s i:%d j:%d\n", temp, i, j);
-			// 	free(temp);
-			// }
-			// i = i + j;
-			// if (str[i] == '|')
-			// 	i++;
-			// j = 0;
 		}
 		else if (str[i] == '>')
 		{
 			ft_parse_out(str, shell, &i);
-			// j++;
-			// while (str[i + j] == '>' && str[i + j] != '\0')
-			// 	j++;
-			// if (j > 0)
-			// {
-			// 	temp = ft_substr(str, i, j);
-			// 	// tab = ft_add_double_tab(temp, tab);
-			// 	if (ft_strlen(temp) == 1)
-			// 		ft_add(shell, temp, OUTPUT);
-			// 	else if (ft_strlen(temp) == 2)
-			// 		ft_add(shell, temp, APPEND);
-			// 	else
-			// 		ft_add(shell, temp, ERROR);
-			// 	// printf("single:%s i:%d j:%d\n", temp, i, j);
-			// 	free(temp);
-			// }
-			// i = i + j;
-			// if (str[i] == '>')
-			// 	i++;
-			// j = 0;
 		}
 		else if (str[i] == '<')
 		{
 			ft_parse_in(str, shell, &i);
-			// j++;
-			// while (str[i + j] == '<' && str[i + j] != '\0')
-			// 	j++;
-			// if (j > 0)
-			// {
-			// 	temp = ft_substr(str, i, j);
-			// 	// tab = ft_add_double_tab(temp, tab);
-			// 	if (ft_strlen(temp) == 1)
-			// 		ft_add(shell, temp, INPUT);
-			// 	else if (ft_strlen(temp) == 2)
-			// 		ft_add(shell, temp, HEREDOC);
-			// 	else
-			// 		ft_add(shell, temp, ERROR);
-			// 	// printf("single:%s i:%d j:%d\n", temp, i, j);
-			// 	free(temp);
-			// }
-			// i = i + j;
-			// if (str[i] == '<')
-			// 	i++;
-			// j = 0;
 		}
 		else
 		{
 			ft_parse_space(str, shell, &i);
-			// while (str[i + j] != ' ' && str[i + j] != '"' && str[i + j] != '\'' && str[i + j] != '|' && str[i + j] != '\0')
-			// 	j++;
-			// if (j > 0)
-			// {
-			// 	temp = ft_substr(str, i, j);
-			// 	// tab = ft_add_double_tab(temp, tab);
-			// 	ft_add(shell, temp, NORMAL);
-			// 	// printf("space:%s i:%d j:%d\n", temp, i, j);
-			// 	free(temp);
-			// }
-			// i = i + j;
-			// j = 0;
 		}
 	}
 	return (0);
@@ -611,133 +513,7 @@ int main(int argc, char **argv, char **env)
 			add_history(str);
 
 			ft_parse_decoupe(str, &shell);
-			/*
-			printf("%s\n", str);
-			while (str[i])
-			{
-				if (str[i] == ' ')
-					i++;
-				if (str[i] == '"')
-				{
-					i++;
-					while (str[i + j] != '"' && str[i + j] != '\0')
-						j++;
-					if (j > 0)
-					{
-						temp = ft_substr(str, i, j);
-						// tab = ft_add_double_tab(temp, tab);
-						ft_add(&shell, temp, DOUBLEQUOTE);
-						// printf("double:%s i:%d j:%d\n", temp, i, j);
-						free(temp);
-					}
-					i = i + j;
-					if (str[i] == '"')
-						i++;
-					j = 0;
-				}
-				else if (str[i] == '\'')
-				{
-					i++;
-					while (str[i + j] != '\'' && str[i + j] != '\0')
-						j++;
-					if (j > 0)
-					{
-						temp = ft_substr(str, i, j);
-						// tab = ft_add_double_tab(temp, tab);
-						ft_add(&shell, temp, SINGLEQUOTE);
-						// printf("single:%s i:%d j:%d\n", temp, i, j);
-						free(temp);
-					}
-					i = i + j;
-					if (str[i] == '\'')
-						i++;
-					j = 0;
-				}
-				else if (str[i] == '|')
-				{
-					j++;
-					while (str[i + j] == '|' && str[i + j] != '\0')
-						j++;
-					if (j > 0)
-					{
-						temp = ft_substr(str, i, j);
-						// tab = ft_add_double_tab(temp, tab);
-						if (ft_strlen(temp) == 1)
-							ft_add(&shell, temp, PIPE);
-						else
-							ft_add(&shell, temp, ERROR);
-						// printf("single:%s i:%d j:%d\n", temp, i, j);
-						free(temp);
-					}
-					i = i + j;
-					if (str[i] == '|')
-						i++;
-					j = 0;
-				}
-				else if (str[i] == '>')
-				{
-					j++;
-					while (str[i + j] == '>' && str[i + j] != '\0')
-						j++;
-					if (j > 0)
-					{
-						temp = ft_substr(str, i, j);
-						// tab = ft_add_double_tab(temp, tab);
-						if (ft_strlen(temp) == 1)
-							ft_add(&shell, temp, OUTPUT);
-						else if (ft_strlen(temp) == 2)
-							ft_add(&shell, temp, APPEND);
-						else
-							ft_add(&shell, temp, ERROR);
-						// printf("single:%s i:%d j:%d\n", temp, i, j);
-						free(temp);
-					}
-					i = i + j;
-					if (str[i] == '>')
-						i++;
-					j = 0;
-				}
-				else if (str[i] == '<')
-				{
-					j++;
-					while (str[i + j] == '<' && str[i + j] != '\0')
-						j++;
-					if (j > 0)
-					{
-						temp = ft_substr(str, i, j);
-						// tab = ft_add_double_tab(temp, tab);
-						if (ft_strlen(temp) == 1)
-							ft_add(&shell, temp, INPUT);
-						else if (ft_strlen(temp) == 2)
-							ft_add(&shell, temp, HEREDOC);
-						else
-							ft_add(&shell, temp, ERROR);
-						// printf("single:%s i:%d j:%d\n", temp, i, j);
-						free(temp);
-					}
-					i = i + j;
-					if (str[i] == '<')
-						i++;
-					j = 0;
-				}
-				else
-				{
-					while (str[i + j] != ' ' && str[i + j] != '"' && str[i + j] != '\'' && str[i + j] != '|' && str[i + j] != '\0')
-						j++;
-					if (j > 0)
-					{
-						temp = ft_substr(str, i, j);
-						// tab = ft_add_double_tab(temp, tab);
-						ft_add(&shell, temp, NORMAL);
-						// printf("space:%s i:%d j:%d\n", temp, i, j);
-						free(temp);
-					}
-					i = i + j;
-					j = 0;
-				}
-			}
-			ft_print_tab(tab);
-			*/
+
 			ft_lstiter_env(&shell, env);
 
 			ft_print(shell);
