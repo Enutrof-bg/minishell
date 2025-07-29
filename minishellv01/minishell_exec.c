@@ -55,7 +55,7 @@ char	*check_path(char **tab, char **cmd)
 	return (NULL);
 }
 
-void	exec(char *arg, char **env)
+void	exec_v2(char *arg, char **env)
 {
 	char	*str;
 	char	**envpath;

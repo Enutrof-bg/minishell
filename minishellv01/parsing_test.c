@@ -598,147 +598,48 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, char **env)
 //caca parsing_test.c pipex_path.c parsing_dollar.c  minishell_utils.c ft_strjoin.c ft_split.c -lreadline
 int main(int argc, char **argv, char **env)
 {
-	(void)argc;
 	(void)argv;
-	(void)env;
-
 	t_list *shell;
-	
-	// t_list *temp;
-
-	
-	// char **tab = NULL;
-	// char *temp;
 	char *str;
-	// int i = 0;
-	// int j = 0;
+
 	if (argc == 1)
 	{
-		// shell = malloc(sizeof(t_list));
-		// if (!shell)
-		// 	return (1);
-		// shell = NULL;
-		// char *str = argv[1];
-		// while (1)
-		// {
+		while (1)
+		{
 			shell = malloc(sizeof(t_list));
 			if (!shell)
 				return (1);
 			shell = NULL;
-
 			str = readline("CacaTest >");
 			add_history(str);
 
-			//parse_decoupe bah elle decoupe l'input en liste chaine
+			//Parse_decoupe bah elle decoupe l'input en liste chaine
 			ft_parse_decoupe(str, &shell);
-
 			ft_lstiter_env(&shell, env);
-
 			ft_print(shell);
 
-
-
+			//Compte le nombre de commande
 			t_commande *t_cmd = malloc(sizeof(t_commande));
 			t_cmd->nbr_cmd = ft_count_commands(shell);
 			printf("nbr commande: %d\n", t_cmd->nbr_cmd);
-			
+
+			//Creation des redirections
 			t_redir *t_red = malloc(sizeof(t_redir));
 			t_red->infd = -1;
 			t_red->outfd = -1;
-
 			ft_create_fd(&shell, &t_red);
-			// t_list *temp = shell;
-			// //le main il en peut plus la
-			// while (shell)
-			// {
-			// 	// printf("fd state%d\n", shell->state);
-			// 	if (shell->state == INFILE)
-			// 		t_red->infd = open(shell->str, O_RDONLY, 0644);
-			// 		if (t_red->infd < 0)
-			// 			perror("infd error");
-			// 	if (shell->state == OUTFILE)
-			// 		t_red->outfd = open(shell->str, O_WRONLY | O_TRUNC | O_CREAT, 0644);
-			// 	if (shell->state == OUTFILEAPPEND)
-			// 		t_red->outfd = open(shell->str, O_WRONLY | O_APPEND | O_CREAT, 0644);
-			// 	// printf("fd:%d\n", t_red->infd);
-			// 	shell = shell->next;
-			// }
-			// shell = temp;
-			// printf("infd:%d outfd:%d\n", t_red->infd, t_red->outfd);
 			t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * t_cmd->nbr_cmd);
 			if (!t_cmd->cmd_tab)
 				return (1);
 
+			//Creation des doubles tableaux pour les commandes
 			ft_set_triple_tab_null(t_cmd);
-			// int i = 0;
-			// while (i < t_cmd->nbr_cmd)
-			// {
-			// 	t_cmd->cmd_tab[i].cmd_args = NULL;
-			// 	i++;
-			// }
-			// t_list *temp;
-
 			ft_create_triple_tab(&shell, &t_cmd);
-			// int i = 0;
-			// temp = shell;
-			// while (shell != NULL)
-			// {
-			// 	if (shell->state == NORMAL || shell->state == DOUBLEQUOTE || shell->state == SINGLEQUOTE)
-			// 		t_cmd->cmd_tab[i].cmd_args = ft_add_double_tab(shell->str, t_cmd->cmd_tab[i].cmd_args);
-			// 	if (shell->state == PIPE)
-			// 		i++;
-			// 	shell = shell->next;
-			// }
-			// shell = temp;
-
 			ft_print_triple_tab(t_cmd);
-			// int j = 0;
-			// while (j < t_cmd->nbr_cmd)
-			// {
-			// 	if (t_cmd->cmd_tab[j].cmd_args)
-			// 	{
-			// 		printf("tab:%d\n", j);
-			// 		ft_print_tab(t_cmd->cmd_tab[j].cmd_args);
-			// 	}
-			// 	j++;
-			// }
 
+			//Execution
 			ft_open_pipe(t_cmd);
-			//le main il veut vraiment pas finir hein
 			ft_exec_commande(t_cmd, t_red, env);
-			// int i = 0;
-			// while (i < t_cmd->nbr_cmd)
-			// {
-			// 	t_cmd->cmd_tab[i].id1 = fork();
-
-			// 	if (t_cmd->cmd_tab[i].id1 == 0)
-			// 	{
-			// 		if (i == 0)
-			// 		{
-			// 			if (t_red->infd >= 0)
-			// 				dup2(t_red->infd, 0);
-			// 			if (t_cmd->nbr_cmd > 1)
-			// 				dup2(t_cmd->cmd_tab[i].fd[1], 1);
-			// 			else if (t_red->outfd >= 0)
-			// 				dup2(t_red->outfd, 1);
-			// 		}
-			// 		else if (i == t_cmd->nbr_cmd - 1)
-			// 		{
-			// 			dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
-			// 			if (t_red->outfd >= 0)
-			// 				dup2(t_red->outfd, 1);
-			// 		}
-			// 		else
-			// 		{
-			// 			dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
-			// 			dup2(t_cmd->cmd_tab[i].fd[1], 1);
-			// 		}
-			// 		ft_close_pipe(t_cmd);
-			// 		exec(t_cmd->cmd_tab[i].cmd_args, env);
-			// 		exit(1);
-			// 	}
-			// 	i++;
-			// }
 			ft_close_pipe(t_cmd);
 			ft_waitpid(t_cmd);
 
@@ -751,12 +652,9 @@ int main(int argc, char **argv, char **env)
 			free(t_cmd->cmd_tab);
 			free(t_cmd);
 			free(t_red);
-
 			free(str);
 			ft_clear(&shell);
-		// }
-
-		// ft_free_double_tab(tab);
+		}
 	}
 	// char **copy = ft_copy_double_tab(argv);
 	// ft_print_tab(copy);

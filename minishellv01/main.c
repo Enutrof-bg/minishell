@@ -81,7 +81,7 @@ int main(int argc, char **argv, char **env)
 			if (ft_strncmp(r1, "history -c", 11) == 0)
 					rl_clear_history();
 			else
-				exec(r2, env);
+				exec_v2(r2, env);
 			// id2 = fork()
 		}
 		else
