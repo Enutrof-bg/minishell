@@ -501,7 +501,7 @@ int ft_create_fd(t_list **shell, t_redir **t_red)
 		(*shell) = (*shell)->next;
 	}
 	(*shell) = temp;
-	printf("infd:%d outfd:%d\n", (*t_red)->infd, (*t_red)->outfd);
+	// printf("infd:%d outfd:%d\n", (*t_red)->infd, (*t_red)->outfd);
 	return (0);
 }
 
@@ -613,15 +613,22 @@ int main(int argc, char **argv, char **env)
 			str = readline("CacaTest >");
 			add_history(str);
 
+			if (ft_strncmp(str, "exit", 4) == 0)
+			{
+				free(str);  // Libérer la mémoire avant de sortir
+				// rl_clear_history();
+				// break ;
+				exit(1);
+			}
 			//Parse_decoupe bah elle decoupe l'input en liste chaine
 			ft_parse_decoupe(str, &shell);
 			ft_lstiter_env(&shell, env);
-			ft_print(shell);
+			// ft_print(shell);
 
 			//Compte le nombre de commande
 			t_commande *t_cmd = malloc(sizeof(t_commande));
 			t_cmd->nbr_cmd = ft_count_commands(shell);
-			printf("nbr commande: %d\n", t_cmd->nbr_cmd);
+			// printf("nbr commande: %d\n", t_cmd->nbr_cmd);
 
 			//Creation des redirections
 			t_redir *t_red = malloc(sizeof(t_redir));
@@ -635,7 +642,7 @@ int main(int argc, char **argv, char **env)
 			//Creation des doubles tableaux pour les commandes
 			ft_set_triple_tab_null(t_cmd);
 			ft_create_triple_tab(&shell, &t_cmd);
-			ft_print_triple_tab(t_cmd);
+			// ft_print_triple_tab(t_cmd);
 
 			//Execution
 			ft_open_pipe(t_cmd);
@@ -643,6 +650,13 @@ int main(int argc, char **argv, char **env)
 			ft_close_pipe(t_cmd);
 			ft_waitpid(t_cmd);
 
+			//exit code
+			int exit_status = 0;
+			if (WIFEXITED(t_cmd->status))
+				exit_status = WEXITSTATUS(t_cmd->status);
+			printf("exit:%d\n", exit_status);
+
+			//free
 			int j = 0;
 			while (j < t_cmd->nbr_cmd && t_cmd->cmd_tab[j].cmd_args)
 			{
@@ -656,6 +670,7 @@ int main(int argc, char **argv, char **env)
 			ft_clear(&shell);
 		}
 	}
+	return (0);
 	// char **copy = ft_copy_double_tab(argv);
 	// ft_print_tab(copy);
 

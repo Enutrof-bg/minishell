@@ -10,6 +10,19 @@ echo - "" "   " hello
 
 echo "hi" | cat -e | cat -e
 
+echo ~
+/home/kevwang
+
+echo "~"
+~
+
+echo $((23+7))
+30
+./minishell
+CacaTest >echo $((23+57))
+((23+57))
+
+<infile cat -e > outfile > out > ou
 
 <<<infile cat -e| cat -e>outfile 
 
