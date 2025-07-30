@@ -426,7 +426,7 @@ int ft_parse_space(char *str, t_list **shell, int *i)
 	char *temp;
 
 	j = 0;
-	while (str[*i + j] != ' ' && str[*i + j] != '"' && str[*i + j] != '\''
+	while (str[*i + j] != ' ' /*&& str[*i + j] != '"' && str[*i + j] != '\''*/
 		&& str[*i + j] != '|' && str[*i + j] != '\0')
 		j++;
 	if (j > 0)
@@ -594,7 +594,8 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 			// 	free(all->exit_status_char);
 			// }
 			// else
-			exec(t_cmd->cmd_tab[i].cmd_args, env);
+			if (exec(t_cmd->cmd_tab[i].cmd_args, env) == -1)
+				exit(127);
 			exit(1);
 		}
 		i++;
@@ -602,7 +603,52 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 	return (0);
 }
 
-//caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c -lreadline
+// char ft_remove_quote(char *str)
+// {
+// 	int i;
+// 	char *new;
+
+// 	i = 0;
+// 	while (str[i])
+// 	{
+
+// 		i++;
+// 	}
+// }
+
+
+// void ft_concatenate(t_list **lst)
+// {
+// 	t_list *current;
+// 	t_list *next;
+// 	char *new_str;
+	
+// 	if (!lst || !*lst)
+// 		return;
+	
+// 	current = *lst;
+// 	while (current && current->next)
+// 	{
+// 		next = current->next;
+// 		if ((current->state == NORMAL || current->state == SINGLEQUOTE || current->state == DOUBLEQUOTE) &&
+// 			(next->state == NORMAL || next->state == SINGLEQUOTE || next->state == DOUBLEQUOTE))
+// 		{
+// 			new_str = ft_strjoin(current->str, next->str);
+// 			if (new_str)
+// 			{
+// 				free(current->str);
+// 				current->str = new_str;
+// 				current->state = NORMAL;
+// 				current->next = next->next;
+// 				free(next->str);
+// 				free(next);
+// 			}
+// 		}
+// 		current = current->next;
+// 	}
+// }
+
+//caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c ft_itoa.c -lreadline -o minishell
 int main(int argc, char **argv, char **env)
 {
 	(void)argv;
@@ -629,9 +675,25 @@ int main(int argc, char **argv, char **env)
 				// break ;
 				exit(0);
 			}
-			
+
+			printf("    input:%s\n", str);
+			char *new_str = replace_dollar_vars(str, env, all);
+			printf("new_input:%s\n", new_str);
+			int i = 0;
+			while (i < new_str[i])
+			{
+				
+				i++;
+			}
+
+			// new_str2 = ft_remove_quote(new_str);
+
 			//Parse_decoupe bah elle decoupe l'input en liste chaine
 			ft_parse_decoupe(str, &all->shell);
+			
+			//test
+			// ft_concatenate(&all->shell);
+			
 			ft_lstiter_env(&all->shell, env, all);
 			ft_print(all->shell);
 

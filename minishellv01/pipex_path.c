@@ -109,10 +109,10 @@ int	exec2(char **tab, char **env)
 			return (ft_free_double_tab(tab), -1);
 		path = check_path(envpath, tab);
 		if (!path)
-			return (ft_err("command not found", tab[0]),
+			return (ft_err(tab[0], "command not found"),
 				ft_free(envpath, tab, NULL), -1);
 		if (execve(path, tab, env) == -1)
-			return (ft_err("command not found", tab[0]),
+			return (ft_err(tab[0], "command not found"),
 				ft_free(envpath, tab, path), -1);
 		return (ft_free(envpath, tab, path), 0);
 	}
@@ -131,10 +131,10 @@ int	exec(char **tab, char **env)
 	if (tab[0][0] == '/' || (tab[0][0] == '.' && tab[0][1] == '/'))
 	{
 		if (access(tab[0], X_OK) == -1)
-			return (ft_err("no such file or directory", tab[0]),
+			return (ft_err(tab[0], "No such file or directory"), 
 				/*ft_free_double_tab(tab),*/ -1);
 		if (execve(tab[0], tab, env) == -1)
-			return (perror("execve"), /*ft_free_double_tab(tab),*/ -1);
+			return (ft_err(tab[0], "No such file or directory"), exit(126), /*ft_free_double_tab(tab),*/ -1);
 		return (/*ft_free_double_tab(tab), */0);
 	}
 	if (exec2(tab, env) == -1)
