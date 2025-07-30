@@ -198,7 +198,7 @@ int ft_check(char *str, char c)
 	return (0);
 }
 
-void	ft_lstiter_env(t_list **lst, char **env)
+void	ft_lstiter_env(t_list **lst, char **env, t_all *all)
 {
 	t_list *temp;
 	char *new_str;
@@ -208,7 +208,7 @@ void	ft_lstiter_env(t_list **lst, char **env)
 	{
 		if ((*lst)->state == DOUBLEQUOTE || (*lst)->state == NORMAL)
 		{
-			new_str = replace_dollar_vars((*lst)->str, env);
+			new_str = replace_dollar_vars((*lst)->str, env, all);
 			if (new_str)
 			{
 				free((*lst)->str);
@@ -555,10 +555,10 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd)
 	return (0);
 }
 
-int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, char **env)
+int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 {
 	int i;
-
+	(void)all;
 	i = 0;
 	while (i < t_cmd->nbr_cmd)
 	{
@@ -587,6 +587,13 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, char **env)
 				dup2(t_cmd->cmd_tab[i].fd[1], 1);
 			}
 			ft_close_pipe(t_cmd);
+			// if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "echo", 4) == 0
+			// 	&& ft_strncmp(t_cmd->cmd_tab[i].cmd_args[1], "$?", 2) == 0)
+			// {
+			// 	all->exit_status_char = ft_itoa(all->exit_status);
+			// 	free(all->exit_status_char);
+			// }
+			// else
 			exec(t_cmd->cmd_tab[i].cmd_args, env);
 			exit(1);
 		}
@@ -595,81 +602,86 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, char **env)
 	return (0);
 }
 
-//caca parsing_test.c pipex_path.c parsing_dollar.c  minishell_utils.c ft_strjoin.c ft_split.c -lreadline
+//caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c -lreadline
 int main(int argc, char **argv, char **env)
 {
 	(void)argv;
-	t_list *shell;
+	t_all *all;
 	char *str;
 
 	if (argc == 1)
 	{
+		all = malloc(sizeof(t_all));
 		while (1)
 		{
-			shell = malloc(sizeof(t_list));
-			if (!shell)
+			all->shell = malloc(sizeof(t_list));
+			if (!all->shell)
 				return (1);
-			shell = NULL;
+			all->shell = NULL;
 			str = readline("CacaTest >");
 			add_history(str);
 
 			if (ft_strncmp(str, "exit", 4) == 0)
 			{
 				free(str);
+				free(all->shell);
 				// rl_clear_history();
 				// break ;
 				exit(0);
-			}g2
+			}
 			
 			//Parse_decoupe bah elle decoupe l'input en liste chaine
-			ft_parse_decoupe(str, &shell);
-			ft_lstiter_env(&shell, env);
-			// ft_print(shell);
+			ft_parse_decoupe(str, &all->shell);
+			ft_lstiter_env(&all->shell, env, all);
+			ft_print(all->shell);
 
 			//Compte le nombre de commande
-			t_commande *t_cmd = malloc(sizeof(t_commande));
-			t_cmd->nbr_cmd = ft_count_commands(shell);
+			all->t_cmd = malloc(sizeof(t_commande));
+			all->t_cmd->nbr_cmd = ft_count_commands(all->shell);
 			// printf("nbr commande: %d\n", t_cmd->nbr_cmd);
 
 			//Creation des redirections
-			t_redir *t_red = malloc(sizeof(t_redir));
-			t_red->infd = -1;
-			t_red->outfd = -1;
-			ft_create_fd(&shell, &t_red);
-			t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * t_cmd->nbr_cmd);
-			if (!t_cmd->cmd_tab)
+			all->t_red = malloc(sizeof(t_redir));
+			all->t_red->infd = -1;
+
+			all->t_red->outfd = -1;
+			ft_create_fd(&all->shell, &all->t_red);
+			all->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * all->t_cmd->nbr_cmd);
+			if (!all->t_cmd->cmd_tab)
 				return (1);
 
 			//Creation des doubles tableaux pour les commandes
-			ft_set_triple_tab_null(t_cmd);
-			ft_create_triple_tab(&shell, &t_cmd);
-			// ft_print_triple_tab(t_cmd);
+			ft_set_triple_tab_null(all->t_cmd);
+			ft_create_triple_tab(&all->shell, &all->t_cmd);
+			ft_print_triple_tab(all->t_cmd);
 
 			//Execution
-			ft_open_pipe(t_cmd);
-			ft_exec_commande(t_cmd, t_red, env);
-			ft_close_pipe(t_cmd);
-			ft_waitpid(t_cmd);
+			ft_open_pipe(all->t_cmd);
+			ft_exec_commande(all->t_cmd, all->t_red, all,env);
+			ft_close_pipe(all->t_cmd);
+			ft_waitpid(all->t_cmd);
 
 			//exit code
-			int exit_status = 0;
-			if (WIFEXITED(t_cmd->status))
-				exit_status = WEXITSTATUS(t_cmd->status);
-			printf("exit:%d\n", exit_status);
+			// int exit_status = 0;
+			if (WIFEXITED(all->t_cmd->status))
+				all->exit_status = WEXITSTATUS(all->t_cmd->status);
+			// printf("exit:%d\n", all->exit_status);
 
 			//free
 			int j = 0;
-			while (j < t_cmd->nbr_cmd && t_cmd->cmd_tab[j].cmd_args)
+			while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
 			{
-				ft_free_double_tab(t_cmd->cmd_tab[j].cmd_args);
+				ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
 				j++;
 			}
-			free(t_cmd->cmd_tab);
-			free(t_cmd);
-			free(t_red);
+			free(all->t_cmd->cmd_tab);
+			free(all->t_cmd);
+			free(all->t_red);
 			free(str);
-			ft_clear(&shell);
+			ft_clear(&all->shell);
+			free(all->shell);
 		}
+		free(all);
 	}
 	return (0);
 	// char **copy = ft_copy_double_tab(argv);

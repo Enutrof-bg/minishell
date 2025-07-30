@@ -70,9 +70,18 @@ typedef struct s_minishell
 	// t_cmd_tab *cmd_tab;
 }t_list;
 
+typedef struct s_all
+{
+	t_list		*shell;
+	t_commande	*t_cmd;
+	t_redir		*t_red;
+	int exit_status;
+	char *exit_status_char;
+}t_all;
+
 char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);
-
+char	*ft_itoa(int n);
 
 //minishell_exec
 // void		exec(char *arg, char **env);
@@ -89,7 +98,7 @@ char	*ft_strdup(char *s);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 
 //parsing_dollar
-char *replace_dollar_vars(char *str, char **env);
+char *replace_dollar_vars(char *str, char **env, t_all *all);
 
 //parsing_test
 int ft_count_commands(t_list *lst);

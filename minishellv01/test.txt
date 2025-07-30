@@ -26,3 +26,4 @@ CacaTest >echo $((23+57))
 
 <<<infile cat -e| cat -e>outfile 
 
+ctrl+c -> echo$?=130

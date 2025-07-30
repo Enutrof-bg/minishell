@@ -72,9 +72,10 @@ char *get_env_name(char *str, int start)
 	return (ft_substr(str, start, len));
 }
 
-char *replace_dollar_vars(char *str, char **env)
+char *replace_dollar_vars(char *str, char **env, t_all *all)
 {
 	(void)env;
+	(void)all;
 	int i;
 	char *result;
 	char *env_name;
@@ -92,35 +93,43 @@ char *replace_dollar_vars(char *str, char **env)
 	{
 		if (str[i] == '$' && str[i + 1] != '\0')
 		{
-			env_name = get_env_name(str, i + 1);
-
-			// printf("%s\n", env_name);
-			if (env_name)
+			if (str[i + 1] == '?')
 			{
-				env_var = get_env_var(env_name, env);
-				if (env_var)
-				{
-				// printf("%s\n", env_var);
-
-				temp = ft_strjoin(result, env_var);
+				all->exit_status_char = ft_itoa(all->exit_status);
+				temp = ft_strjoin(result, all->exit_status_char);
 				free(result);
 				result = temp;
-				}
-				i = i + ft_strlen(env_name) + 1;
-				free(env_name);
+				free(all->exit_status_char);
+				i += 2;
 			}
 			else
 			{
-				len = ft_strlen(result);
-				temp = malloc(sizeof(char) * (len + 2));
-				if (!temp)
-					return (NULL);
-				ft_strcpy(temp, result);
-				// temp[len] = str[i];
-				temp[len] = '\0';
-				free(result);
-				result = temp;
-				i++;
+				env_name = get_env_name(str, i + 1);
+				if (env_name)
+				{
+					env_var = get_env_var(env_name, env);
+					if (env_var)
+					{
+						// printf("%s\n", env_var);
+						temp = ft_strjoin(result, env_var);
+						free(result);
+						result = temp;
+					}
+					i = i + ft_strlen(env_name) + 1;
+					free(env_name);
+				}
+				else
+				{
+					len = ft_strlen(result);
+					temp = malloc(sizeof(char) * (len + 2));
+					if (!temp)
+						return (NULL);
+					ft_strcpy(temp, result);
+					temp[len] = '\0';
+					free(result);
+					result = temp;
+					i++;
+				}
 			}
 		}
 		else
