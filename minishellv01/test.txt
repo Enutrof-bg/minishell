@@ -29,3 +29,9 @@ CacaTest >echo $((23+57))
 ctrl+c -> echo$?=130
 
 < (tous seul) segfault
+
+echo "hello'$a'"  'hello"$a"' hello"$a" hello'$a'
+
+echo "1$a hello'$a'" '2$a hello"$a"' 3$a hello"$a" 4$a hello'$a'
+
+echo te"$a"st'world'

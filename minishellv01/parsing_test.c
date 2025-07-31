@@ -420,22 +420,81 @@ int ft_parse_in(char *str, t_list **shell, int *i)
 	return (0);
 }
 
+char *ft_remove_quote(char *str)
+{
+	int i;
+	int j;
+	char *new;
+	int insinglequote;
+	int indoublequote;
+
+	i = 0;
+	j = 0;
+	insinglequote = 0;
+	indoublequote = 0;
+	new = malloc(sizeof(char) * (ft_strlen(str) + 1));
+	while (str[i])
+	{
+		if (str[i] == '"' && !insinglequote)
+		{
+			indoublequote = !indoublequote;
+			// j++;
+		}
+		else if (str[i] == '\'' && !indoublequote)
+		{
+			insinglequote = !insinglequote;
+			// j++;
+		}
+		else
+		{
+			new[j] = str[i];
+			j++;
+		}
+		i++;
+	}
+	new[i] = '\0';
+	return (new);
+}
+
 int ft_parse_space(char *str, t_list **shell, int *i)
 {
 	int j;
+	int state;
 	char *temp;
+	char *temp2;
+	int insinglequote;
+	int indoublequote;
 
+	insinglequote = 0;
+	indoublequote = 0;
 	j = 0;
+	state = NORMAL;
 	while (str[*i + j] != ' ' /*&& str[*i + j] != '"' && str[*i + j] != '\''*/
 		&& str[*i + j] != '|' && str[*i + j] != '\0')
+	{
+		// if (str[*i +j] == '"' && !insinglequote)
+		// {
+		// 	indoublequote = !indoublequote;
+		// 	if (indoublequote)
+		// 	// j++;
+		// }
+		// else if (str[*i +j] == '\'' && !indoublequote)
+		// {
+		// 	insinglequote = !insinglequote;
+		// 	// j++;
+		// }
 		j++;
+	}
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
+
+		temp2 = ft_remove_quote(temp);
 		// tab = ft_add_double_tab(temp, tab);
-		ft_add(shell, temp, NORMAL);
+		ft_add(shell, temp2, state);
 		// printf("space:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
+		free(temp2);
 	}
 	*i = *i + j;
 	j = 0;
@@ -603,50 +662,6 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 	return (0);
 }
 
-// char ft_remove_quote(char *str)
-// {
-// 	int i;
-// 	char *new;
-
-// 	i = 0;
-// 	while (str[i])
-// 	{
-
-// 		i++;
-// 	}
-// }
-
-
-// void ft_concatenate(t_list **lst)
-// {
-// 	t_list *current;
-// 	t_list *next;
-// 	char *new_str;
-	
-// 	if (!lst || !*lst)
-// 		return;
-	
-// 	current = *lst;
-// 	while (current && current->next)
-// 	{
-// 		next = current->next;
-// 		if ((current->state == NORMAL || current->state == SINGLEQUOTE || current->state == DOUBLEQUOTE) &&
-// 			(next->state == NORMAL || next->state == SINGLEQUOTE || next->state == DOUBLEQUOTE))
-// 		{
-// 			new_str = ft_strjoin(current->str, next->str);
-// 			if (new_str)
-// 			{
-// 				free(current->str);
-// 				current->str = new_str;
-// 				current->state = NORMAL;
-// 				current->next = next->next;
-// 				free(next->str);
-// 				free(next);
-// 			}
-// 		}
-// 		current = current->next;
-// 	}
-// }
 
 //caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c ft_itoa.c -lreadline -o minishell
 int main(int argc, char **argv, char **env)
@@ -676,26 +691,26 @@ int main(int argc, char **argv, char **env)
 				exit(0);
 			}
 
-			printf("    input:%s\n", str);
-			char *new_str = replace_dollar_vars(str, env, all);
-			printf("new_input:%s\n", new_str);
-			int i = 0;
-			while (i < new_str[i])
-			{
+			// printf("    input:%s\n", str);
+			// char *new_str = replace_dollar_vars(str, env, all);
+			// printf("new_input:%s\n", new_str);
+
+			// new_str = ft_remove_quote(new_str);
+			// printf("new_input:%s\n", new_str);
+			// int i = 0;
+			// while (i < new_str[i])
+			// {
 				
-				i++;
-			}
+			// 	i++;
+			// }
 
 			// new_str2 = ft_remove_quote(new_str);
 
 			//Parse_decoupe bah elle decoupe l'input en liste chaine
 			ft_parse_decoupe(str, &all->shell);
 			
-			//test
-			// ft_concatenate(&all->shell);
-			
 			ft_lstiter_env(&all->shell, env, all);
-			ft_print(all->shell);
+	ft_print(all->shell);
 
 			//Compte le nombre de commande
 			all->t_cmd = malloc(sizeof(t_commande));
@@ -715,7 +730,7 @@ int main(int argc, char **argv, char **env)
 			//Creation des doubles tableaux pour les commandes
 			ft_set_triple_tab_null(all->t_cmd);
 			ft_create_triple_tab(&all->shell, &all->t_cmd);
-			ft_print_triple_tab(all->t_cmd);
+	ft_print_triple_tab(all->t_cmd);
 
 			//Execution
 			ft_open_pipe(all->t_cmd);
