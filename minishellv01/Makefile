@@ -42,8 +42,8 @@ parsing_parsing_2.c \
 parsing_parsing_3.c \
 parsing_redir.c \
 parsing_lst_utils_2.c \
-parsing_init.c
-
+parsing_init.c \
+# cd_test.c
 
 SRC = ${FILE:.c=.o}
 
@@ -52,8 +52,8 @@ all : ${NAME}
 ${NAME}: ${SRC}
 	${CC} ${CFLAGS} -o $@ $^ ${FLAGS}
 
-test: test.c
-	${CC} ${CFLAGS} -o $@ $^ ${FLAGS}
+# test: test.c
+# 	${CC} ${CFLAGS} -o $@ $^ ${FLAGS}
 
 %.o:%.c
 	${CC} ${CFLAGS} -c $^

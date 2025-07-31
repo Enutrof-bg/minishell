@@ -83,6 +83,9 @@ char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);
 char	*ft_itoa(int n);
 
+//cd_test.c
+
+
 //exec_pipe.c  
 int	ft_open_pipe(t_commande *t_cmd);
 void	ft_close_pipe(t_commande *t_cmd);
