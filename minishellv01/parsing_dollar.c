@@ -117,7 +117,6 @@ char *replace_dollar_vars(char *str, char **env, t_all *all)
 					env_var = get_env_var(env_name, env);
 					if (env_var)
 					{
-						// printf("%s\n", env_var);
 						temp = ft_strjoin(result, env_var);
 						free(result);
 						result = temp;
@@ -132,7 +131,8 @@ char *replace_dollar_vars(char *str, char **env, t_all *all)
 					if (!temp)
 						return (NULL);
 					ft_strcpy(temp, result);
-					temp[len] = '\0';
+					temp[len] = str[i];
+					temp[len + 1] = '\0';
 					free(result);
 					result = temp;
 					i++;
@@ -147,14 +147,12 @@ char *replace_dollar_vars(char *str, char **env, t_all *all)
 				return (NULL);
 			ft_strcpy(temp, result);
 			temp[len] = str[i];
-			temp[len +1] = '\0';
+			temp[len + 1] = '\0';
 			free(result);
 			result = temp;
 			i++;
 		}
-		// i++;
 	}
-	// return ("caca");
 	return (result);
 }
 

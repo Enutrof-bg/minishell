@@ -19,12 +19,12 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 	i = 0;
 	while (i < t_cmd->nbr_cmd)
 	{
-		// if ()
-		// {
-			
-		// }
-		// else
-		// {
+		if (is_builtin(t_cmd->cmd_tab[i].cmd_args) == 1)
+		{
+			printf("builtin\n");
+		}
+		else
+		{
 			t_cmd->cmd_tab[i].id1 = fork();
 			if (t_cmd->cmd_tab[i].id1 == 0)
 			{
@@ -60,7 +60,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 					exit(127);
 				exit(1);
 			}
-		// }
+		}
 		i++;
 	}
 	return (0);
@@ -76,11 +76,9 @@ int main(int argc, char **argv, char **env)
 	if (argc == 1)
 	{
 		all = malloc(sizeof(t_all));
+		all->env = env;
 		while (1)
 		{
-			all->shell = malloc(sizeof(t_list));
-			if (!all->shell)
-				return (1);
 			all->shell = NULL;
 			str = readline("CacaTest >");
 			add_history(str);
@@ -88,9 +86,6 @@ int main(int argc, char **argv, char **env)
 			if (ft_strncmp(str, "exit", 4) == 0)
 			{
 				free(str);
-				free(all->shell);
-				// rl_clear_history();
-				// break ;
 				exit(0);
 			}
 
@@ -110,7 +105,12 @@ int main(int argc, char **argv, char **env)
 			// new_str2 = ft_remove_quote(new_str);
 
 			//Parse_decoupe bah elle decoupe l'input en liste chaine
-			ft_parse_decoupe(str, &all->shell);
+			if (ft_parse_decoupe(str, &all->shell, all) == -1)
+			{
+				// Skip this iteration if parsing failed due to unclosed quotes
+				free(str);
+				continue;
+			}
 			
 			ft_lstiter_env(&all->shell, env, all);
 	ft_print(all->shell);
@@ -158,8 +158,10 @@ int main(int argc, char **argv, char **env)
 			free(all->t_cmd);
 			free(all->t_red);
 			free(str);
-			ft_clear(&all->shell);
-			free(all->shell);
+			if (all->shell)
+			{
+				ft_clear(&all->shell);
+			}
 		}
 		free(all);
 	}

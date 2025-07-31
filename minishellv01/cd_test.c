@@ -24,6 +24,18 @@
 
 #define PATH_MAX	4096
 
+// size_t	ft_strlen(const char *str)
+// {
+// 	size_t	i;
+
+// 	i = 0;
+// 	while (str[i] != '\0')
+// 	{
+// 		i++;
+// 	}
+// 	return (i);
+// }
+
 int ft_strcmp(char *s1, char *s2)
 {
 	int i = 0;
@@ -33,34 +45,34 @@ int ft_strcmp(char *s1, char *s2)
 	return (s1[i] - s2[i]);
 }
 
-int is_builtin_2(char **tab)
-{
-	  if (is_export(tab[0]))
-	{
-		//fonction 
-		return (1);
-	}
-	 if (is_unset(tab[0]))
-	{
-		//fonction 
-		return (1);
-	}
-	 if (is_env(tab[0]))
-	{
-		//fonction 
-		return (1);
-	}
-	 if (is_exit(tab[0]))
-	{
-		//fonction 
-		return (1);
-	}
-	return (0);
-}
+// int is_builtin_2(char **tab)
+// {
+// 	  if (is_export(tab[0]))
+// 	{
+// 		//fonction 
+// 		return (1);
+// 	}
+// 	 if (is_unset(tab[0]))
+// 	{
+// 		//fonction 
+// 		return (1);
+// 	}
+// 	 if (is_env(tab[0]))
+// 	{
+// 		//fonction 
+// 		return (1);
+// 	}
+// 	 if (is_exit(tab[0]))
+// 	{
+// 		//fonction 
+// 		return (1);
+// 	}
+// 	return (0);
+// }
 
 int is_pwd(char *str)
 {
-	int i = 0;
+	// int i = 0;
 
 	// while (str[i])
 	// {
@@ -80,8 +92,9 @@ int ft_pwd(void)
 {
 	char cwd[PATH_MAX];
 	
-	if (!getcwd(cwd, sizeof(cwd)))
-		printf("%s\n", cwd);
+	getcwd(cwd, sizeof(cwd));
+
+	printf("%s\n", cwd);
 	return (0);
 }
 
@@ -94,7 +107,7 @@ int is_cd(char *str)
 int is_home(char *str)
 {
 	// char *compare;
-	int i = 0;
+	// int i = 0;
 	
 	// compare = malloc(sizeof(char) * 12);//faire juste un strcomp
 	// if (!compare)
@@ -148,11 +161,11 @@ int	cd_home(void)
 		char str[PATH_MAX];
 		int i = read(fd[0], str, PATH_MAX);
 		str[i] = '\0';
-		if (!chdir(str));
+		if (!chdir(str))
 			return (close(fd[0]), 1);
 		close(fd[0]);
-		return (0);
-	}		
+	}	
+	return (0);
 }
 
 int cd_oldpwd(void)
@@ -167,6 +180,7 @@ int cd_oldpwd(void)
 	{
 		close(fd[0]);
 		path = getenv("OLDPWD");
+		printf("path:%s\n", path);
 		if (chdir(path))
 			printf("%s\n", strerror(errno));
 		getcwd(cwd, sizeof(cwd));
@@ -175,15 +189,18 @@ int cd_oldpwd(void)
 	}
 	else //processus parent
 	{
+		printf("paret\n");
 		close(fd[1]);
 		wait(NULL);
 		char str[PATH_MAX];
 		int i = read(fd[0], str, PATH_MAX);
 		str[i] = '\0';
-		if (!chdir(str));
+		if (chdir(str))
 			return (close(fd[0]), 0);
+		printf("parent str:%s\n", str);
 		return (close(fd[0]), 1);
 	}
+	return (0);
 }
 
 int cd_root(void)
@@ -191,7 +208,7 @@ int cd_root(void)
 	int fd[2];
 	pipe(fd);
 	pid_t pid = fork();
-	const char *path;
+	// const char *path;
 	
 	if (pid == 0) //processus enfant
 	{
@@ -209,10 +226,11 @@ int cd_root(void)
 		char str[PATH_MAX];
 		int i = read(fd[0], str, PATH_MAX);
 		str[i] = '\0';
-		if (!chdir(str));
+		if (!chdir(str))
 			return (close(fd[0]), 0);
 		return (close(fd[0]), 1);
-	}	
+	}
+	return (0);
 }
 
 // /!\ CHANGER OLDPWD A CHAQUE UTILISATIION DE CD
@@ -220,51 +238,77 @@ int cd_root(void)
 int	homemade_cd(char **tab)
 {
 	if (!is_cd(tab[0]))
+	{
+		printf("1\n");
 		return (1);
+	}
 	if (tab[2])
+	{
+		printf("2\n");
 		return (perror("cd : too may arguemtents"), 1);
+	}
 	if (is_cd(tab[0]) && (!tab[1] || is_home(tab[1])))
+	{
+		printf("3\n");
 		return (cd_home()); //passer cd_home de type int
+	}
 	if (is_cd(tab[0]) && (ft_strcmp(tab[1], "-") == 0)) // cd - /!\ FAIRE APPEL A LE OLDPWD
+	{
+		printf("4\n");
 		return (cd_oldpwd());
+	}
 	if (is_cd(tab[0]) && (ft_strcmp(tab[1], "\\") == 0))
+	{
+		printf("5\n");
 		return (cd_root());	
+	}
 	//if (is_cd(tab[0]) )
-	
+	return (0);
 }
 
 int is_builtin(char **tab)
 {
 	if (is_cd(tab[0]))
 	{
+		printf("cd in\n");
 		homemade_cd(tab);
 		return (1);
 	}
-	 if (is_echo(tab[0]))
-	{
-		//fonction 
-		return (1);
-	}
+	//  if (is_echo(tab[0]))
+	// {
+	// 	//fonction 
+	// 	return (1);
+	// }
 	 if (is_pwd(tab[0]))
 	{
 		ft_pwd(); 
 		return (1);
 	}
-	if (is_builtin_2(tab))
-		return (1);
+	// if (is_builtin_2(tab))
+	// 	return (1);
 	return (0);
 }
 
-int main()
-{
-	char **args;
+// int main()
+// {
+// 	char s[100];
+// 	char *args[3];
 
-	args[0] = "cd";
-	args[1] = "~";
-	args[2] = NULL;
+// 	args[0] = "cd";
+// 	args[1] = "-";
+// 	args[2] = NULL;
 
-	is_builtin(args);
-}
+// 	char *args2[2];
+
+// 	args2[0] = "pwd";
+// 	// args2[1] = "-";
+// 	args2[1] = NULL;
+// 	printf("je suis la%s\n", getcwd(s, 100)); 
+// 	is_builtin(args);
+// 	printf("je suis ou%s\n", getcwd(s, 100)); 
+// 	is_builtin(args2);
+// 	// chdir("..");
+// }
 
 // int main(int argc, char **argv)
 // {
@@ -319,4 +363,4 @@ int main()
 			
 // 		}
 // 	}
-// }
+//}

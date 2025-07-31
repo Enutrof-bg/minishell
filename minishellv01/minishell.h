@@ -75,6 +75,7 @@ typedef struct s_all
 	t_list		*shell;
 	t_commande	*t_cmd;
 	t_redir		*t_red;
+	char **env;
 	int exit_status;
 	char *exit_status_char;
 }t_all;
@@ -84,7 +85,7 @@ char	*ft_strjoin(char const *s1, char const *s2);
 char	*ft_itoa(int n);
 
 //cd_test.c
-
+int is_builtin(char **tab);
 
 //exec_pipe.c  
 int	ft_open_pipe(t_commande *t_cmd);
@@ -132,13 +133,13 @@ int ft_check(char *str, char c);
 void	ft_lstiter_env(t_list **lst, char **env, t_all *all);
 
 //parsing_parsing_1.c
-int ft_parse_decoupe(char *str, t_list **shell);
+int ft_parse_decoupe(char *str, t_list **shell, t_all *all);
 
 //parsing_parsing_2.c
-int ft_parse_double_quote(char *str, t_list **shell, int *i);
-int ft_parse_singlequote(char *str, t_list **shell, int *i);
+int ft_parse_double_quote(char *str, t_list **shell, int *i, t_all *all);
+int ft_parse_singlequote(char *str, t_list **shell, int *i, t_all *all);
 char *ft_remove_quote(char *str);
-int ft_parse_space(char *str, t_list **shell, int *i);
+int ft_parse_space(char *str, t_list **shell, int *i, t_all *all);
 
 //parsing_parsing_3.c
 int ft_parse_pipe(char *str, t_list **shell, int *i);

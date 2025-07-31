@@ -12,24 +12,28 @@
 
 #include "minishell.h"
 
-int ft_parse_decoupe(char *str, t_list **shell);
+int ft_parse_decoupe(char *str, t_list **shell, t_all *all);
 
-int ft_parse_decoupe(char *str, t_list **shell)
+int ft_parse_decoupe(char *str, t_list **shell, t_all *all)
 {
 	int i = 0;
+	int result = 0;
+	
 	while (str[i])
 	{
 		if (str[i] == ' ')
 			i++;
-		if (str[i] == '"')
+		else if (str[i] == '"')
 		{
-			// i++;
-			ft_parse_double_quote(str, shell, &i);
+			result = ft_parse_double_quote(str, shell, &i, all);
+			if (result == -1)
+				return (-1);
 		}
 		else if (str[i] == '\'')
 		{
-			// i++;
-			ft_parse_singlequote(str, shell, &i);
+			result = ft_parse_singlequote(str, shell, &i, all);
+			if (result == -1)
+				return (-1);
 		}
 		else if (str[i] == '|')
 		{
@@ -45,7 +49,7 @@ int ft_parse_decoupe(char *str, t_list **shell)
 		}
 		else
 		{
-			ft_parse_space(str, shell, &i);
+			ft_parse_space(str, shell, &i, all);
 		}
 	}
 	return (0);

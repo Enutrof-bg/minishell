@@ -12,13 +12,14 @@
 
 #include "minishell.h"
 
-int ft_parse_double_quote(char *str, t_list **shell, int *i);
-int ft_parse_singlequote(char *str, t_list **shell, int *i);
+int ft_parse_double_quote(char *str, t_list **shell, int *i, t_all *all);
+int ft_parse_singlequote(char *str, t_list **shell, int *i, t_all *all);
 char *ft_remove_quote(char *str);
-int ft_parse_space(char *str, t_list **shell, int *i);
+int ft_parse_space(char *str, t_list **shell, int *i, t_all *all);
 
-int ft_parse_double_quote(char *str, t_list **shell, int *i)
+int ft_parse_double_quote(char *str, t_list **shell, int *i, t_all *all)
 {
+	(void)all;
 	int j;
 	char *temp;
 	int insinglequote;
@@ -32,9 +33,16 @@ int ft_parse_double_quote(char *str, t_list **shell, int *i)
 
 	while ((str[*i + j] != ' ' /*&& str[*i + j] != '"' && str[*i + j] != '\''*/
 			&& str[*i + j] != '|' && str[*i + j] != '\0')
-		|| (indoublequote && insinglequote))
+		|| (indoublequote == 1 || insinglequote == 1))
 	{
-		if (str[*i +j] == '\'' && !insinglequote)
+		// Check if we reached end of string while still in quotes
+		if (str[*i + j] == '\0' && (indoublequote == 1 || insinglequote == 1))
+		{
+			printf("minishell: syntax error: unclosed quote\n");
+			return (-1);
+		}
+		
+		if (str[*i +j] == '"' && !insinglequote)
 		{
 			indoublequote = !indoublequote;
 			// if (indoublequote)
@@ -50,6 +58,8 @@ int ft_parse_double_quote(char *str, t_list **shell, int *i)
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
+printf("TEMPdouble:%s\n", temp);
+		// char *temp3 = replace_dollar_vars(temp, all->env, all);
 		char *temp2 = ft_remove_quote(temp);
 		// tab = ft_add_double_tab(temp, tab);
 		ft_add(shell, temp2, DOUBLEQUOTE);
@@ -63,8 +73,9 @@ int ft_parse_double_quote(char *str, t_list **shell, int *i)
 	return (0);
 }
 
-int ft_parse_singlequote(char *str, t_list **shell, int *i)
+int ft_parse_singlequote(char *str, t_list **shell, int *i, t_all *all)
 {
+	(void)all;
 	int j;
 	char *temp;
 	int insinglequote;
@@ -78,8 +89,15 @@ int ft_parse_singlequote(char *str, t_list **shell, int *i)
 
 	while ((str[*i + j] != ' ' /*&& str[*i + j] != '"' && str[*i + j] != '\''*/
 			&& str[*i + j] != '|' && str[*i + j] != '\0')
-		|| (indoublequote && insinglequote))
+		|| (indoublequote == 1 || insinglequote == 1))
 	{
+		// Check if we reached end of string while still in quotes
+		if (str[*i + j] == '\0' && (indoublequote == 1 || insinglequote == 1))
+		{
+			printf("minishell: syntax error: unclosed quote\n");
+			return (-1);
+		}
+		
 		if (str[*i +j] == '"' && !insinglequote)
 		{
 			indoublequote = !indoublequote;
@@ -98,8 +116,9 @@ int ft_parse_singlequote(char *str, t_list **shell, int *i)
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
-			printf("TEMPsingle:%s\n", temp);
-			char *temp2 = ft_remove_quote(temp);
+printf("TEMPsingle:%s\n", temp);
+		// char *temp3 = replace_dollar_vars(temp, all->env, all);
+		char *temp2 = ft_remove_quote(temp);
 		// tab = ft_add_double_tab(temp, tab);
 		ft_add(shell, temp2, SINGLEQUOTE);
 		// printf("single:%s i:%d j:%d\n", temp, i, j);
@@ -149,8 +168,9 @@ char *ft_remove_quote(char *str)
 	return (new);
 }
 
-int ft_parse_space(char *str, t_list **shell, int *i)
+int ft_parse_space(char *str, t_list **shell, int *i, t_all *all)
 {
+	(void)all;
 	int j;
 	int state;
 	char *temp;
@@ -182,10 +202,11 @@ int ft_parse_space(char *str, t_list **shell, int *i)
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
-		printf("TEMPTEST:%s\n", temp);
-
+printf("TEMPTEST:%s\n", temp);
+		// char *temp3 = replace_dollar_vars(temp, all->env, all);
 		temp2 = ft_remove_quote(temp);
 		// tab = ft_add_double_tab(temp, tab);
+
 		ft_add(shell, temp2, state);
 		// printf("space:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
