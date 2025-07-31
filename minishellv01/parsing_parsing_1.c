@@ -23,12 +23,12 @@ int ft_parse_decoupe(char *str, t_list **shell)
 			i++;
 		if (str[i] == '"')
 		{
-			i++;
+			// i++;
 			ft_parse_double_quote(str, shell, &i);
 		}
 		else if (str[i] == '\'')
 		{
-			i++;
+			// i++;
 			ft_parse_singlequote(str, shell, &i);
 		}
 		else if (str[i] == '|')

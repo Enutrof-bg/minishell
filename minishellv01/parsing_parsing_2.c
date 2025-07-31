@@ -21,17 +21,41 @@ int ft_parse_double_quote(char *str, t_list **shell, int *i)
 {
 	int j;
 	char *temp;
+	int insinglequote;
+	int indoublequote;
 
+	insinglequote = 0;
+	indoublequote = 0;
 	j = 0;
-	while (str[*i + j] != '"' && str[*i + j] != '\0')
+	// while (str[*i + j] != '"' && str[*i + j] != '\0')
+		// j++;
+
+	while ((str[*i + j] != ' ' /*&& str[*i + j] != '"' && str[*i + j] != '\''*/
+			&& str[*i + j] != '|' && str[*i + j] != '\0')
+		|| (indoublequote && insinglequote))
+	{
+		if (str[*i +j] == '\'' && !insinglequote)
+		{
+			indoublequote = !indoublequote;
+			// if (indoublequote)
+			// j++;
+		}
+		else if (str[*i +j] == '\'' && !indoublequote)
+		{
+			insinglequote = !insinglequote;
+			// j++;
+		}
 		j++;
+	}
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
+		char *temp2 = ft_remove_quote(temp);
 		// tab = ft_add_double_tab(temp, tab);
-		ft_add(shell, temp, DOUBLEQUOTE);
+		ft_add(shell, temp2, DOUBLEQUOTE);
 		// printf("double:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
+		free(temp2);
 	}
 	*i = *i + j;
 	if (str[*i] == '"')
@@ -43,17 +67,44 @@ int ft_parse_singlequote(char *str, t_list **shell, int *i)
 {
 	int j;
 	char *temp;
+	int insinglequote;
+	int indoublequote;
 
+	insinglequote = 0;
+	indoublequote = 0;
 	j = 0;
-	while (str[*i + j] != '\'' && str[*i + j] != '\0')
+	// while (str[*i + j] != '\'' && str[*i + j] != '\0')
+		// j++;
+
+	while ((str[*i + j] != ' ' /*&& str[*i + j] != '"' && str[*i + j] != '\''*/
+			&& str[*i + j] != '|' && str[*i + j] != '\0')
+		|| (indoublequote && insinglequote))
+	{
+		if (str[*i +j] == '"' && !insinglequote)
+		{
+			indoublequote = !indoublequote;
+			// if (indoublequote)
+			// j++;
+		}
+		else if (str[*i +j] == '\'' && !indoublequote)
+		{
+			insinglequote = !insinglequote;
+			// j++;
+		}
 		j++;
+	}
+
+
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
+			printf("TEMPsingle:%s\n", temp);
+			char *temp2 = ft_remove_quote(temp);
 		// tab = ft_add_double_tab(temp, tab);
-		ft_add(shell, temp, SINGLEQUOTE);
+		ft_add(shell, temp2, SINGLEQUOTE);
 		// printf("single:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
+		free(temp2);
 	}
 	*i = *i + j;
 	if (str[*i] == '\'')
@@ -94,7 +145,7 @@ char *ft_remove_quote(char *str)
 		}
 		i++;
 	}
-	new[i] = '\0';
+	new[j] = '\0';
 	return (new);
 }
 
@@ -111,25 +162,27 @@ int ft_parse_space(char *str, t_list **shell, int *i)
 	indoublequote = 0;
 	j = 0;
 	state = NORMAL;
-	while (str[*i + j] != ' ' /*&& str[*i + j] != '"' && str[*i + j] != '\''*/
-		&& str[*i + j] != '|' && str[*i + j] != '\0')
+	while ((str[*i + j] != ' ' /*&& str[*i + j] != '"' && str[*i + j] != '\''*/
+			&& str[*i + j] != '|' && str[*i + j] != '\0')
+		|| (indoublequote == 1 || insinglequote == 1))
 	{
-		// if (str[*i +j] == '"' && !insinglequote)
-		// {
-		// 	indoublequote = !indoublequote;
-		// 	if (indoublequote)
-		// 	// j++;
-		// }
-		// else if (str[*i +j] == '\'' && !indoublequote)
-		// {
-		// 	insinglequote = !insinglequote;
-		// 	// j++;
-		// }
+		if (str[*i +j] == '"' && !insinglequote)
+		{
+			indoublequote = !indoublequote;
+			// if (indoublequote)
+			// j++;
+		}
+		else if (str[*i +j] == '\'' && !indoublequote)
+		{
+			insinglequote = !insinglequote;
+			// j++;
+		}
 		j++;
 	}
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
+		printf("TEMPTEST:%s\n", temp);
 
 		temp2 = ft_remove_quote(temp);
 		// tab = ft_add_double_tab(temp, tab);
