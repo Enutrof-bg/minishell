@@ -62,8 +62,6 @@ char *get_env_name(char *str, int start)
 
 char *replace_dollar_vars_test(char *str, char **env, t_all *all)
 {
-	(void)env;
-	(void)all;
 	int i;
 	char *result;
 	char *env_name;
@@ -139,29 +137,99 @@ char *replace_dollar_vars_test(char *str, char **env, t_all *all)
 	return (result);
 }
 
-//caca test4.c parsing_dollar.c ft_strjoin.c minishell_utils.c ft_itoa.c -lreadline
+char *ft_concatenate_quotes(char *str)
+{
+	char *result;
+	char *temp;
+	int i;
+	int j;
+	int len;
+	int in_single_quote;
+	int in_double_quote;
+
+	if (!str)
+		return (NULL);
+	
+	len = ft_strlen(str) + 1;
+	result = malloc(sizeof(char) * len);
+	if (!result)
+		return (NULL);
+	
+	i = 0;
+	j = 0;
+	in_single_quote = 0;
+	in_double_quote = 0;
+	
+	while (str[i])
+	{
+		if (str[i] == '\'' && !in_double_quote)
+		{
+			in_single_quote = !in_single_quote;
+			// Ne pas copier les guillemets simples
+		}
+		else if (str[i] == '"' && !in_single_quote)
+		{
+			in_double_quote = !in_double_quote;
+			// Ne pas copier les guillemets doubles
+		}
+		else
+		{
+			result[j] = str[i];
+			j++;
+		}
+		i++;
+	}
+	result[j] = '\0';
+	
+	// Réajuster la taille si nécessaire
+	if (j < len - 1)
+	{
+		temp = malloc(sizeof(char) * (j + 1));
+		if (temp)
+		{
+			ft_strcpy(temp, result);
+			free(result);
+			result = temp;
+		}
+	}
+	
+	return (result);
+}
+
+
+//caca test4.c ft_strjoin.c minishell_utils.c ft_itoa.c -lreadline
 int main(int argc, char **argv, char **env)
 {
 	(void)argc;
 	(void)argv;
 	(void)env;
 	t_all *all = malloc(sizeof(t_all));
+	all->exit_status = 0;
 
 	while (1)
 	{
-
-
 		char *str = readline("CacaTest >");
 		add_history(str);
 
-		printf("    input:%s\n", str);
-		char *new_str = replace_dollar_vars_test(str, env, all);
-		printf("new_input:%s\n", new_str);
-		int i = 0;
-		while (i < new_str[i])
+		if (ft_strncmp(str, "exit", 4) == 0)
 		{
-			
-			i++;
+			free(str);
+			break;
 		}
+
+		printf("    input: %s\n", str);
+		
+		char *concatenated = ft_concatenate_quotes(str);
+		printf("concatenated: %s\n", concatenated);
+
+		// char *new_str = replace_dollar_vars_test(str, env, all);
+		// printf("new_input: %s\n", new_str);
+		
+		free(str);
+		free(concatenated);
+		// free(new_str);
 	}
+	
+	free(all);
+	return (0);
 }

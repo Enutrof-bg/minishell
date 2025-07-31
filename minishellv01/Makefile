@@ -18,12 +18,32 @@ FLAGS = -lreadline
 
 NAME = minishell
 
-FILE = main.c \
-ft_split.c \
+# FILE = main.c \
+# ft_split.c \
+# ft_strjoin.c \
+# minishell_exec.c \
+# minishell_free.c \
+# minishell_utils.c
+
+FILE = parsing_test.c \
+pipex_path.c \
+parsing_dollar.c \
+minishell_utils.c \
 ft_strjoin.c \
-minishell_exec.c \
-minishell_free.c \
-minishell_utils.c
+ft_split.c \
+ft_itoa.c \
+parsing_lst_utils.c \
+parsing_free.c \
+parsing_double_tab.c \
+parsing_triple_tab.c \
+exec_pipe.c \
+parsing_parsing_1.c \
+parsing_parsing_2.c \
+parsing_parsing_3.c \
+parsing_redir.c \
+parsing_lst_utils_2.c \
+parsing_init.c
+
 
 SRC = ${FILE:.c=.o}
 
@@ -39,13 +59,24 @@ test: test.c
 	${CC} ${CFLAGS} -c $^
 
 clean: 
-	rm -f main.o \
-	test \
-	ft_split.o \
+	rm -f parsing_test.o \
+	pipex_path.o \
+	parsing_dollar.o \
+	minishell_utils.o \
 	ft_strjoin.o \
-	minishell_exec.o \
-	minishell_free.o \
-	minishell_utils.o
+	ft_split.o \
+	ft_itoa.o \
+	parsing_lst_utils.o \
+	parsing_free.o \
+	parsing_double_tab.o \
+	parsing_triple_tab.o \
+	exec_pipe.o \
+	parsing_parsing_1.o \
+	parsing_parsing_2.o \
+	parsing_parsing_3.o \
+	parsing_redir.o \
+	parsing_lst_utils_2.o \
+	parsing_init.o
 
 fclean:clean
 	rm -f minishell

@@ -83,6 +83,12 @@ char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);
 char	*ft_itoa(int n);
 
+//exec_pipe.c  
+int	ft_open_pipe(t_commande *t_cmd);
+void	ft_close_pipe(t_commande *t_cmd);
+void	ft_waitpid(t_commande *t_cmd);
+int	ft_dup(int fd0, int fd1);
+
 //minishell_exec
 // void		exec(char *arg, char **env);
 
@@ -100,8 +106,52 @@ char	*ft_substr(char const *s, unsigned int start, size_t len);
 //parsing_dollar
 char *replace_dollar_vars(char *str, char **env, t_all *all);
 
-//parsing_test
+//parsing_double_tab.c
+char	**ft_copy_double_tab(char **tab);
+char	**ft_add_double_tab(char *str, char **tab);
+
+//parsing_free.c
+void	ft_free_double_tab(char **tab);
+void	ft_clear(t_list **lst);
+
+//parsing_init.c
 int ft_count_commands(t_list *lst);
+
+//parsing_lst_utils.c
+t_list	*ft_lst(char *str, int state);
+void	ft_lstadd_back(t_list **lst, t_list *new);
+void ft_add(t_list **lst, char *str, int state);
+
+//parsing_lst_utils_2.c
+int ft_size(t_list *lst);
+void ft_print(t_list *lst);
+int ft_check(char *str, char c);
+void	ft_lstiter_env(t_list **lst, char **env, t_all *all);
+
+//parsing_parsing_1.c
+int ft_parse_decoupe(char *str, t_list **shell);
+
+//parsing_parsing_2.c
+int ft_parse_double_quote(char *str, t_list **shell, int *i);
+int ft_parse_singlequote(char *str, t_list **shell, int *i);
+char *ft_remove_quote(char *str);
+int ft_parse_space(char *str, t_list **shell, int *i);
+
+//parsing_parsing_3.c
+int ft_parse_pipe(char *str, t_list **shell, int *i);
+int ft_parse_out(char *str, t_list **shell, int *i);
+int ft_parse_in(char *str, t_list **shell, int *i);
+
+//parsing_redir.c
+int ft_create_fd(t_list **shell, t_redir **t_red);
+
+// //parsing_test
+// int ft_count_commands(t_list *lst);
+
+//parsing_triple_tab.c
+int ft_print_triple_tab(t_commande *t_cmd);
+int ft_set_triple_tab_null(t_commande *t_cmd);
+int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd);
 
 int	exec(char **tab, char **env);
 

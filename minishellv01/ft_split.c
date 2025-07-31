@@ -35,7 +35,7 @@ static size_t	ft_count_word(char *str, char c)
 	return (count);
 }
 
-static char	*ft_add(char *str, char *src, char c)
+static char	*ft_add_str(char *str, char *src, char c)
 {
 	size_t	i;
 
@@ -83,7 +83,7 @@ static char	**ft_word_split(char *str, char c, char **new_tab, size_t index)
 				new_tab = ft_string_malloc(new_tab, j, index);
 				if (new_tab == NULL)
 					return (NULL);
-				new_tab[index] = ft_add(new_tab[index], &str[i], c);
+				new_tab[index] = ft_add_str(new_tab[index], &str[i], c);
 				index++;
 				i = i + j;
 				j = 0;

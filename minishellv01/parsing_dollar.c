@@ -12,6 +12,13 @@
 
 #include "minishell.h"
 
+char *ft_strcpy(char *dest, char *src);
+int ft_isalnum(char c);
+char *get_env_var(char *str, char **env);
+char *get_env_name(char *str, int start);
+char *replace_dollar_vars(char *str, char **env, t_all *all);
+
+
 char *ft_strcpy(char *dest, char *src)
 {
 	int i;
