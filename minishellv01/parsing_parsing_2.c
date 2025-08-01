@@ -104,7 +104,7 @@ int ft_parse_double_quote(char *str, t_list **shell, int *i, t_all *all)
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
-// printf("TEMPdouble:%s\n", temp);
+printf("TEMPdouble:%s\n", temp);
 		char *temp3 = replace_dollar_test2(temp, all->env, all);
 		// char *temp2 = ft_remove_quote(temp3);
 		// printf("1:%s\n2:%s\n3:%s\n", temp, temp3, temp2);
@@ -161,7 +161,7 @@ int ft_parse_singlequote(char *str, t_list **shell, int *i, t_all *all)
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
-// printf("TEMPsingle:%s\n", temp);
+printf("TEMPsingle:%s\n", temp);
 		char *temp3 = replace_dollar_test2(temp, all->env, all);
 		// char *temp2 = ft_remove_quote(temp3);
 		// printf("1:%s\n2:%s\n3:%s\n", temp, temp3, temp2);
@@ -216,7 +216,7 @@ int ft_parse_space(char *str, t_list **shell, int *i, t_all *all)
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
-// printf("TEMPTEST:%s\n", temp);
+printf("TEMPTEST:%s\n", temp);
 		char *temp3 = replace_dollar_test2(temp, all->env, all);
 		// char *temp2 = ft_remove_quote(temp3);
 		// printf("1:%s\n2:%s\n3:%s\n", temp, temp3, temp2);
