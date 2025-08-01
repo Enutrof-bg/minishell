@@ -130,7 +130,7 @@ int main(int argc, char **argv, char **env)
 			}
 			
 			ft_lstiter_env(&all->shell, env, all);
-	ft_print(all->shell);
+	// ft_print(all->shell);
 
 			// ft_assign_cmd_arg_states(&all->shell);
 			//Compte le nombre de commande
@@ -151,7 +151,7 @@ int main(int argc, char **argv, char **env)
 			//Creation des doubles tableaux pour les commandes
 			ft_set_triple_tab_null(all->t_cmd);
 			ft_create_triple_tab(&all->shell, &all->t_cmd);
-	ft_print_triple_tab(all->t_cmd);
+	// ft_print_triple_tab(all->t_cmd);
 
 			//Execution
 			ft_open_pipe(all->t_cmd);
