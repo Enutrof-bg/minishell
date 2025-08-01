@@ -18,11 +18,9 @@ char	**ft_add_double_tab(char *str, char **tab);
 char	**ft_copy_double_tab(char **tab)
 {
 	int		i;
-	int		j;
 	char	**newtab;
 
 	i = 0;
-	j = 0;
 	while (tab[i])
 		i++;
 	newtab = malloc(sizeof(char *) * (i + 1));
@@ -39,11 +37,9 @@ char	**ft_copy_double_tab(char **tab)
 char **ft_add_double_tab(char *str, char **tab)
 {
 	int		i;
-	int		j;
 	char	**newtab;
 
 	i = 0;
-	j = 0;
 	if (tab == NULL)
 	{
 		newtab = malloc(sizeof(char *) * 2);
