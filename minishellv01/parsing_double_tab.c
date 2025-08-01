@@ -66,3 +66,35 @@ char **ft_add_double_tab(char *str, char **tab)
 	ft_free_double_tab(tab);
 	return (newtab);
 }
+
+char **ft_remove_double_tab(char *str, char **tab)
+{
+	int		i;
+	int		j;
+	char	**newtab;
+
+	i = 0;
+	j = 0;
+	if (tab == NULL)
+	{
+		newtab = malloc(sizeof(char *) * 1);
+		// newtab[0] = ft_strdup(str);
+		newtab[0] = 0;
+		return (newtab);
+	}
+	while (tab[i])
+		i++;
+	newtab = malloc(sizeof(char *) * (i));
+	i = 0;
+	while (tab[i])
+	{
+		if (ft_strncmp(tab[i], str, ft_strlen(str)) != 0)
+			newtab[i] = ft_strdup(tab[i]);
+		i++;
+	}
+	// newtab[i] = ft_strdup(str);
+	// i++;
+	newtab[i] = 0;
+	ft_free_double_tab(tab);
+	return (newtab);
+}

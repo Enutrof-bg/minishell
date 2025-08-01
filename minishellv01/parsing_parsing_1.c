@@ -49,7 +49,9 @@ int ft_parse_decoupe(char *str, t_list **shell, t_all *all)
 		}
 		else
 		{
-			ft_parse_space(str, shell, &i, all);
+			result = ft_parse_space(str, shell, &i, all);
+			if (result == -1)
+				return (-1);
 		}
 	}
 	return (0);

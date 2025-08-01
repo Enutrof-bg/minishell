@@ -109,6 +109,7 @@ char	*ft_substr(char const *s, unsigned int start, size_t len);
 
 //parsing_dollar
 char *replace_dollar_vars(char *str, char **env, t_all *all);
+char *replace_dollar_test2(char *str, char **env, t_all *all);
 
 //parsing_double_tab.c
 char	**ft_copy_double_tab(char **tab);
@@ -131,6 +132,7 @@ int ft_size(t_list *lst);
 void ft_print(t_list *lst);
 int ft_check(char *str, char c);
 void	ft_lstiter_env(t_list **lst, char **env, t_all *all);
+void ft_lstiteration(t_all **all, void(*f)(char *));
 
 //parsing_parsing_1.c
 int ft_parse_decoupe(char *str, t_list **shell, t_all *all);
@@ -157,6 +159,8 @@ int ft_print_triple_tab(t_commande *t_cmd);
 int ft_set_triple_tab_null(t_commande *t_cmd);
 int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd);
 
+//pipex_path
+void	ft_err(char *msg1, char *msg2);
 int	exec(char **tab, char **env);
 
 #endif

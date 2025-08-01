@@ -12,14 +12,16 @@
 
 #include "minishell.h"
 
-int ft_size(t_list *lst);
-void ft_print(t_list *lst);
-int ft_check(char *str, char c);
+int		ft_size(t_list *lst);
+void	ft_print(t_list *lst);
+int		ft_check(char *str, char c);
 void	ft_lstiter_env(t_list **lst, char **env, t_all *all);
 
-int ft_size(t_list *lst)
+int	ft_size(t_list *lst)
 {
-	int size = 0;
+	int	size;
+
+	size = 0;
 	while (lst)
 	{
 		size++;
@@ -28,7 +30,7 @@ int ft_size(t_list *lst)
 	return size;
 }
 
-void ft_print(t_list *lst)
+void	ft_print(t_list *lst)
 {
 	if (lst)
 	{
@@ -64,20 +66,22 @@ int ft_check(char *str, char c)
 void	ft_lstiter_env(t_list **lst, char **env, t_all *all)
 {
 	t_list *temp;
-	char *new_str;
+	(void)env;
+	(void)all;
+	// char *new_str;
 
 	temp = *lst;
 	while (*lst != NULL)
 	{
-		if ((*lst)->state == DOUBLEQUOTE || (*lst)->state == NORMAL)
-		{
-			new_str = replace_dollar_vars((*lst)->str, env, all);
-			if (new_str)
-			{
-				free((*lst)->str);
-				(*lst)->str = new_str;
-			}
-		}
+		// if ((*lst)->state == DOUBLEQUOTE || (*lst)->state == NORMAL)
+		// {
+		// 	new_str = replace_dollar_vars((*lst)->str, env, all);
+		// 	if (new_str)
+		// 	{
+		// 		free((*lst)->str);
+		// 		(*lst)->str = new_str;
+		// 	}
+		// }
 		(*lst)->redir = -1;
 		if ((*lst)->state == INPUT)
 			(*lst)->next->state = INFILE;
@@ -88,4 +92,17 @@ void	ft_lstiter_env(t_list **lst, char **env, t_all *all)
 		(*lst) = (*lst)->next;
 	}
 	*lst = temp;
+}
+
+void ft_lstiteration(t_all **all, void(*f)(char *))
+{
+	t_list *temp;
+
+	temp = (*all)->shell;
+	while ((*all)->shell)
+	{
+		(*f)((*all)->shell->str);
+		(*all)->shell = (*all)->shell->next;
+	}
+	(*all)->shell = temp;
 }

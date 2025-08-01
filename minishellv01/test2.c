@@ -16,16 +16,34 @@ int main(int argc, char **argv, char **env)
 {
 	(void)argc;
 	(void)argv;
-	(void)env;
+	// (void)env;
 
-	char *args[3];
+	// char *args[3];
 
-	args[0] = "ls -l";
-	// args[1] = "b-l";
-	args[1] = NULL;
+	// args[0] = "ls -l";
+	// // args[1] = "b-l";
+	// args[1] = NULL;
 
-	if (execve("/bin/ls", args, NULL) == -1)
+	// if (execve("/bin/ls", args, NULL) == -1)
+	// {
+	// 	perror("execve erreur");
+	// }
+	//TEST getenv()
+	//char *getenv(const char *name);
+	// printenv pour les var env
+	char *test = getenv("USER");
+	printf("USER=%s\n", test);
+
+	
+	test = getenv("PATH");
+	printf("PATH=%s\n", test);
+
+	int i = 0;
+
+	while (env[i])
 	{
-		perror("execve erreur");
+		printf("%s\n", env[i]);
+		i++;
 	}
+	printf("%d\n", i);
 }

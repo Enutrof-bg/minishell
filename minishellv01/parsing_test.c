@@ -66,6 +66,39 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 	return (0);
 }
 
+void ft_assign_cmd_arg_states(t_list **lst)
+{
+	t_list *temp;
+	int first_cmd;
+
+	if (!lst || !*lst)
+		return;
+	
+	temp = *lst;
+	first_cmd = 1;
+	while (*lst)
+	{
+		if ((*lst)->state == PIPE)
+		{
+			first_cmd = 1;
+		}
+		else if ((*lst)->state == NORMAL || (*lst)->state == DOUBLEQUOTE || (*lst)->state == SINGLEQUOTE)
+		{
+			if (first_cmd)
+			{
+				(*lst)->state = CMD;
+				first_cmd = 0;
+			}
+			else
+			{
+				(*lst)->state = ARG;
+			}
+		}
+		*lst = (*lst)->next;
+	}
+	*lst = temp;
+}
+
 //caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c ft_itoa.c -lreadline -o minishell
 int main(int argc, char **argv, char **env)
 {
@@ -88,22 +121,6 @@ int main(int argc, char **argv, char **env)
 				free(str);
 				exit(0);
 			}
-
-			// printf("    input:%s\n", str);
-			// char *new_str = replace_dollar_vars(str, env, all);
-			// printf("new_input:%s\n", new_str);
-
-			// new_str = ft_remove_quote(new_str);
-			// printf("new_input:%s\n", new_str);
-			// int i = 0;
-			// while (i < new_str[i])
-			// {
-				
-			// 	i++;
-			// }
-
-			// new_str2 = ft_remove_quote(new_str);
-
 			//Parse_decoupe bah elle decoupe l'input en liste chaine
 			if (ft_parse_decoupe(str, &all->shell, all) == -1)
 			{
@@ -115,6 +132,7 @@ int main(int argc, char **argv, char **env)
 			ft_lstiter_env(&all->shell, env, all);
 	ft_print(all->shell);
 
+			// ft_assign_cmd_arg_states(&all->shell);
 			//Compte le nombre de commande
 			all->t_cmd = malloc(sizeof(t_commande));
 			all->t_cmd->nbr_cmd = ft_count_commands(all->shell);
@@ -166,23 +184,4 @@ int main(int argc, char **argv, char **env)
 		free(all);
 	}
 	return (0);
-	// char **copy = ft_copy_double_tab(argv);
-	// ft_print_tab(copy);
-
-	// copy = ft_add_double_tab("test", copy);
-	// ft_print_tab(copy);
-	// ft_free_double_tab(copy);
-
-
-
-	// char *r1;
-
-	// while(1)
-	// {
-	// 	r1 = readline("test >");
-
-	// 	add_history(r1);
-
-
-	// }
 }
