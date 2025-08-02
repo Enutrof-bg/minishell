@@ -87,7 +87,10 @@ int ft_parse_double_quote(char *str, t_list **shell, int *i, t_all *all)
 			ft_err("minishell: syntax error: unclosed quote\n", NULL);
 			return (-1);
 		}
-		
+		if (str[*i + j] == '\\' && indoublequote == 0 && insinglequote == 0)
+		{
+			j++;
+		}
 		if (str[*i +j] == '"' && !insinglequote)
 		{
 			indoublequote = !indoublequote;
@@ -142,6 +145,10 @@ int ft_parse_singlequote(char *str, t_list **shell, int *i, t_all *all)
 		{
 			ft_err("minishell: syntax error: unclosed quote\n", NULL);
 			return (-1);
+		}
+		if (str[*i + j] == '\\' && indoublequote == 0 && insinglequote == 0)
+		{
+			j++;
 		}
 		if (str[*i +j] == '"' && !insinglequote)
 		{
@@ -199,6 +206,10 @@ int ft_parse_space(char *str, t_list **shell, int *i, t_all *all)
 		{
 			ft_err("minishell: syntax error: unclosed quote\n", NULL);
 			return (-1);
+		}
+		if (str[*i + j] == '\\' && indoublequote == 0 && insinglequote == 0)
+		{
+			j++;
 		}
 		if (str[*i +j] == '"' && !insinglequote)
 		{
