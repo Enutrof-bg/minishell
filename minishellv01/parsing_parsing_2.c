@@ -91,7 +91,7 @@ int ft_parse_double_quote(char *str, t_list **shell, int *i, t_all *all)
 		{
 			j++;
 		}
-		if (str[*i +j] == '"' && !insinglequote)
+		else if (str[*i +j] == '"' && !insinglequote)
 		{
 			indoublequote = !indoublequote;
 			// if (indoublequote)
@@ -150,7 +150,7 @@ int ft_parse_singlequote(char *str, t_list **shell, int *i, t_all *all)
 		{
 			j++;
 		}
-		if (str[*i +j] == '"' && !insinglequote)
+		else if (str[*i +j] == '"' && !insinglequote)
 		{
 			indoublequote = !indoublequote;
 			// if (indoublequote)
@@ -211,7 +211,7 @@ int ft_parse_space(char *str, t_list **shell, int *i, t_all *all)
 		{
 			j++;
 		}
-		if (str[*i +j] == '"' && !insinglequote)
+		else if (str[*i +j] == '"' && !insinglequote)
 		{
 			indoublequote = !indoublequote;
 			// if (indoublequote)

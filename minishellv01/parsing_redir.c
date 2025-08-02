@@ -14,6 +14,8 @@
 
 int ft_create_fd(t_list **shell, t_redir **t_red);
 
+//creation des fd a partir des redirections
+//pas encore correct
 int ft_create_fd(t_list **shell, t_redir **t_red)
 {
 	t_list *temp;

@@ -63,6 +63,7 @@ int ft_check(char *str, char c)
 	return (0);
 }
 
+//ft_iter pour les redirections, a modifier | pas fonctionnelle correctemnt
 void	ft_lstiter_env(t_list **lst, char **env, t_all *all)
 {
 	t_list *temp;
@@ -94,6 +95,7 @@ void	ft_lstiter_env(t_list **lst, char **env, t_all *all)
 	*lst = temp;
 }
 
+//pas utiliser encore
 void ft_lstiteration(t_all **all, void(*f)(char *))
 {
 	t_list *temp;

@@ -12,6 +12,7 @@
 
 #include "minishell.h"
 
+//execute les commandes 
 int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 {
 	int i;
@@ -70,6 +71,8 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 	return (0);
 }
 
+//pas encore utiliser
+//attribue les state CMD ou ARG sur les token
 void ft_assign_cmd_arg_states(t_list **lst)
 {
 	t_list *temp;
@@ -133,10 +136,13 @@ int main(int argc, char **argv, char **env)
 				continue;
 			}
 			
+			//lstiter_env pour verifier les redirecions '<' '>' '>>' '<<'
 			ft_lstiter_env(&all->shell, env, all);
 	ft_print(all->shell);
 
 			// ft_assign_cmd_arg_states(&all->shell);
+
+
 			//Compte le nombre de commande
 			all->t_cmd = malloc(sizeof(t_commande));
 			all->t_cmd->nbr_cmd = ft_count_commands(all->shell);
@@ -145,9 +151,10 @@ int main(int argc, char **argv, char **env)
 			//Creation des redirections
 			all->t_red = malloc(sizeof(t_redir));
 			all->t_red->infd = -1;
-
 			all->t_red->outfd = -1;
 			ft_create_fd(&all->shell, &all->t_red);
+
+
 			all->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * all->t_cmd->nbr_cmd);
 			if (!all->t_cmd->cmd_tab)
 				return (1);

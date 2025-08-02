@@ -14,6 +14,8 @@
 
 int ft_parse_decoupe(char *str, t_list **shell, t_all *all);
 
+//Premiere eteape du parsing, separe en token en fonction des separateur '"', '\'', ' '
+//prend en compte les echappement avec '\'
 int ft_parse_decoupe(char *str, t_list **shell, t_all *all)
 {
 	int i = 0;

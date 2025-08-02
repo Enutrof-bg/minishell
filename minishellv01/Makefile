@@ -77,7 +77,9 @@ clean:
 	parsing_parsing_3.o \
 	parsing_redir.o \
 	parsing_lst_utils_2.o \
-	parsing_init.o
+	parsing_init.o \
+	cd_test2.o \
+	cd_test.o \
 
 fclean:clean
 	rm -f minishell

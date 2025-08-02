@@ -33,6 +33,7 @@ int ft_print_triple_tab(t_commande *t_cmd)
 	return (0);
 }
 
+//juste initialise a NULL les char**
 int ft_set_triple_tab_null(t_commande *t_cmd)
 {
 	int i = 0;

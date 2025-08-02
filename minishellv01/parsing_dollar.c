@@ -78,197 +78,11 @@ char *get_env_name(char *str, int start)
 		return (NULL);
 	return (ft_substr(str, start, len));
 }
-/*
-char *replace_dollar_vars(char *str, char **env, t_all *all)
-{
-	(void)env;
-	(void)all;
-	int i;
-	char *result;
-	char *env_name;
-	char *env_var;
-	char *temp;
-	int len;
 
-	result = malloc(sizeof(char) * 1);
-	if (!result)
-		return (NULL);
-	result[0] = '\0';
-
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] == '$' && str[i + 1] != '\0')
-		{
-			if (str[i + 1] == '?')
-			{
-				all->exit_status_char = ft_itoa(all->exit_status);
-				temp = ft_strjoin(result, all->exit_status_char);
-				free(result);
-				result = temp;
-				free(all->exit_status_char);
-				i += 2;
-			}
-			else
-			{
-				env_name = get_env_name(str, i + 1);
-				if (env_name)
-				{
-					env_var = get_env_var(env_name, env);
-					if (env_var)
-					{
-						temp = ft_strjoin(result, env_var);
-						free(result);
-						result = temp;
-					}
-					i = i + ft_strlen(env_name) + 1;
-					free(env_name);
-				}
-				else
-				{
-					len = ft_strlen(result);
-					temp = malloc(sizeof(char) * (len + 2));
-					if (!temp)
-						return (NULL);
-					ft_strcpy(temp, result);
-					temp[len] = str[i];
-					temp[len + 1] = '\0';
-					free(result);
-					result = temp;
-					i++;
-				}
-			}
-		}
-		else
-		{
-			len = ft_strlen(result);
-			temp = malloc(sizeof(char) * (len + 2));
-			if (!temp)
-				return (NULL);
-			ft_strcpy(temp, result);
-			temp[len] = str[i];
-			temp[len + 1] = '\0';
-			free(result);
-			result = temp;
-			i++;
-		}
-	}
-	return (result);
-}
-*/
-
-/*
-char *replace_dollar_test2(char *str, char **env, t_all *all)
-{
-	(void)env;
-	// (void)all;
-	int i;
-	char *result;
-	char *env_name;
-	char *env_var;
-	char *temp;
-	int len;
-	int indoublequote;
-	int insinglequote;
-
-	indoublequote = 0;
-	insinglequote = 0;
-	result = malloc(sizeof(char) * 1);
-	if (!result)
-		return (NULL);
-	result[0] = '\0';
-
-	i = 0;
-	while (str[i])
-	{	
-		if (str[i] == '"' && !insinglequote)
-		{
-			indoublequote = !indoublequote;
-			i++;
-		}
-		else if (str[i] == '\'' && !indoublequote)
-		{
-			insinglequote = !insinglequote;
-			i++;
-		}
-		else if (str[i] == '\\' && (str[i +1] == '\\' || str[i +1] == '$' || str[i +1] == '"'
-					|| str[i +1] == '\'' || str[i +1] == ' ') && (insinglequote == 0 ))
-		{
-			len = ft_strlen(result);
-			temp = malloc(sizeof(char) * (len + 2));
-			if (!temp)
-				return (NULL);
-			ft_strcpy(temp, result);
-			temp[len] = str[i+1];
-			temp[len + 1] = '\0';
-			free(result);
-			result = temp;
-			i+=2;
-		}
-		else if (str[i] == '$' && (str[i + 1] == '\'' || str[i + 1] == '"')
-			&& (insinglequote == 0 && indoublequote == 0))
-		{
-			i++;
-		}
-		else if (str[i] == '$' && str[i + 1] != '\0' && insinglequote == 0)
-		{
-			if (str[i + 1] == '?')
-			{
-				all->exit_status_char = ft_itoa(all->exit_status);
-				temp = ft_strjoin(result, all->exit_status_char);
-				free(result);
-				result = temp;
-				free(all->exit_status_char);
-				i += 2;
-			}
-			else
-			{
-				env_name = get_env_name(str, i + 1);
-				if (env_name)
-				{
-					env_var = get_env_var(env_name, env);
-					if (env_var)
-					{
-						temp = ft_strjoin(result, env_var);
-						free(result);
-						result = temp;
-					}
-					i = i + ft_strlen(env_name) + 1;
-					free(env_name);
-				}
-				else
-				{
-					len = ft_strlen(result);
-					temp = malloc(sizeof(char) * (len + 2));
-					if (!temp)
-						return (NULL);
-					ft_strcpy(temp, result);
-					temp[len] = str[i];
-					temp[len + 1] = '\0';
-					free(result);
-					result = temp;
-					i++;
-				}
-			}
-		}
-		else
-		{
-			len = ft_strlen(result);
-			temp = malloc(sizeof(char) * (len + 2));
-			if (!temp)
-				return (NULL);
-			ft_strcpy(temp, result);
-			temp[len] = str[i];
-			temp[len + 1] = '\0';
-			free(result);
-			result = temp;
-			i++;
-		}
-	}
-	return (result);
-}
-*/
-
+//Deuxieme etape du parsing
+//expand les $ sauf dans les singlequote
+//enleve les quotes non literal
+//recupere le exit status avec $?
 char *replace_dollar_test2(char *str, char **env, t_all *all)
 {
     int i;
@@ -446,6 +260,86 @@ char *replace_dollar_test2(char *str, char **env, t_all *all)
     }
     return (result);
 }
+
+/*
+char *replace_dollar_vars(char *str, char **env, t_all *all)
+{
+	(void)env;
+	(void)all;
+	int i;
+	char *result;
+	char *env_name;
+	char *env_var;
+	char *temp;
+	int len;
+
+	result = malloc(sizeof(char) * 1);
+	if (!result)
+		return (NULL);
+	result[0] = '\0';
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == '$' && str[i + 1] != '\0')
+		{
+			if (str[i + 1] == '?')
+			{
+				all->exit_status_char = ft_itoa(all->exit_status);
+				temp = ft_strjoin(result, all->exit_status_char);
+				free(result);
+				result = temp;
+				free(all->exit_status_char);
+				i += 2;
+			}
+			else
+			{
+				env_name = get_env_name(str, i + 1);
+				if (env_name)
+				{
+					env_var = get_env_var(env_name, env);
+					if (env_var)
+					{
+						temp = ft_strjoin(result, env_var);
+						free(result);
+						result = temp;
+					}
+					i = i + ft_strlen(env_name) + 1;
+					free(env_name);
+				}
+				else
+				{
+					len = ft_strlen(result);
+					temp = malloc(sizeof(char) * (len + 2));
+					if (!temp)
+						return (NULL);
+					ft_strcpy(temp, result);
+					temp[len] = str[i];
+					temp[len + 1] = '\0';
+					free(result);
+					result = temp;
+					i++;
+				}
+			}
+		}
+		else
+		{
+			len = ft_strlen(result);
+			temp = malloc(sizeof(char) * (len + 2));
+			if (!temp)
+				return (NULL);
+			ft_strcpy(temp, result);
+			temp[len] = str[i];
+			temp[len + 1] = '\0';
+			free(result);
+			result = temp;
+			i++;
+		}
+	}
+	return (result);
+}
+*/
+
 
 /*
 int main(int argc, char **argv, char **env)
