@@ -47,13 +47,58 @@ int ft_set_triple_tab_null(t_commande *t_cmd)
 
 int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd)
 {
-	int i = 0;
+	// t_list *temp = *shell;
 
+	int i = 0;
+	int prev_infd = -1;
+    int prev_outfd = -1;
+    (*t_cmd)->cmd_tab[i].infd = -1;
+    (*t_cmd)->cmd_tab[i].outfd = -1;
+    // (*t_cmd)->cmd_tab[i].errfd = -1;
 	t_list *temp = *shell;
 	while (*shell != NULL)
 	{
 		if ((*shell)->state == NORMAL || (*shell)->state == DOUBLEQUOTE || (*shell)->state == SINGLEQUOTE)
 			(*t_cmd)->cmd_tab[i].cmd_args = ft_add_double_tab((*shell)->str, (*t_cmd)->cmd_tab[i].cmd_args);
+		if ((*shell)->state == INFILE)
+		{
+			if (prev_infd != -1)
+				close(prev_infd);
+			(*t_cmd)->cmd_tab[i].infd = open((*shell)->str, O_RDONLY, 0644);
+			if ((*t_cmd)->cmd_tab[i].infd < 0)
+			{
+				perror((*shell)->str);
+				*shell = temp;
+                return (-1);
+			}
+			prev_infd = (*t_cmd)->cmd_tab[i].infd;
+		}
+		else if ((*shell)->state == OUTFILE)
+		{
+			if (prev_outfd != -1)
+				close(prev_outfd);
+			(*t_cmd)->cmd_tab[i].outfd = open((*shell)->str, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+			if ((*t_cmd)->cmd_tab[i].outfd < 0)
+			{
+				perror((*shell)->str);
+				*shell = temp;
+                return (-1);
+			}
+			prev_outfd = (*t_cmd)->cmd_tab[i].outfd;
+		}
+		else if ((*shell)->state == OUTFILEAPPEND)
+	    {
+	        if (prev_outfd != -1)
+	            close(prev_outfd);
+	        (*t_cmd)->cmd_tab[i].outfd = open((*shell)->str, O_WRONLY | O_APPEND | O_CREAT, 0644);
+	        if ((*t_cmd)->cmd_tab[i].outfd < 0)
+	        {
+	            perror((*shell)->str);
+	            *shell = temp;
+	            return (-1);
+	        }
+	        prev_outfd = (*t_cmd)->cmd_tab[i].outfd;
+	    }
 		if ((*shell)->state == PIPE)
 			i++;
 		(*shell) = (*shell)->next;

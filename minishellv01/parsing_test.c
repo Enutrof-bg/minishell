@@ -12,6 +12,27 @@
 
 #include "minishell.h"
 
+// if (i == 0)
+// {
+// 	if (t_cmd->cmd_tab[i].infd >= 0)
+// 		dup2(t_cmd->cmd_tab[i].infd, 0);
+// 	if (t_cmd->nbr_cmd > 1)
+// 		dup2(t_cmd->cmd_tab[i].fd[1], 1);
+// 	else if (t_cmd->cmd_tab[i].outfd >= 0)
+// 		dup2(t_cmd->cmd_tab[i].outfd, 1);
+// }
+// else if (i == t_cmd->nbr_cmd - 1)
+// {
+// 	dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
+// 	if (t_cmd->cmd_tab[i].outfd >= 0)
+// 		dup2(t_cmd->cmd_tab[i].outfd, 1);
+// }
+// else
+// {
+// 	dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
+// 	dup2(t_cmd->cmd_tab[i].fd[1], 1);
+// }
+
 //execute les commandes 
 int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 {
@@ -158,7 +179,7 @@ int main(int argc, char **argv, char **env)
 			all->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * all->t_cmd->nbr_cmd);
 			if (!all->t_cmd->cmd_tab)
 				return (1);
-
+			// all->t_cmd->cm
 			//Creation des doubles tableaux pour les commandes
 			ft_set_triple_tab_null(all->t_cmd);
 			ft_create_triple_tab(&all->shell, &all->t_cmd);

@@ -35,3 +35,7 @@ echo "hello'$a'"  'hello"$a"' hello"$a" hello'$a'
 echo "1$a hello'$a'" '2$a hello"$a"' 3$a hello"$a" 4$a hello'$a'
 
 echo te"$a"st'world'
+
+cat -e < infile > s1 | echo abc | < infile cat -e > s2 > s3
+
+cat -e < infile > s1 | cat -e | cat -e > s2 > s3

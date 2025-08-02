@@ -50,6 +50,8 @@ typedef struct s_cmd_tab
 	int fd[2];
 	int id1;
 
+	int infd;
+	int outfd;
 }t_cmd_tab;
 
 typedef struct s_cmd
