@@ -43,7 +43,8 @@ parsing_parsing_3.c \
 parsing_redir.c \
 parsing_lst_utils_2.c \
 parsing_init.c \
-cd_test.c
+cd_test2.c \
+# cd_test2.c
 
 SRC = ${FILE:.c=.o}
 

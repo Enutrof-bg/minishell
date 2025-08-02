@@ -86,6 +86,7 @@ char	*ft_itoa(int n);
 
 //cd_test.c
 int is_builtin(char **tab);
+int is_builtin2(char **tab, t_all **all);
 
 //exec_pipe.c  
 int	ft_open_pipe(t_commande *t_cmd);
@@ -108,6 +109,10 @@ char	*ft_strdup(char *s);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 
 //parsing_dollar
+char *ft_strcpy(char *dest, char *src);
+int ft_isalnum(char c);
+char *get_env_var(char *str, char **env);
+char *get_env_name(char *str, int start);
 char *replace_dollar_vars(char *str, char **env, t_all *all);
 char *replace_dollar_test2(char *str, char **env, t_all *all);
 

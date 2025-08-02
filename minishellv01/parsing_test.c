@@ -19,7 +19,11 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 	i = 0;
 	while (i < t_cmd->nbr_cmd)
 	{
-		if (is_builtin(t_cmd->cmd_tab[i].cmd_args) == 1)
+		// if (is_builtin(t_cmd->cmd_tab[i].cmd_args) == 1)
+		// {
+		// 	printf("builtin\n");
+		// }
+		if (is_builtin2(t_cmd->cmd_tab[i].cmd_args, &all) == 1)
 		{
 			printf("builtin\n");
 		}
