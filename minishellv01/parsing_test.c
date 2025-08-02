@@ -32,19 +32,15 @@
 // 	dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
 // 	dup2(t_cmd->cmd_tab[i].fd[1], 1);
 // }
-
 //execute les commandes 
 int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 {
 	int i;
+	(void)t_red;
 	(void)all;
 	i = 0;
 	while (i < t_cmd->nbr_cmd)
 	{
-		// if (is_builtin(t_cmd->cmd_tab[i].cmd_args) == 1)
-		// {
-		// 	printf("builtin\n");
-		// }
 		if (is_builtin2(t_cmd->cmd_tab[i].cmd_args, &all) == 1)
 		{
 			printf("builtin\n");
@@ -75,13 +71,6 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 					dup2(t_cmd->cmd_tab[i].fd[1], 1);
 				}
 				ft_close_pipe(t_cmd);
-				// if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "echo", 4) == 0
-				// 	&& ft_strncmp(t_cmd->cmd_tab[i].cmd_args[1], "$?", 2) == 0)
-				// {
-				// 	all->exit_status_char = ft_itoa(all->exit_status);
-				// 	free(all->exit_status_char);
-				// }
-				// else
 				if (exec(t_cmd->cmd_tab[i].cmd_args, env) == -1)
 					exit(127);
 				exit(1);
@@ -89,6 +78,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 		}
 		i++;
 	}
+	ft_close_pipe(t_cmd);
 	return (0);
 }
 
@@ -188,8 +178,8 @@ int main(int argc, char **argv, char **env)
 			//Execution
 			ft_open_pipe(all->t_cmd);
 			ft_exec_commande(all->t_cmd, all->t_red, all,env);
-			ft_close_pipe(all->t_cmd);
 			ft_waitpid(all->t_cmd);
+			ft_close_pipe(all->t_cmd);
 
 			//exit code
 			// int exit_status = 0;
