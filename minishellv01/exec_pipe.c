@@ -39,27 +39,6 @@ void	ft_close_pipe(t_commande *t_cmd)
 	}
 }
 
-// void	ft_close_pipe(t_commande *t_cmd)
-// {
-// 	int	i;
-
-// 	i = 0;
-// 	while (i < t_cmd->nbr_cmd - 1)
-// 	{
-// 		if (t_cmd->cmd_tab[i].fd[0] >= 0)
-// 		{
-// 			close(t_cmd->cmd_tab[i].fd[0]);
-// 			t_cmd->cmd_tab[i].fd[0] = -1;
-// 		}
-// 		if (t_cmd->cmd_tab[i].fd[1] >= 0)
-// 		{
-// 			close(t_cmd->cmd_tab[i].fd[1]);
-// 			t_cmd->cmd_tab[i].fd[1] = -1;
-// 		}
-// 		i++;
-// 	}
-// }
-
 void	ft_waitpid(t_commande *t_cmd)
 {
 	int	j;

@@ -50,26 +50,22 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 			t_cmd->cmd_tab[i].id1 = fork();
 			if (t_cmd->cmd_tab[i].id1 == 0)
 			{
-				if (i == 0)
-				{
-					if (t_red->infd >= 0)
-						dup2(t_red->infd, 0);
-					if (t_cmd->nbr_cmd > 1)
-						dup2(t_cmd->cmd_tab[i].fd[1], 1);
-					else if (t_red->outfd >= 0)
-						dup2(t_red->outfd, 1);
-				}
-				else if (i == t_cmd->nbr_cmd - 1)
-				{
+				// Gestion des redirections d'entrée pour toutes les commandes
+				if (t_cmd->cmd_tab[i].infd >= 0)
+					dup2(t_cmd->cmd_tab[i].infd, 0);
+				else if (i > 0)  // Si pas de redirection d'entrée, utiliser le pipe précédent
 					dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
-					if (t_red->outfd >= 0)
-						dup2(t_red->outfd, 1);
-				}
-				else
+				
+				// Gestion des redirections de sortie pour toutes les commandes
+				if (t_cmd->cmd_tab[i].outfd >= 0)
 				{
-					dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
+					// printf("redirection sortie pour commande %d\n", i);
+					dup2(t_cmd->cmd_tab[i].outfd, 1);
+				}
+				else if (i < t_cmd->nbr_cmd - 1)  // Si pas de redirection de sortie, utiliser le pipe suivant
 					dup2(t_cmd->cmd_tab[i].fd[1], 1);
-				}
+				// Sinon, la sortie reste stdout (cas de la dernière commande sans redirection)
+				
 				ft_close_pipe(t_cmd);
 				if (exec(t_cmd->cmd_tab[i].cmd_args, env) == -1)
 					exit(127);
@@ -149,7 +145,7 @@ int main(int argc, char **argv, char **env)
 			
 			//lstiter_env pour verifier les redirecions '<' '>' '>>' '<<'
 			ft_lstiter_env(&all->shell, env, all);
-	ft_print(all->shell);
+	// ft_print(all->shell);
 
 			// ft_assign_cmd_arg_states(&all->shell);
 
@@ -172,8 +168,12 @@ int main(int argc, char **argv, char **env)
 			// all->t_cmd->cm
 			//Creation des doubles tableaux pour les commandes
 			ft_set_triple_tab_null(all->t_cmd);
-			ft_create_triple_tab(&all->shell, &all->t_cmd);
-	ft_print_triple_tab(all->t_cmd);
+			if (ft_create_triple_tab(&all->shell, &all->t_cmd, &all) == -1)
+			{
+				free(str);
+				continue;
+			}
+	// ft_print_triple_tab(all->t_cmd);
 
 			//Execution
 			ft_open_pipe(all->t_cmd);

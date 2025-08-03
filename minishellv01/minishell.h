@@ -164,7 +164,7 @@ int ft_create_fd(t_list **shell, t_redir **t_red);
 //parsing_triple_tab.c
 int ft_print_triple_tab(t_commande *t_cmd);
 int ft_set_triple_tab_null(t_commande *t_cmd);
-int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd);
+int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all);
 
 //pipex_path
 void	ft_err(char *msg1, char *msg2);
