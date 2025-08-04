@@ -45,6 +45,10 @@ int ft_set_triple_tab_null(t_commande *t_cmd)
 		t_cmd->cmd_tab[i].input_failed = 0;
 		t_cmd->cmd_tab[i].output_failed = 0;
 		t_cmd->cmd_tab[i].id1 = -1;
+		t_cmd->cmd_tab[i].infd = -1;
+		t_cmd->cmd_tab[i].outfd = -1;
+		t_cmd->cmd_tab[i].in_str = NULL;
+		t_cmd->cmd_tab[i].out_str = NULL;
 		i++;
 	}
 	return (0);
@@ -151,7 +155,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 			if ((*t_cmd)->cmd_tab[i].infd < 0)
 			{
 				// perror((*shell)->str);
-				(*t_cmd)->cmd_tab->in_str = (*shell)->str;
+				(*t_cmd)->cmd_tab[i].in_str = (*shell)->str;
 				(*all)->exit_status = 1; // Set exit status to indicate error
 				(*t_cmd)->cmd_tab[i].infd = -1; // Marquer comme échec
 				(*t_cmd)->cmd_tab[i].input_failed = 1; // Marquer que la redirection a échoué
@@ -168,7 +172,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 			if ((*t_cmd)->cmd_tab[i].outfd < 0)
 			{
 				// perror((*shell)->str);
-				(*t_cmd)->cmd_tab->out_str = (*shell)->str;
+				(*t_cmd)->cmd_tab[i].out_str = (*shell)->str;
 				(*all)->exit_status = 1; // Set exit status to indicate error
 				(*t_cmd)->cmd_tab[i].outfd = -1; // Marquer comme échec
 				(*t_cmd)->cmd_tab[i].output_failed = 1;
@@ -185,7 +189,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 	        if ((*t_cmd)->cmd_tab[i].outfd < 0)
 	        {
 	            // perror((*shell)->str);
-	            (*t_cmd)->cmd_tab->out_str = (*shell)->str;
+	            (*t_cmd)->cmd_tab[i].out_str = (*shell)->str;
 				(*all)->exit_status = 1; // Set exit status to indicate error
 				(*t_cmd)->cmd_tab[i].outfd = -1; // Marquer comme échec
 				(*t_cmd)->cmd_tab[i].output_failed = 1;
@@ -202,6 +206,8 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 			(*t_cmd)->cmd_tab[i].outfd = -1;
 			(*t_cmd)->cmd_tab[i].input_failed = 0;
 			(*t_cmd)->cmd_tab[i].output_failed = 0;
+			(*t_cmd)->cmd_tab[i].in_str = NULL;
+			(*t_cmd)->cmd_tab[i].out_str = NULL;
 			// Réinitialiser les variables de suivi des fd précédents
 			prev_infd = -1;
 			prev_outfd = -1;
