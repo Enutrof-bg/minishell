@@ -155,7 +155,8 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 			if ((*t_cmd)->cmd_tab[i].infd < 0)
 			{
 				// perror((*shell)->str);
-				(*t_cmd)->cmd_tab[i].in_str = (*shell)->str;
+				if ((*t_cmd)->cmd_tab[i].input_failed == 0)
+					(*t_cmd)->cmd_tab[i].in_str = (*shell)->str;
 				(*all)->exit_status = 1; // Set exit status to indicate error
 				(*t_cmd)->cmd_tab[i].infd = -1; // Marquer comme échec
 				(*t_cmd)->cmd_tab[i].input_failed = 1; // Marquer que la redirection a échoué
@@ -172,7 +173,8 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 			if ((*t_cmd)->cmd_tab[i].outfd < 0)
 			{
 				// perror((*shell)->str);
-				(*t_cmd)->cmd_tab[i].out_str = (*shell)->str;
+				if ((*t_cmd)->cmd_tab[i].output_failed == 0)
+					(*t_cmd)->cmd_tab[i].out_str = (*shell)->str;
 				(*all)->exit_status = 1; // Set exit status to indicate error
 				(*t_cmd)->cmd_tab[i].outfd = -1; // Marquer comme échec
 				(*t_cmd)->cmd_tab[i].output_failed = 1;
@@ -189,7 +191,8 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 	        if ((*t_cmd)->cmd_tab[i].outfd < 0)
 	        {
 	            // perror((*shell)->str);
-	            (*t_cmd)->cmd_tab[i].out_str = (*shell)->str;
+	            if ((*t_cmd)->cmd_tab[i].output_failed == 0)
+	            	(*t_cmd)->cmd_tab[i].out_str = (*shell)->str;
 				(*all)->exit_status = 1; // Set exit status to indicate error
 				(*t_cmd)->cmd_tab[i].outfd = -1; // Marquer comme échec
 				(*t_cmd)->cmd_tab[i].output_failed = 1;
