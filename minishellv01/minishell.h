@@ -54,8 +54,11 @@ typedef struct s_cmd_tab
 	int outfd;
 	int input_failed; // 1 si redirection d'entrée a échoué, 0 sinon
 	int output_failed;
+<<<<<<< HEAD
 	char *in_str;
 	char *out_str;
+=======
+>>>>>>> 60d828a32341b378529f79f18ce40cac863d50b5
 }t_cmd_tab;
 
 typedef struct s_cmd
