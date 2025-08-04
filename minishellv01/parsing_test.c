@@ -54,6 +54,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 			if (t_cmd->cmd_tab[i].output_failed == 1)
 			{
 				perror(t_cmd->cmd_tab[i].out_str);
+				// ft_err(t_cmd->cmd_tab[i].out_str, "Permission denied");
 			}
 			// Ne pas exécuter la commande si redirection d'entrée a échoué
 			t_cmd->cmd_tab[i].id1 = -1; // Marquer comme non créé
@@ -228,7 +229,7 @@ int main(int argc, char **argv, char **env)
 			}
 			else if (process_executed == 0)
 			{
-				// Si aucun processus n'a été exécuté mais qu'aucune erreur n'a été détectée, exit_status = 0
+				//Si aucun processus n'a été exécuté mais qu'aucune erreur n'a été détectée, exit_status = 0
 				int has_error = 0;
 				j = 0;
 				while (j < all->t_cmd->nbr_cmd)

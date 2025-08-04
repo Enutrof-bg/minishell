@@ -131,6 +131,10 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 	int i = 0;
 	int prev_infd = -1;
     int prev_outfd = -1;
+
+    // int input_fail = 0;
+    // int output_fail = 0;
+    
     (*t_cmd)->cmd_tab[i].infd = -1;
     (*t_cmd)->cmd_tab[i].outfd = -1;
     // (*t_cmd)->cmd_tab[i].errfd = -1;

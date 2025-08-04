@@ -39,3 +39,5 @@ echo te"$a"st'world'
 cat -e < infile > s1 | echo abc | < infile cat -e > s2 > s3
 
 cat -e < infile > s1 | cat -e | cat -e > s2 > s3
+
+ls < infile >> out1 > s1
