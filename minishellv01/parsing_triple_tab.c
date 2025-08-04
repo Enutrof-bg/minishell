@@ -42,6 +42,9 @@ int ft_set_triple_tab_null(t_commande *t_cmd)
 	while (i < t_cmd->nbr_cmd)
 	{
 		t_cmd->cmd_tab[i].cmd_args = NULL;
+		t_cmd->cmd_tab[i].input_failed = 0;
+		t_cmd->cmd_tab[i].output_failed = 0;
+		t_cmd->cmd_tab[i].id1 = -1;
 		i++;
 	}
 	return (0);
