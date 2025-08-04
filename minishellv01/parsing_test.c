@@ -1,6 +1,9 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        :::      ::::::::   */
+/*			//Compte le nombre de commande
+			all->t_cmd = malloc(sizeof(t_commande));
+			all->t_cmd->nbr_cmd = ft_count_commands(all->shell);
+			// printf("nbr commande: %d\n", all->t_cmd->nbr_cmd);                                                    :::      ::::::::   */
 /*   parsing_test.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kevwang <kevwang@student.42.fr>            +#+  +:+       +#+        */
@@ -41,9 +44,30 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 	i = 0;
 	while (i < t_cmd->nbr_cmd)
 	{
+		// Vérifier si la commande a des redirections d'entrée qui ont échoué
+		if (t_cmd->cmd_tab[i].input_failed == 1 || t_cmd->cmd_tab[i].output_failed == 1)
+		{
+			if (t_cmd->cmd_tab[i].input_failed == 1)
+			{
+				perror(t_cmd->cmd_tab[i].in_str);
+			}
+			if (t_cmd->cmd_tab[i].output_failed == 1)
+			{
+				perror(t_cmd->cmd_tab[i].out_str);
+			}
+			// Ne pas exécuter la commande si redirection d'entrée a échoué
+			t_cmd->cmd_tab[i].id1 = -1; // Marquer comme non créé
+			i++;
+			continue;
+		}
+
+		//condition pour verifier uniquement si les builtin existent
+		//puis dup2
+		//puis executer les fonctions
 		if (is_builtin2(t_cmd->cmd_tab[i].cmd_args, &all) == 1)
 		{
 			printf("builtin\n");
+			t_cmd->cmd_tab[i].id1 = -1; // Les builtins n'ont pas de processus fils
 		}
 		else
 		{
@@ -124,9 +148,11 @@ int main(int argc, char **argv, char **env)
 	{
 		all = malloc(sizeof(t_all));
 		all->env = env;
+		all->exit_status = 0; // Initialiser l'exit status à 0 au début du programme
 		while (1)
 		{
 			all->shell = NULL;
+			// Ne pas réinitialiser exit_status ici, le garder de la commande précédente
 			str = readline("CacaTest >");
 			add_history(str);
 
@@ -156,10 +182,10 @@ int main(int argc, char **argv, char **env)
 			// printf("nbr commande: %d\n", t_cmd->nbr_cmd);
 
 			//Creation des redirections
-			all->t_red = malloc(sizeof(t_redir));
-			all->t_red->infd = -1;
-			all->t_red->outfd = -1;
-			ft_create_fd(&all->shell, &all->t_red);
+			// all->t_red = malloc(sizeof(t_redir));
+			// all->t_red->infd = -1;
+			// all->t_red->outfd = -1;
+			// ft_create_fd(&all->shell, &all->t_red);
 
 
 			all->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * all->t_cmd->nbr_cmd);
@@ -183,12 +209,46 @@ int main(int argc, char **argv, char **env)
 
 			//exit code
 			// int exit_status = 0;
-			if (WIFEXITED(all->t_cmd->status))
+			// Seulement mettre à jour l'exit status si un processus a réellement été exécuté
+			int process_executed = 0;
+			int j = 0;
+			while (j < all->t_cmd->nbr_cmd)
+			{
+				if (all->t_cmd->cmd_tab[j].id1 > 0)
+				{
+					process_executed = 1;
+					break;
+				}
+				j++;
+			}
+			
+			if (process_executed && WIFEXITED(all->t_cmd->status))
+			{
 				all->exit_status = WEXITSTATUS(all->t_cmd->status);
+			}
+			else if (process_executed == 0)
+			{
+				// Si aucun processus n'a été exécuté mais qu'aucune erreur n'a été détectée, exit_status = 0
+				int has_error = 0;
+				j = 0;
+				while (j < all->t_cmd->nbr_cmd)
+				{
+					if (all->t_cmd->cmd_tab[j].input_failed == 1
+						|| all->t_cmd->cmd_tab[j].output_failed == 1)
+					{
+						has_error = 1;
+						break;
+					}
+					j++;
+				}
+				if (has_error == 0)
+					all->exit_status = 0;
+			}
+			// Si aucun processus n'a été exécuté à cause d'erreurs, garder l'exit_status précédent
 			// printf("exit:%d\n", all->exit_status);
 
 			//free
-			int j = 0;
+			j = 0;
 			while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
 			{
 				ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
