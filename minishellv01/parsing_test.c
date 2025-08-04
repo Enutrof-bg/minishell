@@ -59,15 +59,15 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 			// Ne pas exécuter la commande si redirection d'entrée a échoué
 			t_cmd->cmd_tab[i].id1 = -1; // Marquer comme non créé
 			i++;
-			continue;
+			continue ;
 		}
 
 		//condition pour verifier uniquement si les builtin existent
 		//puis dup2
 		//puis executer les fonctions
-		if (is_builtin2(t_cmd->cmd_tab[i].cmd_args, &all) == 1)
+		if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, &all) == 1)
 		{
-			printf("builtin\n");
+			// printf("builtin\n");
 			t_cmd->cmd_tab[i].id1 = -1; // Les builtins n'ont pas de processus fils
 		}
 		else

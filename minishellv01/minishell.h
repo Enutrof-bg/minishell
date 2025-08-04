@@ -94,7 +94,7 @@ char	*ft_itoa(int n);
 //cd_test.c
 int is_builtin(char **tab);
 int is_builtin2(char **tab, t_all **all);
-
+int is_builtin_3(char **tab, t_all **all);
 //exec_pipe.c  
 int	ft_open_pipe(t_commande *t_cmd);
 void	ft_close_pipe(t_commande *t_cmd);
@@ -126,6 +126,7 @@ char *replace_dollar_test2(char *str, char **env, t_all *all);
 //parsing_double_tab.c
 char	**ft_copy_double_tab(char **tab);
 char	**ft_add_double_tab(char *str, char **tab);
+char **ft_remove_double_tab(char *str, char **tab);
 
 //parsing_free.c
 void	ft_free_double_tab(char **tab);

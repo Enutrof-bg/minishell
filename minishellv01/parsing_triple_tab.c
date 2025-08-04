@@ -147,7 +147,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 	{
 		if ((*shell)->state == NORMAL || (*shell)->state == DOUBLEQUOTE || (*shell)->state == SINGLEQUOTE)
 			(*t_cmd)->cmd_tab[i].cmd_args = ft_add_double_tab((*shell)->str, (*t_cmd)->cmd_tab[i].cmd_args);
-		if ((*shell)->state == INFILE)
+		if ((*shell)->state == INFILE && (*t_cmd)->cmd_tab[i].input_failed == 0)
 		{
 			if (prev_infd != -1)
 				close(prev_infd);
@@ -166,7 +166,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 			else
 				prev_infd = (*t_cmd)->cmd_tab[i].infd;
 		}
-		if ((*shell)->state == OUTFILE && (*t_cmd)->cmd_tab[i].output_failed == 0)
+		if ((*shell)->state == OUTFILE && (*t_cmd)->cmd_tab[i].output_failed == 0 && (*t_cmd)->cmd_tab[i].input_failed == 0)
 		{
 			if (prev_outfd != -1)
 				close(prev_outfd);
@@ -185,7 +185,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 			else
 				prev_outfd = (*t_cmd)->cmd_tab[i].outfd;
 		}
-		if ((*shell)->state == OUTFILEAPPEND && (*t_cmd)->cmd_tab[i].output_failed == 0)
+		if ((*shell)->state == OUTFILEAPPEND && (*t_cmd)->cmd_tab[i].output_failed == 0 && (*t_cmd)->cmd_tab[i].input_failed == 0)
 	    {
 	        if (prev_outfd != -1)
 	            close(prev_outfd);
