@@ -47,15 +47,15 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 		// Vérifier si la commande a des redirections d'entrée qui ont échoué
 		if (t_cmd->cmd_tab[i].input_failed == 1 || t_cmd->cmd_tab[i].output_failed == 1)
 		{
-			if (t_cmd->cmd_tab[i].input_failed == 1)
-			{
-				perror(t_cmd->cmd_tab[i].in_str);
-			}
-			if (t_cmd->cmd_tab[i].output_failed == 1)
-			{
-				perror(t_cmd->cmd_tab[i].out_str);
-				// ft_err(t_cmd->cmd_tab[i].out_str, "Permission denied");
-			}
+			// if (t_cmd->cmd_tab[i].input_failed == 1)
+			// {
+			// 	perror(t_cmd->cmd_tab[i].in_str);
+			// }
+			// if (t_cmd->cmd_tab[i].output_failed == 1)
+			// {
+			// 	perror(t_cmd->cmd_tab[i].out_str);
+			// 	// ft_err(t_cmd->cmd_tab[i].out_str, "Permission denied");
+			// }
 			// Ne pas exécuter la commande si redirection d'entrée a échoué
 			t_cmd->cmd_tab[i].id1 = -1; // Marquer comme non créé
 			i++;
