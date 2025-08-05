@@ -492,7 +492,8 @@ int is_builtin_3(char **tab, t_all **all)
 			(*all)->exit_status = 1;
 			return (1);
 		}
-		exit(ft_atoi(tab[1]) % 256);
+		if ((*all)->t_cmd->nbr_cmd == 1)
+			exit(ft_atoi(tab[1]) % 256);
 		return (1);
 	}
 	if (is_builtin_2(tab, all))
