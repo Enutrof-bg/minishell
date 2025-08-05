@@ -21,6 +21,7 @@
 #include <readline/history.h> // pour readline etc
 #include <sys/types.h>//wait
 #include <sys/wait.h>//wait
+#include <sys/stat.h>//stat
 
 #define SINGLEQUOTE 1
 #define DOUBLEQUOTE 2

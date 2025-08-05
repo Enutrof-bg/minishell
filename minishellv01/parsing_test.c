@@ -36,7 +36,7 @@
 // 	dup2(t_cmd->cmd_tab[i].fd[1], 1);
 // }
 //execute les commandes 
-int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
+int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 {
 	int i;
 	(void)t_red;
@@ -44,6 +44,14 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 	i = 0;
 	while (i < t_cmd->nbr_cmd)
 	{
+		// Vérifier si la commande existe et a des arguments
+		if (!t_cmd->cmd_tab[i].cmd_args || !t_cmd->cmd_tab[i].cmd_args[0])
+		{
+			t_cmd->cmd_tab[i].id1 = -1;
+			i++;
+			continue;
+		}
+		
 		// Vérifier si la commande a des redirections d'entrée qui ont échoué
 		if (t_cmd->cmd_tab[i].input_failed == 1 || t_cmd->cmd_tab[i].output_failed == 1)
 		{
@@ -65,7 +73,8 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 		//condition pour verifier uniquement si les builtin existent
 		//puis dup2
 		//puis executer les fonctions
-		if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "echo", 4) == 0)
+		if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "echo", 4) == 0
+			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd", 3) == 0)
 		{
 
 			// printf("builtin\n");
@@ -89,14 +98,14 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 				
 				ft_close_pipe(t_cmd);
 
-				if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, &all) == 1)
+				if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, all) == 1)
 				{
-					all->exit_status = 0;
+					// (*all)->exit_status = 0;
 				}
-				else
-				{
-					all->exit_status = 1;
-				}
+				// else
+				// {
+				// 	(*all)->exit_status = 1;
+				// }
 				// ft_close_pipe(t_cmd);
 				t_cmd->cmd_tab[i].id1 = -1; // Les builtins n'ont pas de processus fils
 				exit(0);
@@ -105,10 +114,22 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 		else if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "export", 6) == 0
 			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "unset", 5) == 0
 			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "cd", 2) == 0
-			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd", 3) == 0
+			// || ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd", 3) == 0
 			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
 		{
-			is_builtin_3(t_cmd->cmd_tab[i].cmd_args, &all);
+            if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, all) == 1)
+            {
+                // printf("je suis la\n");
+                // printf("exit1:%d\n", (*all)->exit_status);
+                // (*all)->exit_status = homemade_cd(t_cmd->cmd_tab[i].cmd_args, all);
+                // printf("exit2:%d\n", (*all)->exit_status);
+                t_cmd->cmd_tab[i].id1 = fork();
+                if (t_cmd->cmd_tab[i].id1 == 0)
+                {
+                    ft_close_pipe(t_cmd);
+                    exit((*all)->exit_status);
+                }
+            }
 		}
 		else
 		{
@@ -198,8 +219,45 @@ char **create_default_env(void)
     tab = ft_add_double_tab(str, tab);
     tab = ft_add_double_tab("_=/usr/bin/env", tab);
 	tab = ft_add_double_tab("SHLVL=1", tab);
-    return (tab);
+   return (tab);
 }
+
+void ft_concatenate(t_list **lst)
+{
+	// t_list *current;
+	// t_list *next;
+	t_list *temp;
+	// char *new_str;
+
+	if (!lst || !*lst)
+		return;
+	// current = *lst;
+	temp = *lst;
+	// if ((*lst)->state == NORMAL && (!(*lst)->str || (*lst)->str[0] == '\0'))
+	// {
+	// 	(*lst) = (*lst)->next;
+	// }
+	while (*lst && (*lst)->next)
+	{
+		
+
+		if ((*lst)->next->state == NORMAL && (!(*lst)->next->str || (*lst)->next->str[0] == '\0'))
+		{
+			(*lst)->next = (*lst)->next->next;
+			continue ;
+		}
+
+		(*lst) = (*lst)->next;
+		
+	}
+	(*lst) = temp;
+	if ((*lst)->state == NORMAL && (!(*lst)->str || (*lst)->str[0] == '\0'))
+	{
+		(*lst) = (*lst)->next;
+	}
+	// (*lst) = temp;
+}
+
 
 //caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c ft_itoa.c -lreadline -o minishell
 int main(int argc, char **argv, char **env)
@@ -227,6 +285,16 @@ int main(int argc, char **argv, char **env)
 			all->shell = NULL;
 			// Ne pas réinitialiser exit_status ici, le garder de la commande précédente
 			str = readline("CacaTest >");
+			if (!str) // Ctrl+D (EOF)
+			{
+				printf("exit\n");
+				break;
+			}
+			if (!str[0]) // Chaîne vide
+			{
+				free(str);
+				continue;
+			}
 			add_history(str);
 
 			// if (ft_strncmp(str, "exit", 4) == 0)
@@ -242,6 +310,8 @@ int main(int argc, char **argv, char **env)
 				continue;
 			}
 			
+			ft_concatenate(&all->shell);
+
 			//lstiter_env pour verifier les redirecions '<' '>' '>>' '<<'
 			ft_lstiter_env(&all->shell, env, all);
 	// ft_print(all->shell);
@@ -272,11 +342,43 @@ int main(int argc, char **argv, char **env)
 				free(str);
 				continue;
 			}
+			
+			// Vérifier si au moins une commande a des arguments
+			int has_valid_cmd = 0;
+			int j = 0;
+			while (j < all->t_cmd->nbr_cmd)
+			{
+				if (all->t_cmd->cmd_tab[j].cmd_args && all->t_cmd->cmd_tab[j].cmd_args[0])
+				{
+					has_valid_cmd = 1;
+					break;
+				}
+				j++;
+			}
+			
+			if (!has_valid_cmd)
+			{
+				// Pas de commande valide, nettoyer et continuer
+				j = 0;
+				while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
+				{
+					ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
+					j++;
+				}
+				free(all->t_cmd->cmd_tab);
+				free(all->t_cmd);
+				free(str);
+				if (all->shell)
+				{
+					ft_clear(&all->shell);
+				}
+				continue;
+			}
 	// ft_print_triple_tab(all->t_cmd);
 
 			//Execution
 			ft_open_pipe(all->t_cmd);
-			ft_exec_commande(all->t_cmd, all->t_red, all,env);
+			ft_exec_commande(all->t_cmd, all->t_red, &all, env);
 			ft_waitpid(all->t_cmd);
 			ft_close_pipe(all->t_cmd);
 
@@ -284,7 +386,7 @@ int main(int argc, char **argv, char **env)
 			// int exit_status = 0;
 			// Seulement mettre à jour l'exit status si un processus a réellement été exécuté
 			int process_executed = 0;
-			int j = 0;
+			j = 0;
 			while (j < all->t_cmd->nbr_cmd)
 			{
 				if (all->t_cmd->cmd_tab[j].id1 > 0)
