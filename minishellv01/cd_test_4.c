@@ -451,6 +451,26 @@ int ft_is_digit(char *str)
 	return (1);
 }
 
+int ft_exit(char **tab, t_all **all)
+{
+	if (!ft_is_digit(tab[1]))
+	{
+		write(1, "exit\n", 5); //sortie 1 ou 2 
+		ft_err(tab[1], "numeric argument required");
+		exit (2);
+	}
+	if (tab[2])
+	{
+		write(1, "exit\n", 5); //sortie 1 ou 2 
+		ft_err(tab[1], "too many arguments");
+		(*all)->exit_status = 1;
+		return (1);
+	}
+	if ((*all)->t_cmd->nbr_cmd == 1)
+		exit(ft_atoi(tab[1]) % 256);
+	return (0);
+}
+
 int is_builtin_3(char **tab, t_all **all)
 {
 	int exit_code;
@@ -477,23 +497,25 @@ int is_builtin_3(char **tab, t_all **all)
 	}
 	if (ft_strcmp(tab[0], "exit") == 0)
 	{
+		ft_exit(tab, all);
+		return (1);
 		// if (tab[2] != NULL)
 		// 	return (0);
-		if (!ft_is_digit(tab[1]))
-		{
-			write(1, "exit\n", 5); //sortie 1 ou 2 
-			ft_err(tab[1], "numeric argument required");
-			exit (2);
-		}
-		if (tab[2])
-		{
-			write(1, "exit\n", 5); //sortie 1 ou 2 
-			ft_err(tab[1], "too many arguments");
-			(*all)->exit_status = 1;
-			return (1);
-		}
-		if ((*all)->t_cmd->nbr_cmd == 1)
-			exit(ft_atoi(tab[1]) % 256);
+		// if (!ft_is_digit(tab[1]))
+		// {
+		// 	write(1, "exit\n", 5); //sortie 1 ou 2 
+		// 	ft_err(tab[1], "numeric argument required");
+		// 	exit (2);
+		// }
+		// if (tab[2])
+		// {
+		// 	write(1, "exit\n", 5); //sortie 1 ou 2 
+		// 	ft_err(tab[1], "too many arguments");
+		// 	(*all)->exit_status = 1;
+		// 	return (1);
+		// }
+		// if ((*all)->t_cmd->nbr_cmd == 1)
+		// 	exit(ft_atoi(tab[1]) % 256);
 		return (1);
 	}
 	if (is_builtin_2(tab, all))

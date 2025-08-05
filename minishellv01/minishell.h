@@ -99,6 +99,9 @@ int is_builtin(char **tab);
 int is_builtin2(char **tab, t_all **all);
 int is_builtin_3(char **tab, t_all **all);
 int ft_atoi(char *str);
+int ft_exit(char **tab, t_all **all);
+int ft_is_digit(char *str);
+
 //exec_pipe.c  
 int	ft_open_pipe(t_commande *t_cmd);
 void	ft_close_pipe(t_commande *t_cmd);

@@ -115,7 +115,8 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "unset", 5) == 0
 			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "cd", 2) == 0
 			// || ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd", 3) == 0
-			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
+			// || ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0
+			)
 		{
             if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, all) == 1)
             {
@@ -132,6 +133,32 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
                     exit((*all)->exit_status);
                 }
             }
+		}
+		else if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
+		{
+			// ft_exit()
+			if (!ft_is_digit(t_cmd->cmd_tab[i].cmd_args[1]))
+			{
+				write(1, "exit\n", 5); //sortie 1 ou 2 
+				ft_err(t_cmd->cmd_tab[i].cmd_args[1], "numeric argument required");
+				exit(2);
+			}
+			if (t_cmd->cmd_tab[i].cmd_args[2])
+			{
+				write(1, "exit\n", 5); //sortie 1 ou 2 
+				ft_err(t_cmd->cmd_tab[i].cmd_args[1], "too many arguments");
+				(*all)->exit_status = 1;
+				t_cmd->cmd_tab[i].id1 = fork();
+				if (t_cmd->cmd_tab[i].id1 == 0)
+				{
+					ft_close_pipe(t_cmd);
+					exit(1);
+				}
+				// return (1);
+			}
+			if ((*all)->t_cmd->nbr_cmd == 1 && t_cmd->cmd_tab[i].cmd_args[2] == NULL)
+				exit(ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) % 256);
+			// return (0);
 		}
 		else
 		{
