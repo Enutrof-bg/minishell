@@ -38,6 +38,8 @@
 #define OUTFILE 21
 #define OUTFILEAPPEND 22
 
+#define PATH_MAX	4096
+
 typedef struct s_redir
 {
 	int infd;
@@ -103,6 +105,9 @@ int	ft_dup(int fd0, int fd1);
 
 //minishell_exec
 // void		exec(char *arg, char **env);
+
+
+void ft_shlvl(t_all **all);
 
 //minishell_free
 void	ft_free(char **tab1, char **tab2, char *str);

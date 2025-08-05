@@ -65,13 +65,61 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 		//condition pour verifier uniquement si les builtin existent
 		//puis dup2
 		//puis executer les fonctions
-		if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, &all) == 1)
+		if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "echo", 4) == 0)
 		{
+
 			// printf("builtin\n");
-			t_cmd->cmd_tab[i].id1 = -1; // Les builtins n'ont pas de processus fils
+			t_cmd->cmd_tab[i].id1 = fork();
+			if (t_cmd->cmd_tab[i].id1 == 0)
+			{
+				if (t_cmd->cmd_tab[i].infd >= 0)
+					dup2(t_cmd->cmd_tab[i].infd, 0);
+				else if (i > 0)  // Si pas de redirection d'entrée, utiliser le pipe précédent
+					dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
+				
+				// Gestion des redirections de sortie pour toutes les commandes
+				if (t_cmd->cmd_tab[i].outfd >= 0)
+				{
+					// printf("redirection sortie pour commande %d\n", i);
+					dup2(t_cmd->cmd_tab[i].outfd, 1);
+				}
+				else if (i < t_cmd->nbr_cmd - 1)  // Si pas de redirection de sortie, utiliser le pipe suivant
+					dup2(t_cmd->cmd_tab[i].fd[1], 1);
+				// Sinon, la sortie reste stdout (cas de la dernière commande sans redirection)
+				
+				ft_close_pipe(t_cmd);
+
+				if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, &all) == 1)
+				{
+					all->exit_status = 0;
+				}
+				else
+				{
+					all->exit_status = 1;
+				}
+				// ft_close_pipe(t_cmd);
+				t_cmd->cmd_tab[i].id1 = -1; // Les builtins n'ont pas de processus fils
+				exit(0);
+			}
+		}
+		else if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "export", 6) == 0
+			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "unset", 5) == 0
+			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "cd", 2) == 0
+			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd", 3) == 0
+			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
+		{
+			is_builtin_3(t_cmd->cmd_tab[i].cmd_args, &all);
 		}
 		else
 		{
+			// if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, &all) == 1)
+			// {
+			// 	all->exit_status = 0;
+			// }
+			// else
+			// {
+			// 	all->exit_status = 1;
+			// }
 			t_cmd->cmd_tab[i].id1 = fork();
 			if (t_cmd->cmd_tab[i].id1 == 0)
 			{
@@ -94,7 +142,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all *all, char **env)
 				ft_close_pipe(t_cmd);
 				if (exec(t_cmd->cmd_tab[i].cmd_args, env) == -1)
 					exit(127);
-				exit(1);
+				exit(0);
 			}
 		}
 		i++;
@@ -138,6 +186,21 @@ void ft_assign_cmd_arg_states(t_list **lst)
 	*lst = temp;
 }
 
+
+char **create_default_env(void)
+{
+    char **tab = NULL;
+    char    *str = NULL;
+
+    char    cwd[PATH_MAX];
+    getcwd(cwd, sizeof(cwd));
+    str = ft_strjoin("PWD=", cwd); // non free
+    tab = ft_add_double_tab(str, tab);
+    tab = ft_add_double_tab("_=/usr/bin/env", tab);
+	tab = ft_add_double_tab("SHLVL=1", tab);
+    return (tab);
+}
+
 //caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c ft_itoa.c -lreadline -o minishell
 int main(int argc, char **argv, char **env)
 {
@@ -148,7 +211,16 @@ int main(int argc, char **argv, char **env)
 	if (argc == 1)
 	{
 		all = malloc(sizeof(t_all));
-		all->env = env;
+		// all->env = env;
+		if (env[0])
+		{
+        	all->env = env;
+			ft_shlvl(&all);
+		}
+		else
+		{
+			all->env = create_default_env();
+		}
 		all->exit_status = 0; // Initialiser l'exit status à 0 au début du programme
 		while (1)
 		{
@@ -157,11 +229,11 @@ int main(int argc, char **argv, char **env)
 			str = readline("CacaTest >");
 			add_history(str);
 
-			if (ft_strncmp(str, "exit", 4) == 0)
-			{
-				free(str);
-				exit(0);
-			}
+			// if (ft_strncmp(str, "exit", 4) == 0)
+			// {
+			// 	free(str);
+			// 	exit(0);
+			// }
 			//Parse_decoupe bah elle decoupe l'input en liste chaine
 			if (ft_parse_decoupe(str, &all->shell, all) == -1)
 			{

@@ -130,6 +130,7 @@ int ft_atoi(char *str)
 	{
 		if (str[i] == '-')
 			sign *= -1;
+		i++;
 	}
 	while (str[i] >= '0' && str[i] <= '9')
 	{
@@ -160,7 +161,7 @@ void ft_shlvl(t_all **all)
         }
         i++;
     }
-	printf("\n\n%d\n\n", nb);
+	// printf("\n\n%d\n\n", nb);
 }
 
 //return value unset = 0 a chaque fois ??
@@ -222,6 +223,7 @@ int is_pwd(char *str)
 int ft_pwd(void)
 {
 	char cwd[PATH_MAX];
+	// printf("test");
 	if (getcwd(cwd, sizeof(cwd)))
 	{
 		return (printf("%s\n", cwd), 0);
@@ -391,6 +393,7 @@ int	ft_echo(char **tab)
 		while (tab[i])
 		{
 			ft_putstr(tab[i]);
+			// write(1,"test",4);
 			if (tab[i + 1])
 				write (1, " ", 1);
 			i++;
@@ -413,9 +416,17 @@ int is_builtin_3(char **tab, t_all **all)
 		ft_echo(tab);		
 		return (1);
 	}
-	 if (is_pwd(tab[0]))
+	if (is_pwd(tab[0]))
 	{
 		ft_pwd();
+		return (1);
+	}
+	if (ft_strcmp(tab[0], "exit") == 0)
+	{
+		if (tab[2] != NULL)
+			return (0);
+		
+		exit(ft_atoi(tab[1]) % 256);
 		return (1);
 	}
 	if (is_builtin_2(tab, all))
