@@ -119,7 +119,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 		{
             if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, all) == 1)
             {
-                printf("je suis la\n");
+                // printf("je suis la\n");
                 // printf("exit1:%d\n", (*all)->exit_status);
                 // (*all)->exit_status = homemade_cd(t_cmd->cmd_tab[i].cmd_args, all);
                 // printf("exit2:%d\n", (*all)->exit_status);
