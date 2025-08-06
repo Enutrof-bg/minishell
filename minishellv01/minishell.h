@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <readline/readline.h> // pour readline etc
 #include <readline/history.h> // pour readline etc
 #include <sys/types.h>//wait

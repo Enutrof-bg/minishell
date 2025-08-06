@@ -400,6 +400,58 @@ void	ft_putstr(char *str)
 	}
 }
 
+int    is_only_n(char *str)
+{
+    int i = 1;
+
+    while (str[i])
+    {
+        if (str[i] != 'n')
+            return (0);
+        i++;
+    }
+    return (1);
+}
+
+int    ft_echo(char **tab)
+{
+    int i = 1;
+    
+    if (!tab[1])
+        return (0);
+    if (tab[i] && ft_strncmp(tab[i], "-n", 2) == 0)
+    {
+        while (tab[i] && tab[i][0] == '-' && is_only_n(tab[i]))
+            i++;
+        if (tab[i])
+        {
+            while (tab[i])
+            {
+                ft_putstr(tab[i]);
+                if (tab[i + 1])
+                    write (1, " ", 1);
+                i++;
+            }
+            return (1);
+        }
+    }
+    else if (tab[1])
+    {
+        i = 1;
+        while (tab[i])
+        {
+            ft_putstr(tab[i]);
+            // write(1,"test",4);
+            if (tab[i + 1])
+                write (1, " ", 1);
+            i++;
+        }
+        write (1, "\n", 1);
+    }
+    return (0);
+}
+
+/*
 int	ft_echo(char **tab)
 {
 	int i = 0;
@@ -436,7 +488,7 @@ int	ft_echo(char **tab)
 	}
 	return (0);
 }
-
+*/
 int ft_is_digit(char *str)
 {
 	int i = 0;
@@ -468,6 +520,8 @@ int ft_exit(char **tab, t_all **all)
 	}
 	if ((*all)->t_cmd->nbr_cmd == 1)
 		exit(ft_atoi(tab[1]) % 256);
+	else if ((*all)->t_cmd->nbr_cmd > 1)
+        (*all)->exit_status = ft_atoi(tab[1]) % 256;
 	return (0);
 }
 

@@ -77,7 +77,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd", 3) == 0
 			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "env", 3) == 0
 			|| (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "export", 6) == 0 &&  t_cmd->nbr_cmd > 1)
-			|| (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0 && t_cmd->nbr_cmd > 1))
+			|| (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 5) == 0 && t_cmd->nbr_cmd > 1))
 		{
 
 			// printf("builtin\n");
@@ -149,12 +149,14 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 				write(1, "exit\n", 5); //sortie ou 2 
 				exit(0);
 			}
-			if (!ft_is_digit(t_cmd->cmd_tab[i].cmd_args[1]))
-			{
-				write(1, "exit\n", 5); //sortie 1 ou 2 
-				ft_err(t_cmd->cmd_tab[i].cmd_args[1], "numeric argument required");
-				exit(2);
-			}
+			if (!ft_is_digit(t_cmd->cmd_tab[i].cmd_args[1])
+				|| ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) > INT_MAX
+				|| ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) < INT_MIN)
+            {
+                write(1, "exit\n", 5); //sortie 1 ou 2 
+                ft_err(t_cmd->cmd_tab[i].cmd_args[1], "numeric argument required");
+                exit(2);
+            }
 			if (t_cmd->cmd_tab[i].cmd_args[2])
 			{
 				write(1, "exit\n", 5); //sortie 1 ou 2 
@@ -322,8 +324,45 @@ int main(int argc, char **argv, char **env)
 		while (1)
 		{
 			all->shell = NULL;
+// 			char *prompt = "      .--..--..--..--..--..--.
+//     .\' \\  (`._   (_)     _   \
+//   .\'    |  \'._)         (_)  |
+//   \\ _.\')\\      .----..---.   /
+//   |(_.\'  |    /    .-\\-.  \\  |
+//   \\     0|    |   ( O| O) | o|
+//    |  _  |  .--.____.\'._.-.  |
+//    \\ (_) | o         -` .-`  |
+//     |    \\   |`-._ _ _ _ _\\ /
+//     \\    |   |  `. |_||_|   |
+//     | o  |    \\_      \\     |     -.   .-.
+//     |.-.  \\     `--..-\'   O |     `.`-\' .\'
+//   _.\'  .\' |     `-.-\'      /-.__   \' .-\'
+// .\' `-.` \'.|=\'=.=\'=.=\'=.=\'=|._/_ `-\'.\'
+// `-._  `.  |________/\\_____|    `-.\'
+//    .\'   ).| \'=\' \'=\'\\/ \'=\' |
+//    `._.`  \'---------------\'
+//            //___\\   //___\
+//              ||       ||
+//              ||_.-.   ||_.-.
+//             (_.--__) (_.--__)";
+
+// 			char *prompt2 = "⢀⡴⠑⡄⠀⠀⠀⠀⠀⠀⠀⣀⣀⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+// ⠸⡇⠀⠿⡀⠀⠀⠀⣀⡴⢿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+// ⠀⠀⠀⠀⠑⢄⣠⠾⠁⣀⣄⡈⠙⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀ 
+// ⠀⠀⠀⠀⢀⡀⠁⠀⠀⠈⠙⠛⠂⠈⣿⣿⣿⣿⣿⠿⡿⢿⣆⠀⠀⠀⠀⠀⠀⠀ 
+// ⠀⠀⠀⢀⡾⣁⣀⠀⠴⠂⠙⣗⡀⠀⢻⣿⣿⠭⢤⣴⣦⣤⣹⠀⠀⠀⢀⢴⣶⣆ 
+// ⠀⠀⢀⣾⣿⣿⣿⣷⣮⣽⣾⣿⣥⣴⣿⣿⡿⢂⠔⢚⡿⢿⣿⣦⣴⣾⠁⠸⣼⡿ 
+// ⠀⢀⡞⠁⠙⠻⠿⠟⠉⠀⠛⢹⣿⣿⣿⣿⣿⣌⢤⣼⣿⣾⣿⡟⠉⠀⠀⠀⠀⠀ 
+// ⠀⣾⣷⣶⠇⠀⠀⣤⣄⣀⡀⠈⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀ 
+// ⠀⠉⠈⠉⠀⠀⢦⡈⢻⣿⣿⣿⣶⣶⣶⣶⣤⣽⡹⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀ 
+// ⠀⠀⠀⠀⠀⠀⠀⠉⠲⣽⡻⢿⣿⣿⣿⣿⣿⣿⣷⣜⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀ 
+// ⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣶⣮⣭⣽⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀ 
+// ⠀⠀⠀⠀⠀⠀⣀⣀⣈⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀ 
+// ⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀ 
+// ⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+// ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠻⠿⠿⠿⠿⠛⠉";
 			// Ne pas réinitialiser exit_status ici, le garder de la commande précédente
-			str = readline("CacaTest >");
+			str = readline("CacaTest > ");
 			if (!str) // Ctrl+D (EOF)
 			{
 				printf("exit\n");
@@ -369,19 +408,10 @@ int main(int argc, char **argv, char **env)
 			//Compte le nombre de commande
 			all->t_cmd = malloc(sizeof(t_commande));
 			all->t_cmd->nbr_cmd = ft_count_commands(all->shell);
-			// printf("nbr commande: %d\n", t_cmd->nbr_cmd);
-
-			//Creation des redirections
-			// all->t_red = malloc(sizeof(t_redir));
-			// all->t_red->infd = -1;
-			// all->t_red->outfd = -1;
-			// ft_create_fd(&all->shell, &all->t_red);
-
-
 			all->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * all->t_cmd->nbr_cmd);
 			if (!all->t_cmd->cmd_tab)
 				return (1);
-			// all->t_cmd->cm
+
 			//Creation des doubles tableaux pour les commandes
 			ft_set_triple_tab_null(all->t_cmd);
 			if (ft_create_triple_tab(&all->shell, &all->t_cmd, &all) == -1)
@@ -428,8 +458,7 @@ int main(int argc, char **argv, char **env)
 			ft_exec_commande(all->t_cmd, all->t_red, &all, all->env);
 			ft_waitpid(all->t_cmd);
 			ft_close_pipe(all->t_cmd);
-			// if 
-			// unlink("temp");
+
 			//exit code
 			// int exit_status = 0;
 			// Seulement mettre à jour l'exit status si un processus a réellement été exécuté
