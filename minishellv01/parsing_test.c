@@ -76,7 +76,8 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 		if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "echo", 4) == 0
 			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd", 3) == 0
 			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "env", 3) == 0
-			|| (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "export", 6) == 0 &&  t_cmd->nbr_cmd > 1))
+			|| (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "export", 6) == 0 &&  t_cmd->nbr_cmd > 1)
+			|| (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0 && t_cmd->nbr_cmd > 1))
 		{
 
 			// printf("builtin\n");
@@ -110,7 +111,8 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 				// }
 				// ft_close_pipe(t_cmd);
 				t_cmd->cmd_tab[i].id1 = -1; // Les builtins n'ont pas de processus fils
-				// exit(0);
+				if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
+                   	exit(ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) % 256);
 				exit((*all)->exit_status);
 			}
 		}
@@ -139,7 +141,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
                 }
             }
 		}
-		else if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
+		else if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0 && t_cmd->nbr_cmd == 1)
 		{
 			// ft_exit()
 			if (!t_cmd->cmd_tab[i].cmd_args[1])
@@ -171,34 +173,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			// return (0);
 		}
 		else
-		{
-			// if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, &all) == 1)
-			// {
-			// 	all->exit_status = 0;
-			// }
-			// else
-			// {
-			// 	all->exit_status = 1;
-			// }
-			// printf("testtest\n");
-
-			// char *test = get_next_line(0);
-			// while (test)
-			// {
-			// 	if (ft_strncmp(test, (*all)->shell->str, ft_strlen((*all)->shell->str)) == 0)
-			// 	{
-			// 		free(test);
-			// 		break ;
-			// 	}
-			// 	printf("infd:%d\n", (*t_cmd).cmd_tab[i].infd);
-			// 	write((*t_cmd).cmd_tab[i].heredoc, test, ft_strlen(test));
-			// 	free(test);
-			// 	test = get_next_line(0);
-			// }
-			// close((*t_cmd).cmd_tab[i].heredoc);
-			// (*t_cmd).cmd_tab[i].heredoc = open("temp",  O_RDONLY , 0644);
-
-				
+		{	
 			t_cmd->cmd_tab[i].id1 = fork();
 			if (t_cmd->cmd_tab[i].id1 == 0)
 			{
@@ -305,8 +280,6 @@ void ft_concatenate(t_list **lst)
 	// }
 	while (*lst && (*lst)->next)
 	{
-		
-
 		if ((*lst)->next->state == NORMAL && (!(*lst)->next->str || (*lst)->next->str[0] == '\0'))
 		{
 			(*lst)->next = (*lst)->next->next;
