@@ -91,9 +91,13 @@ typedef struct s_all
 	t_list		*shell;
 	t_commande	*t_cmd;
 	t_redir		*t_red;
+	char *str;
 	char **env;
 	int exit_status;
 	char *exit_status_char;
+	struct sigaction sigint;
+	struct sigaction sigstop;
+	struct sigaction sigquit;
 }t_all;
 
 char	**ft_split(char const *s, char c);
