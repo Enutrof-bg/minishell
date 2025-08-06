@@ -154,7 +154,7 @@ void ft_add(t_list **lst, char *str, int state);
 int ft_size(t_list *lst);
 void ft_print(t_list *lst);
 int ft_check(char *str, char c);
-void	ft_lstiter_env(t_list **lst, char **env, t_all *all);
+int 	ft_lstiter_env(t_list **lst, char **env, t_all *all);
 void ft_lstiteration(t_all **all, void(*f)(char *));
 
 //parsing_parsing_1.c

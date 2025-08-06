@@ -74,7 +74,9 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 		//puis dup2
 		//puis executer les fonctions
 		if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "echo", 4) == 0
-			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd", 3) == 0)
+			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd", 3) == 0
+			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "env", 3) == 0
+			|| (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "export", 6) == 0 &&  t_cmd->nbr_cmd > 1))
 		{
 
 			// printf("builtin\n");
@@ -108,14 +110,17 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 				// }
 				// ft_close_pipe(t_cmd);
 				t_cmd->cmd_tab[i].id1 = -1; // Les builtins n'ont pas de processus fils
-				exit(0);
+				// exit(0);
+				exit((*all)->exit_status);
 			}
 		}
-		else if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "export", 6) == 0
+		else if (
+			ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "export", 6) == 0
 			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "unset", 5) == 0
 			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "cd", 2) == 0
 			// || ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd", 3) == 0
 			// || ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0
+			// || ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "env", 3) == 0
 			)
 		{
             if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, all) == 1)
@@ -137,6 +142,11 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 		else if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
 		{
 			// ft_exit()
+			if (!t_cmd->cmd_tab[i].cmd_args[1])
+			{
+				write(1, "exit\n", 5); //sortie ou 2 
+				exit(0);
+			}
 			if (!ft_is_digit(t_cmd->cmd_tab[i].cmd_args[1]))
 			{
 				write(1, "exit\n", 5); //sortie 1 ou 2 
@@ -342,7 +352,15 @@ int main(int argc, char **argv, char **env)
 			ft_concatenate(&all->shell);
 
 			//lstiter_env pour verifier les redirecions '<' '>' '>>' '<<'
-			ft_lstiter_env(&all->shell, env, all);
+
+			// ft_lstiter_env(&all->shell, all->env, all);
+			if (ft_lstiter_env(&all->shell, env, all) == -1)
+			{
+				if (all->shell)
+					ft_clear(&all->shell);
+				free(str);
+				continue ;
+			}
 	// ft_print(all->shell);
 
 			// ft_assign_cmd_arg_states(&all->shell);
@@ -407,7 +425,7 @@ int main(int argc, char **argv, char **env)
 
 			//Execution
 			ft_open_pipe(all->t_cmd);
-			ft_exec_commande(all->t_cmd, all->t_red, &all, env);
+			ft_exec_commande(all->t_cmd, all->t_red, &all, all->env);
 			ft_waitpid(all->t_cmd);
 			ft_close_pipe(all->t_cmd);
 

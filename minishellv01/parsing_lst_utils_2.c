@@ -15,7 +15,7 @@
 int		ft_size(t_list *lst);
 void	ft_print(t_list *lst);
 int		ft_check(char *str, char c);
-void	ft_lstiter_env(t_list **lst, char **env, t_all *all);
+int		ft_lstiter_env(t_list **lst, char **env, t_all *all);
 
 int	ft_size(t_list *lst)
 {
@@ -64,7 +64,7 @@ int ft_check(char *str, char c)
 }
 
 //ft_iter pour les redirections, a modifier | pas fonctionnelle correctemnt
-void	ft_lstiter_env(t_list **lst, char **env, t_all *all)
+int	ft_lstiter_env(t_list **lst, char **env, t_all *all)
 {
 	t_list *temp;
 	(void)env;
@@ -72,7 +72,7 @@ void	ft_lstiter_env(t_list **lst, char **env, t_all *all)
 	// char *new_str;
 
 	temp = *lst;
-	while (*lst != NULL)
+	while (*lst)
 	{
 		// if ((*lst)->state == DOUBLEQUOTE || (*lst)->state == NORMAL)
 		// {
@@ -84,15 +84,24 @@ void	ft_lstiter_env(t_list **lst, char **env, t_all *all)
 		// 	}
 		// }
 		(*lst)->redir = -1;
-		if ((*lst)->state == INPUT)
+		if ((*lst)->state == INPUT && (*lst)->next)
 			(*lst)->next->state = INFILE;
-		if ((*lst)->state == OUTPUT)
+		// else if ((*lst)->state == INPUT && !(*lst)->next)
+			// return (ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
+
+		if ((*lst)->state == OUTPUT && (*lst)->next)
 			(*lst)->next->state = OUTFILE;
-		if ((*lst)->state == APPEND)
+		// else if ((*lst)->state == OUTFILE && !(*lst)->next)
+			// return (ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
+		
+		if ((*lst)->state == APPEND && (*lst)->next)
 			(*lst)->next->state = OUTFILEAPPEND;
+		// else if ((*lst)->state == APPEND && !(*lst)->next)
+			// return (ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
 		(*lst) = (*lst)->next;
 	}
 	*lst = temp;
+	return (0);
 }
 
 //pas utiliser encore
