@@ -72,6 +72,8 @@ int	ft_lstiter_env(t_list **lst, char **env, t_all *all)
 	// char *new_str;
 
 	temp = *lst;
+	if ((*lst) && (*lst)->state == PIPE)
+		return (ft_err("syntax error near unexpected token `|'\n", NULL), -1);
 	while (*lst)
 	{
 		// if ((*lst)->state == DOUBLEQUOTE || (*lst)->state == NORMAL)
@@ -83,21 +85,30 @@ int	ft_lstiter_env(t_list **lst, char **env, t_all *all)
 		// 		(*lst)->str = new_str;
 		// 	}
 		// }
-		(*lst)->redir = -1;
+		// (*lst)->redir = -1;
+		if ((*lst)->next && (*lst)->next->state == PIPE && !(*lst)->next->next)
+		{
+			return (ft_err("syntax error near unexpected token `|'\n", NULL), -1);
+		}
 		if ((*lst)->state == INPUT && (*lst)->next)
 			(*lst)->next->state = INFILE;
-		// else if ((*lst)->state == INPUT && !(*lst)->next)
-			// return (ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
+		else if ((*lst)->state == INPUT && !(*lst)->next)
+			return (ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
+
+		if ((*lst)->state == HEREDOC && (*lst)->next)
+			(*lst)->next->state = LIMITER;
+		else if ((*lst)->state == HEREDOC && !(*lst)->next)
+			return (ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
 
 		if ((*lst)->state == OUTPUT && (*lst)->next)
 			(*lst)->next->state = OUTFILE;
-		// else if ((*lst)->state == OUTFILE && !(*lst)->next)
-			// return (ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
-		
+		else if ((*lst)->state == OUTPUT && !(*lst)->next)
+			return (ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
+
 		if ((*lst)->state == APPEND && (*lst)->next)
 			(*lst)->next->state = OUTFILEAPPEND;
-		// else if ((*lst)->state == APPEND && !(*lst)->next)
-			// return (ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
+		else if ((*lst)->state == APPEND && !(*lst)->next)
+			return (ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
 		(*lst) = (*lst)->next;
 	}
 	*lst = temp;

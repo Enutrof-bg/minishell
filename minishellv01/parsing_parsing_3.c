@@ -32,7 +32,7 @@ int ft_parse_pipe(char *str, t_list **shell, int *i)
 		if (ft_strlen(temp) == 1)
 			ft_add(shell, temp, PIPE);
 		else if (ft_strlen(temp) == 2)
-			return (free(temp), ft_err("syntax error near unexpected token `|'\n", NULL), -1);
+			return (free(temp), ft_err("syntax error near unexpected token `||'\n", NULL), -1);
 			// ft_add(shell, temp, ERROR);
 		else 
 			return (free(temp), ft_err("syntax error near unexpected token `||'\n", NULL), -1);

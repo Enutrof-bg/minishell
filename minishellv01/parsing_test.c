@@ -180,10 +180,31 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			// {
 			// 	all->exit_status = 1;
 			// }
+			// printf("testtest\n");
+
+			// char *test = get_next_line(0);
+			// while (test)
+			// {
+			// 	if (ft_strncmp(test, (*all)->shell->str, ft_strlen((*all)->shell->str)) == 0)
+			// 	{
+			// 		free(test);
+			// 		break ;
+			// 	}
+			// 	printf("infd:%d\n", (*t_cmd).cmd_tab[i].infd);
+			// 	write((*t_cmd).cmd_tab[i].heredoc, test, ft_strlen(test));
+			// 	free(test);
+			// 	test = get_next_line(0);
+			// }
+			// close((*t_cmd).cmd_tab[i].heredoc);
+			// (*t_cmd).cmd_tab[i].heredoc = open("temp",  O_RDONLY , 0644);
+
+				
 			t_cmd->cmd_tab[i].id1 = fork();
 			if (t_cmd->cmd_tab[i].id1 == 0)
 			{
+				// printf("J'arrive la \n");
 				// Gestion des redirections d'entrée pour toutes les commandes
+				// printf("infd:%d\n", (*t_cmd).cmd_tab[i].infd);
 				if (t_cmd->cmd_tab[i].infd >= 0)
 					dup2(t_cmd->cmd_tab[i].infd, 0);
 				else if (i > 0)  // Si pas de redirection d'entrée, utiliser le pipe précédent
@@ -204,7 +225,13 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 					exit(127);
 				exit(0);
 			}
+			// printf("J'arrive la \n");
+			// close((*t_cmd).cmd_tab[i].infd);
+			// unlink("temp");
 		}
+		// printf("J'arrive la \n");
+		// close((*t_cmd).cmd_tab[i].infd);
+		// unlink("temp");
 		i++;
 	}
 	ft_close_pipe(t_cmd);
@@ -354,7 +381,7 @@ int main(int argc, char **argv, char **env)
 			//lstiter_env pour verifier les redirecions '<' '>' '>>' '<<'
 
 			// ft_lstiter_env(&all->shell, all->env, all);
-			if (ft_lstiter_env(&all->shell, env, all) == -1)
+			if (ft_lstiter_env(&all->shell, all->env, all) == -1)
 			{
 				if (all->shell)
 					ft_clear(&all->shell);
@@ -428,7 +455,8 @@ int main(int argc, char **argv, char **env)
 			ft_exec_commande(all->t_cmd, all->t_red, &all, all->env);
 			ft_waitpid(all->t_cmd);
 			ft_close_pipe(all->t_cmd);
-
+			// if 
+			// unlink("temp");
 			//exit code
 			// int exit_status = 0;
 			// Seulement mettre à jour l'exit status si un processus a réellement été exécuté
