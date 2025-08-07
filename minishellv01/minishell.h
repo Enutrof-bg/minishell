@@ -86,15 +86,33 @@ typedef struct s_minishell
 	// t_cmd_tab *cmd_tab;
 }t_list;
 
+typedef struct s_pid_cmd
+{
+	char *tab[3];
+	int fd[2];
+	int id1;
+}t_pid_cmd;
+
+typedef struct s_pid
+{
+	t_pid_cmd *cmd;
+	int outfd;
+}t_pid;
+
 typedef struct s_all
 {
 	t_list		*shell;
 	t_commande	*t_cmd;
 	t_redir		*t_red;
+	
 	char *str;
 	char **env;
 	int exit_status;
 	char *exit_status_char;
+
+	t_pid 		*t_pid;
+	char *pid_str;
+
 	struct sigaction sigint;
 	struct sigaction sigstop;
 	struct sigaction sigquit;
@@ -182,6 +200,9 @@ int ft_parse_space(char *str, t_list **shell, int *i, t_all *all);
 int ft_parse_pipe(char *str, t_list **shell, int *i);
 int ft_parse_out(char *str, t_list **shell, int *i);
 int ft_parse_in(char *str, t_list **shell, int *i);
+
+//parsing_pid.c
+char *ft_get_pid(t_all *all);
 
 //parsing_redir.c
 int ft_create_fd(t_list **shell, t_redir **t_red);

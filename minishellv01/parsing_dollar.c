@@ -214,6 +214,15 @@ char *replace_dollar_test2(char *str, char **env, t_all *all)
                 free(all->exit_status_char);
                 i += 2;
             }
+            else if (str[i + 1] == '$')
+            {
+                // all->exit_status_char = ft_itoa(all->exit_status);
+                temp = ft_strjoin(result, all->pid_str);
+                free(result);
+                result = temp;
+                // free(all->pid_str);
+                i += 2;
+            }
             else
             {
                 env_name = get_env_name(str, i + 1);

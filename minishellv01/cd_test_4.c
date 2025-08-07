@@ -253,13 +253,18 @@ int is_pwd(char *str)
 	return (0);
 }
 
-int ft_pwd(void)
+int ft_pwd(t_all **all)
 {
 	char cwd[PATH_MAX];
 	// printf("test");
 	if (getcwd(cwd, sizeof(cwd)))
 	{
 		return (printf("%s\n", cwd), 0);
+	}
+	else
+	{
+		perror("pwd: error retrieving current directory: getcwd: cannot access parent directories: ");
+		(*all)->exit_status = 1;
 	}
 	return (1);
 }
@@ -546,7 +551,7 @@ int is_builtin_3(char **tab, t_all **all)
 	}
 	if (is_pwd(tab[0]))
 	{
-		ft_pwd();
+		ft_pwd(all);
 		return (1);
 	}
 	if (ft_strcmp(tab[0], "exit") == 0)

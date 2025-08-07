@@ -262,6 +262,9 @@ char **create_default_env(void)
     tab = ft_add_double_tab(str, tab);
     tab = ft_add_double_tab("_=/usr/bin/env", tab);
 	tab = ft_add_double_tab("SHLVL=1", tab);
+	// tab = ft_add_double_tab("PATH=/home/kevwang/.local/funcheck/host:/home/kevwang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin", tab);
+	tab = ft_add_double_tab("PATH=/bin", tab);
+
    return (tab);
 }
 
@@ -298,178 +301,6 @@ void ft_concatenate(t_list **lst)
 	}
 	// (*lst) = temp;
 }
-/*
-int ft_all(t_all *all)
-{
-	all->str = readline("CacaTest > ");
-	if (!all->str) // Ctrl+D (EOF)
-	{
-		printf("exit\n");
-		// break;
-		return (-1);
-	}
-	if (!all->str[0]) // Chaîne vide
-	{
-		free(all->str);
-		// continue;
-		return (-1);
-	}
-	add_history(all->str);
-
-	// if (ft_strncmp(str, "exit", 4) == 0)
-	// {
-	// 	free(str);
-	// 	exit(0);
-	// }
-	//Parse_decoupe bah elle decoupe l'input en liste chaine
-	if (ft_parse_decoupe(all->str, &all->shell, all) == -1)
-	{
-		// Skip this iteration if parsing failed due to unclosed quotes
-		free(all->str);
-		// continue;
-		return (-1);
-	}
-	
-	ft_concatenate(&all->shell);
-
-	//lstiter_env pour verifier les redirecions '<' '>' '>>' '<<'
-
-	// ft_lstiter_env(&all->shell, all->env, all);
-	if (ft_lstiter_env(&all->shell, all->env, all) == -1)
-	{
-		if (all->shell)
-			ft_clear(&all->shell);
-		free(all->str);
-		// continue ;
-		return (-1);
-	}
-// ft_print(all->shell);
-
-	// ft_assign_cmd_arg_states(&all->shell);
-
-
-	//Compte le nombre de commande
-	all->t_cmd = malloc(sizeof(t_commande));
-	all->t_cmd->nbr_cmd = ft_count_commands(all->shell);
-	all->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * all->t_cmd->nbr_cmd);
-	if (!all->t_cmd->cmd_tab)
-		return (1);
-
-	//Creation des doubles tableaux pour les commandes
-	ft_set_triple_tab_null(all->t_cmd);
-	if (ft_create_triple_tab(&all->shell, &all->t_cmd, &all) == -1)
-	{
-		free(all->str);
-		// continue;
-		return (-1);
-	}
-	
-	// Vérifier si au moins une commande a des arguments
-	int has_valid_cmd = 0;
-	int j = 0;
-	while (j < all->t_cmd->nbr_cmd)
-	{
-		if (all->t_cmd->cmd_tab[j].cmd_args && all->t_cmd->cmd_tab[j].cmd_args[0])
-		{
-			has_valid_cmd = 1;
-			break;
-		}
-		j++;
-	}
-	
-	if (!has_valid_cmd)
-	{
-		// Pas de commande valide, nettoyer et continuer
-		j = 0;
-		while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
-		{
-			ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
-			j++;
-		}
-		free(all->t_cmd->cmd_tab);
-		free(all->t_cmd);
-		free(all->str);
-		if (all->shell)
-		{
-			ft_clear(&all->shell);
-		}
-		// continue;
-		return (-1);
-	}
-// ft_print_triple_tab(all->t_cmd);
-
-	//Execution
-	ft_open_pipe(all->t_cmd);
-	ft_exec_commande(all->t_cmd, all->t_red, &all, all->env);
-	ft_waitpid(all->t_cmd);
-	ft_close_pipe(all->t_cmd);
-
-	//exit code
-	// int exit_status = 0;
-	// Seulement mettre à jour l'exit status si un processus a réellement été exécuté
-	int process_executed = 0;
-	j = 0;
-	while (j < all->t_cmd->nbr_cmd)
-	{
-		if (all->t_cmd->cmd_tab[j].id1 > 0)
-		{
-			process_executed = 1;
-			break;
-		}
-		j++;
-	}
-	
-	if (process_executed && WIFEXITED(all->t_cmd->status))
-	{
-		all->exit_status = WEXITSTATUS(all->t_cmd->status);
-	}
-	else if (process_executed == 0)
-	{
-		//Si aucun processus n'a été exécuté mais qu'aucune erreur n'a été détectée, exit_status = 0
-		int has_error = 0;
-		j = 0;
-		while (j < all->t_cmd->nbr_cmd)
-		{
-			if (all->t_cmd->cmd_tab[j].input_failed == 1
-				|| all->t_cmd->cmd_tab[j].output_failed == 1)
-			{
-				has_error = 1;
-				break;
-			}
-			j++;
-		}
-		if (has_error == 0)
-			all->exit_status = 0;
-	}
-	// Si aucun processus n'a été exécuté à cause d'erreurs, garder l'exit_status précédent
-	// printf("exit:%d\n", all->exit_status);
-
-	//free
-	j = 0;
-	while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
-	{
-		ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
-		j++;
-	}
-	free(all->t_cmd->cmd_tab);
-	free(all->t_cmd);
-	free(all->t_red);
-	free(all->str);
-	if (all->shell)
-	{
-		ft_clear(&all->shell);
-	}
-	return (0);
-}
-*/
-// void ft_receive(int signum, siginfo_t *info, void *old)
-// {
-// 	(void)signum;
-// 	(void)info;
-// 	(void)old;
-// 	printf("Coca > ");
-// 	// continue ;
-// }
 
 //caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c ft_itoa.c -lreadline -o minishell
 int main(int argc, char **argv, char **env)
@@ -493,8 +324,12 @@ int main(int argc, char **argv, char **env)
 		}
 		else
 		{
+			printf("no env\n");
 			all->env = create_default_env();
 		}
+		all->pid_str = NULL;
+		all->pid_str = ft_get_pid(all);
+		// printf("pid:%s", all->pid_str);
 		all->exit_status = 0; // Initialiser l'exit status à 0 au début du programme
 		while (1)
 		{

@@ -28,7 +28,16 @@ char *ft_str_last(char *str)
 		j--;
 	return (&str[i-j]);
 }
+#include <stdlib.h>
+#include <unistd.h>
 
+int get_pid_from_env(void)
+{
+    char *pid_str = getenv("PATH");  // Variable d'environnement $$ du shell
+    if (!pid_str)
+        return -1;
+    return atoi(pid_str);
+}
 int main(int argc, char **argv)
 {
 	(void)argc;
@@ -36,8 +45,10 @@ int main(int argc, char **argv)
 
 	char *test;
 	(void)test;
-	char *Ptest;
-	char *r1;
+	int n = get_pid_from_env();
+	printf("pid = %d\n", n);
+	// char *Ptest;
+	// char *r1;
 	// char *r2;
 
 	// printf("%s\n", argv[1]);
@@ -45,14 +56,14 @@ int main(int argc, char **argv)
 	// test = ft_str_last(argv[1]);
 	// printf("%s\n", test);
 
-	Ptest = "kevinlamenace@Minishell > ";
-	r1 = readline(Ptest);
+	// Ptest = "kevinlamenace@Minishell > ";
+	// r1 = readline(Ptest);
 
-	// add_history(r1);
+	// // add_history(r1);
 
-	// r2 = ft_str_last(r1);
-	// nbr_pipe = ft_count_pipe(r1);
-	printf("%s\n", r1);
+	// // r2 = ft_str_last(r1);
+	// // nbr_pipe = ft_count_pipe(r1);
+	// printf("%s\n", r1);
 	// printf("%s\n", r2);
 	// id1 = fork();
 	// if (id1 == 0)
@@ -86,7 +97,8 @@ int main(int argc, char **argv)
 	//isatty() returns 1 if fd is an open file descriptor referring to a
     //   terminal; otherwise 0 is returned, and errno is set to indicate
     //   the error.
-	int testtty = isatty(0);
+    int fd = open("infile", O_RDONLY);
+	int testtty = isatty(fd);
 	if (testtty == 0)
 		perror("Error: ");
 	printf("isatty: %d\n", testtty);
@@ -96,7 +108,7 @@ int main(int argc, char **argv)
 
 	//TEST ttyname()
 	//char **ttyname(int fd);
-	char *tab = ttyname(2);
+	char *tab = ttyname(fd);
 	if (!tab)
 		perror("Error:");
 	printf("%s\n", tab); //print /dev/pts/1 c'est quoi

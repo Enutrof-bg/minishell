@@ -41,3 +41,21 @@ void	ft_clear(t_list **lst)
 	}
 	*lst = NULL;
 }
+
+void ft_free_all(t_all *all)
+{
+	if (all->str)
+		free(all->str);
+	if (all->shell)
+		ft_clear(&all->shell);
+	int j = 0;
+	while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
+	{
+		ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
+		j++;
+	}
+	if (all->t_cmd->cmd_tab)
+		free(all->t_cmd->cmd_tab);
+	if (all->t_cmd)
+		free(all->t_cmd);
+}
