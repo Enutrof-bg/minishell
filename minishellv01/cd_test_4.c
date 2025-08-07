@@ -45,7 +45,7 @@ char **ft_replace_double_tab(char *var_name, char *str, char **tab)
         newtab = malloc(sizeof(char *) * 1);
         // newtab[0] = ft_strdup(str);
         newtab[0] = 0;
-        return (newtab);
+        return (free(var_name_equal),newtab);
     }
     while (tab[i])
         i++;
@@ -184,7 +184,9 @@ void ft_shlvl(t_all **all)
             {
                 nb = ft_atoi(equal_pos + 1);
 				nb++;
-                (*all)->env = ft_replace_double_tab("SHLVL", ft_itoa(nb), (*all)->env);
+				char *temp = ft_itoa(nb);
+                (*all)->env = ft_replace_double_tab("SHLVL", temp, (*all)->env);
+                free(temp);
             }
             break;
         }

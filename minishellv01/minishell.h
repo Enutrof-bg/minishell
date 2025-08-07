@@ -171,6 +171,7 @@ char **ft_remove_double_tab(char *str, char **tab);
 //parsing_free.c
 void	ft_free_double_tab(char **tab);
 void	ft_clear(t_list **lst);
+void ft_free_all(t_all *all);
 
 //parsing_init.c
 int ft_count_commands(t_list *lst);

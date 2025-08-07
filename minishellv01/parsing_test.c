@@ -35,6 +35,23 @@
 // 	dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
 // 	dup2(t_cmd->cmd_tab[i].fd[1], 1);
 // }
+
+int ft_close_fd(t_all **all)
+{
+	int i;
+
+	i = 0;
+	while (i < (*all)->t_cmd->nbr_cmd)
+	{
+		if ((*all)->t_cmd->cmd_tab[i].infd != -1)
+			close((*all)->t_cmd->cmd_tab[i].infd);
+		if ((*all)->t_cmd->cmd_tab[i].outfd != -1)
+			close((*all)->t_cmd->cmd_tab[i].outfd);
+		i++;
+	}
+	return (0);
+}
+
 //execute les commandes 
 int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 {
@@ -100,7 +117,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 				// Sinon, la sortie reste stdout (cas de la dernière commande sans redirection)
 				
 				ft_close_pipe(t_cmd);
-
+				ft_close_fd(all);
 				if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, all) == 1)
 				{
 					// (*all)->exit_status = 0;
@@ -135,6 +152,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
                 if (t_cmd->cmd_tab[i].id1 == 0)
                 {
                     ft_close_pipe(t_cmd);
+                    ft_close_fd(all);
                     if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
                     	exit(ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) % 256);
                     exit((*all)->exit_status);
@@ -166,6 +184,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 				if (t_cmd->cmd_tab[i].id1 == 0)
 				{
 					ft_close_pipe(t_cmd);
+					ft_close_fd(all);
 					exit(1);
 				}
 				// return (1);
@@ -198,8 +217,10 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 				// Sinon, la sortie reste stdout (cas de la dernière commande sans redirection)
 				
 				ft_close_pipe(t_cmd);
+				ft_close_fd(all);
 				if (exec(t_cmd->cmd_tab[i].cmd_args, env) == -1)
 					exit(127);
+				// ft_close_fd(all);
 				exit(0);
 			}
 			// printf("J'arrive la \n");
@@ -212,6 +233,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 		i++;
 	}
 	ft_close_pipe(t_cmd);
+	ft_close_fd(all);
 	return (0);
 }
 
@@ -224,15 +246,12 @@ void ft_assign_cmd_arg_states(t_list **lst)
 
 	if (!lst || !*lst)
 		return;
-	
 	temp = *lst;
 	first_cmd = 1;
 	while (*lst)
 	{
 		if ((*lst)->state == PIPE)
-		{
 			first_cmd = 1;
-		}
 		else if ((*lst)->state == NORMAL || (*lst)->state == DOUBLEQUOTE || (*lst)->state == SINGLEQUOTE)
 		{
 			if (first_cmd)
@@ -241,9 +260,7 @@ void ft_assign_cmd_arg_states(t_list **lst)
 				first_cmd = 0;
 			}
 			else
-			{
 				(*lst)->state = ARG;
-			}
 		}
 		*lst = (*lst)->next;
 	}
@@ -302,17 +319,104 @@ void ft_concatenate(t_list **lst)
 	// (*lst) = temp;
 }
 
+//Seulement mettre à jour l'exit status si un processus a réellement été exécuté
+//Si aucun processus n'a été exécuté mais qu'aucune erreur n'a été détectée, exit_status = 0
+//Si aucun processus n'a été exécuté à cause d'erreurs, garder l'exit_status précédent
+void ft_check_exit_status(t_all **all)
+{
+	int process_executed = 0;
+	int j = 0;
+	while (j < (*all)->t_cmd->nbr_cmd)
+	{
+		if ((*all)->t_cmd->cmd_tab[j].id1 > 0)
+		{
+			process_executed = 1;
+			break;
+		}
+		j++;
+	}
+	if (process_executed && WIFEXITED((*all)->t_cmd->status))
+		(*all)->exit_status = WEXITSTATUS((*all)->t_cmd->status);
+	else if (process_executed == 0)
+	{
+		int has_error = 0;
+		j = 0;
+		while (j < (*all)->t_cmd->nbr_cmd)
+		{
+			if ((*all)->t_cmd->cmd_tab[j].input_failed == 1
+				|| (*all)->t_cmd->cmd_tab[j].output_failed == 1)
+			{
+				has_error = 1;
+				break;
+			}
+			j++;
+		}
+		if (has_error == 0)
+			(*all)->exit_status = 0;
+	}
+}
+
+// Vérifier si au moins une commande a des arguments
+// Pas de commande valide, nettoyer et return(-1) aui va continue ;
+int ft_check_arg(t_all **all)
+{
+	int has_valid_cmd = 0;
+	int j = 0;
+
+	while (j < (*all)->t_cmd->nbr_cmd)
+	{
+		if ((*all)->t_cmd->cmd_tab[j].cmd_args && (*all)->t_cmd->cmd_tab[j].cmd_args[0])
+		{
+			has_valid_cmd = 1;
+			break;
+		}
+		j++;
+	}
+	if (!has_valid_cmd)
+	{
+		j = 0;
+		while (j < (*all)->t_cmd->nbr_cmd && (*all)->t_cmd->cmd_tab[j].cmd_args)
+		{
+			ft_free_double_tab((*all)->t_cmd->cmd_tab[j].cmd_args);
+			j++;
+		}
+		free((*all)->t_cmd->cmd_tab);
+		free((*all)->t_cmd);
+		free((*all)->str);
+		if ((*all)->shell)
+		{
+			ft_clear(&(*all)->shell);
+		}
+		return (-1);
+	}
+	return (0);
+}
+
+int ft_init_triple_tab(t_all **all)
+{
+	(*all)->t_cmd = malloc(sizeof(t_commande));
+	if (!(*all)->t_cmd)
+		return (1);
+	(*all)->t_cmd->nbr_cmd = ft_count_commands((*all)->shell);
+	(*all)->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * (*all)->t_cmd->nbr_cmd);
+	if (!(*all)->t_cmd->cmd_tab)
+		return (1);
+	ft_set_triple_tab_null((*all)->t_cmd);
+	return (0);
+}
+
 //caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c ft_itoa.c -lreadline -o minishell
 int main(int argc, char **argv, char **env)
 {
 	(void)argv;
 	t_all *all;
-	char *str;
+	// char *str;
 
 	if (argc == 1)
 	{
 		all = malloc(sizeof(t_all));
-
+		if (!all)
+			return (1);
 		// all->sigint.sa_sigaction = ft_receive;
 		// sigaction(SIGINT, &all->sigint, NULL);
 		// sigaction(SIGUSR2, &sig, NULL);
@@ -324,11 +428,11 @@ int main(int argc, char **argv, char **env)
 		}
 		else
 		{
-			printf("no env\n");
+			// printf("no env\n");
 			all->env = create_default_env();
 		}
-		all->pid_str = NULL;
-		all->pid_str = ft_get_pid(all);
+		// all->pid_str = NULL;
+		// all->pid_str = ft_get_pid(all);
 		// printf("pid:%s", all->pid_str);
 		all->exit_status = 0; // Initialiser l'exit status à 0 au début du programme
 		while (1)
@@ -339,29 +443,25 @@ int main(int argc, char **argv, char **env)
 				// continue ;
 			
 			// Ne pas réinitialiser exit_status ici, le garder de la commande précédente
-			str = readline("CacaTest > ");
-			if (!str) // Ctrl+D (EOF)
+			all->str = readline("CacaTest > ");
+			if (!all->str) // Ctrl+D (EOF)
 			{
 				printf("exit\n");
 				break;
 			}
-			if (!str[0]) // Chaîne vide
+			if (!all->str[0]) // Chaîne vide
 			{
-				free(str);
+				free(all->str);
 				continue;
 			}
-			add_history(str);
+			add_history(all->str);
 
-			// if (ft_strncmp(str, "exit", 4) == 0)
-			// {
-			// 	free(str);
-			// 	exit(0);
-			// }
 			//Parse_decoupe bah elle decoupe l'input en liste chaine
-			if (ft_parse_decoupe(str, &all->shell, all) == -1)
+			if (ft_parse_decoupe(all->str, &all->shell, all) == -1)
 			{
 				// Skip this iteration if parsing failed due to unclosed quotes
-				free(str);
+				free(all->str);
+				// ft_free_all(all);
 				continue;
 			}
 			
@@ -374,124 +474,132 @@ int main(int argc, char **argv, char **env)
 			{
 				if (all->shell)
 					ft_clear(&all->shell);
-				free(str);
+				free(all->str);
+				// ft_free_all(all);
 				continue ;
 			}
 	// ft_print(all->shell);
 
 			// ft_assign_cmd_arg_states(&all->shell);
 
-
+			if (ft_init_triple_tab(&all) == 1)
+			{
+				return (/*ft_free_all(all), */1);
+			}
 			//Compte le nombre de commande
-			all->t_cmd = malloc(sizeof(t_commande));
-			all->t_cmd->nbr_cmd = ft_count_commands(all->shell);
-			all->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * all->t_cmd->nbr_cmd);
-			if (!all->t_cmd->cmd_tab)
-				return (1);
+			// all->t_cmd = malloc(sizeof(t_commande));
+			// if (!all->t_cmd)
+			// 	return (1);
+			// all->t_cmd->nbr_cmd = ft_count_commands(all->shell);
+			// all->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * all->t_cmd->nbr_cmd);
+			// if (!all->t_cmd->cmd_tab)
+			// 	return (1);
 
 			//Creation des doubles tableaux pour les commandes
-			ft_set_triple_tab_null(all->t_cmd);
+			// ft_set_triple_tab_null(all->t_cmd);
 			if (ft_create_triple_tab(&all->shell, &all->t_cmd, &all) == -1)
 			{
-				free(str);
-				continue;
+				return (/*ft_free_all(all), */1);
 			}
 			
+			if (ft_check_arg(&all) == -1)
+			{
+				continue ;
+			}
 			// Vérifier si au moins une commande a des arguments
-			int has_valid_cmd = 0;
-			int j = 0;
-			while (j < all->t_cmd->nbr_cmd)
-			{
-				if (all->t_cmd->cmd_tab[j].cmd_args && all->t_cmd->cmd_tab[j].cmd_args[0])
-				{
-					has_valid_cmd = 1;
-					break;
-				}
-				j++;
-			}
+			// int has_valid_cmd = 0;
+			// int j = 0;
+			// while (j < all->t_cmd->nbr_cmd)
+			// {
+			// 	if (all->t_cmd->cmd_tab[j].cmd_args && all->t_cmd->cmd_tab[j].cmd_args[0])
+			// 	{
+			// 		has_valid_cmd = 1;
+			// 		break;
+			// 	}
+			// 	j++;
+			// }
 			
-			if (!has_valid_cmd)
-			{
-				// Pas de commande valide, nettoyer et continuer
-				j = 0;
-				while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
-				{
-					ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
-					j++;
-				}
-				free(all->t_cmd->cmd_tab);
-				free(all->t_cmd);
-				free(str);
-				if (all->shell)
-				{
-					ft_clear(&all->shell);
-				}
-				continue;
-			}
+			// if (!has_valid_cmd)
+			// {
+			// 	// Pas de commande valide, nettoyer et continuer
+			// 	j = 0;
+			// 	while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
+			// 	{
+			// 		ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
+			// 		j++;
+			// 	}
+			// 	free(all->t_cmd->cmd_tab);
+			// 	free(all->t_cmd);
+			// 	free(str);
+			// 	if (all->shell)
+			// 	{
+			// 		ft_clear(&all->shell);
+			// 	}
+			// 	continue;
+			// }
 	// ft_print_triple_tab(all->t_cmd);
 
 			//Execution
-			ft_open_pipe(all->t_cmd);
+			if (ft_open_pipe(all->t_cmd) == 1)
+				return (1);
 			ft_exec_commande(all->t_cmd, all->t_red, &all, all->env);
 			ft_waitpid(all->t_cmd);
 			ft_close_pipe(all->t_cmd);
 
 			//exit code
 			// int exit_status = 0;
+			ft_check_exit_status(&all);
 			// Seulement mettre à jour l'exit status si un processus a réellement été exécuté
-			int process_executed = 0;
-			j = 0;
-			while (j < all->t_cmd->nbr_cmd)
-			{
-				if (all->t_cmd->cmd_tab[j].id1 > 0)
-				{
-					process_executed = 1;
-					break;
-				}
-				j++;
-			}
-			
-			if (process_executed && WIFEXITED(all->t_cmd->status))
-			{
-				all->exit_status = WEXITSTATUS(all->t_cmd->status);
-			}
-			else if (process_executed == 0)
-			{
-				//Si aucun processus n'a été exécuté mais qu'aucune erreur n'a été détectée, exit_status = 0
-				int has_error = 0;
-				j = 0;
-				while (j < all->t_cmd->nbr_cmd)
-				{
-					if (all->t_cmd->cmd_tab[j].input_failed == 1
-						|| all->t_cmd->cmd_tab[j].output_failed == 1)
-					{
-						has_error = 1;
-						break;
-					}
-					j++;
-				}
-				if (has_error == 0)
-					all->exit_status = 0;
-			}
+			// int process_executed = 0;
+			// j = 0;
+			// while (j < all->t_cmd->nbr_cmd)
+			// {
+			// 	if (all->t_cmd->cmd_tab[j].id1 > 0)
+			// 	{
+			// 		process_executed = 1;
+			// 		break;
+			// 	}
+			// 	j++;
+			// }
+			// if (process_executed && WIFEXITED(all->t_cmd->status))
+			// 	all->exit_status = WEXITSTATUS(all->t_cmd->status);
+			// else if (process_executed == 0)
+			// {
+			// 	//Si aucun processus n'a été exécuté mais qu'aucune erreur n'a été détectée, exit_status = 0
+			// 	int has_error = 0;
+			// 	j = 0;
+			// 	while (j < all->t_cmd->nbr_cmd)
+			// 	{
+			// 		if (all->t_cmd->cmd_tab[j].input_failed == 1
+			// 			|| all->t_cmd->cmd_tab[j].output_failed == 1)
+			// 		{
+			// 			has_error = 1;
+			// 			break;
+			// 		}
+			// 		j++;
+			// 	}
+			// 	if (has_error == 0)
+			// 		all->exit_status = 0;
+			// }
 			// Si aucun processus n'a été exécuté à cause d'erreurs, garder l'exit_status précédent
 			// printf("exit:%d\n", all->exit_status);
 
 			//free
-			j = 0;
-			while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
-			{
-				ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
-				j++;
-			}
-			free(all->t_cmd->cmd_tab);
-			free(all->t_cmd);
-			free(all->t_red);
-			free(str);
-			if (all->shell)
-			{
-				ft_clear(&all->shell);
-			}
-			
+			ft_free_all(all);
+			// j = 0;
+			// while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
+			// {
+			// 	ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
+			// 	j++;
+			// }
+			// free(all->t_cmd->cmd_tab);
+			// free(all->t_cmd);
+			// // free(all->t_red);
+			// free(str);
+			// if (all->shell)
+			// {
+			// 	ft_clear(&all->shell);
+			// }
 		}
 		free(all);
 	}

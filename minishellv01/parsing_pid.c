@@ -99,6 +99,8 @@ char *ft_get_pid(t_all *all)
 		{
 			ft_redir(all, i);
 			ft_close_pipe_pid(all);
+			// if (all->t_pid->outfd >= 0)
+				// close(all->t_pid->outfd);
 			if (exec(all->t_pid->cmd[i].tab, all->env) == -1)
 			{
 				perror("command not found");
@@ -127,7 +129,8 @@ char *ft_get_pid(t_all *all)
 		str[readfd - 1] = '\0';
 	else
 		str[0] = '\0';
-	
+	free(all->t_pid->cmd);
+	free(all->t_pid);
 	// Supprimer le fichier temporaire
 	unlink("temp2");
 	return (str);

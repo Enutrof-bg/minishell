@@ -35,12 +35,10 @@ char *ft_remove_quote(char *str)
 		if (str[i] == '"' && !insinglequote)
 		{
 			indoublequote = !indoublequote;
-			// j++;
 		}
 		else if (str[i] == '\'' && !indoublequote)
 		{
 			insinglequote = !insinglequote;
-			// j++;
 		}
 		else if (insinglequote == 1 && str[i] == '"')
 		{
@@ -115,7 +113,7 @@ int ft_parse_double_quote(char *str, t_list **shell, int *i, t_all *all)
 		ft_add(shell, temp3, DOUBLEQUOTE);
 		// printf("double:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
-		// free(temp2);
+		free(temp3);
 	}
 	*i = *i + j;
 	if (str[*i] == '"')
@@ -176,7 +174,7 @@ int ft_parse_singlequote(char *str, t_list **shell, int *i, t_all *all)
 		ft_add(shell, temp3, SINGLEQUOTE);
 		// printf("single:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
-		// free(temp2);
+		free(temp3);
 	}
 	*i = *i + j;
 	if (str[*i] == '\'')
@@ -237,7 +235,7 @@ int ft_parse_space(char *str, t_list **shell, int *i, t_all *all)
 		ft_add(shell, temp3, state);
 		// printf("space:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
-		// free(temp2);
+		free(temp3);
 	}
 	*i = *i + j;
 	j = 0;

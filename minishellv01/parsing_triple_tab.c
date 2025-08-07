@@ -53,80 +53,6 @@ int ft_set_triple_tab_null(t_commande *t_cmd)
 	}
 	return (0);
 }
-/*
-int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
-{
-	// t_list *temp = *shell;
-
-	int i = 0;
-	int prev_infd = -1;
-    int prev_outfd = -1;
-    (*t_cmd)->cmd_tab[i].infd = -1;
-    (*t_cmd)->cmd_tab[i].outfd = -1;
-    // (*t_cmd)->cmd_tab[i].errfd = -1;
-	t_list *temp = *shell;
-	while (*shell != NULL)
-	{
-		if ((*shell)->state == NORMAL || (*shell)->state == DOUBLEQUOTE || (*shell)->state == SINGLEQUOTE)
-			(*t_cmd)->cmd_tab[i].cmd_args = ft_add_double_tab((*shell)->str, (*t_cmd)->cmd_tab[i].cmd_args);
-		if ((*shell)->state == INFILE)
-		{
-			if (prev_infd != -1)
-				close(prev_infd);
-			(*t_cmd)->cmd_tab[i].infd = open((*shell)->str, O_RDONLY, 0644);
-			if ((*t_cmd)->cmd_tab[i].infd < 0)
-			{
-				perror((*shell)->str);
-				(*all)->exit_status = 1; // Set exit status to indicate error
-				*shell = temp;
-                return (-1);
-			}
-			prev_infd = (*t_cmd)->cmd_tab[i].infd;
-		}
-		if ((*shell)->state == OUTFILE)
-		{
-			if (prev_outfd != -1)
-				close(prev_outfd);
-			(*t_cmd)->cmd_tab[i].outfd = open((*shell)->str, O_WRONLY | O_TRUNC | O_CREAT, 0644);
-			if ((*t_cmd)->cmd_tab[i].outfd < 0)
-			{
-				(*all)->exit_status = 1; // Set exit status to indicate error
-				// perror((*shell)->str);
-				*shell = temp;
-                return (-1);
-			}
-			prev_outfd = (*t_cmd)->cmd_tab[i].outfd;
-		}
-		if ((*shell)->state == OUTFILEAPPEND)
-	    {
-	        if (prev_outfd != -1)
-	            close(prev_outfd);
-	        (*t_cmd)->cmd_tab[i].outfd = open((*shell)->str, O_WRONLY | O_APPEND | O_CREAT, 0644);
-	        if ((*t_cmd)->cmd_tab[i].outfd < 0)
-	        {
-				(*all)->exit_status = 1; // Set exit status to indicate error
-	            // perror((*shell)->str);
-	            *shell = temp;
-	            return (-1);
-	        }
-	        prev_outfd = (*t_cmd)->cmd_tab[i].outfd;
-	    }
-		if ((*shell)->state == PIPE)
-		{
-			i++;
-			// Initialiser les champs pour la nouvelle commande
-			(*t_cmd)->cmd_tab[i].infd = -1;
-			(*t_cmd)->cmd_tab[i].outfd = -1;
-			// Réinitialiser les variables de suivi des fd précédents
-			prev_infd = -1;
-			prev_outfd = -1;
-		}
-		(*shell) = (*shell)->next;
-	}
-	(*shell) = temp;
-	return (0);
-}
-*/
 
 int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 {
@@ -147,7 +73,11 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 	while (*shell != NULL)
 	{
 		if ((*shell)->state == NORMAL || (*shell)->state == DOUBLEQUOTE || (*shell)->state == SINGLEQUOTE)
+		{
 			(*t_cmd)->cmd_tab[i].cmd_args = ft_add_double_tab((*shell)->str, (*t_cmd)->cmd_tab[i].cmd_args);
+			if (!(*t_cmd)->cmd_tab[i].cmd_args)
+				return (-1);
+		}
 		if ((*shell)->state == INFILE && (*t_cmd)->cmd_tab[i].input_failed == 0)
 		{
 			if (prev_infd != -1)
