@@ -30,6 +30,8 @@ char *ft_remove_quote(char *str)
 	insinglequote = 0;
 	indoublequote = 0;
 	new = malloc(sizeof(char) * (ft_strlen(str) + 1));
+	if (!new)
+		return (NULL);
 	while (str[i])
 	{
 		if (str[i] == '"' && !insinglequote)
@@ -105,12 +107,20 @@ int ft_parse_double_quote(char *str, t_list **shell, int *i, t_all *all)
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
+		if (!temp)
+			return (-2);  // Malloc failure
 // printf("TEMPdouble:%s\n", temp);
 		char *temp3 = replace_dollar_test2(temp, all->env, all);
+		if (!temp3)
+		{
+			free(temp);
+			return (-2);  // Malloc failure
+		}
 		// char *temp2 = ft_remove_quote(temp3);
 		// printf("1:%s\n2:%s\n3:%s\n", temp, temp3, temp2);
 		// tab = ft_add_double_tab(temp, tab);
 		ft_add(shell, temp3, DOUBLEQUOTE);
+		// TODO: Check if ft_add failed and return -2 if needed
 		// printf("double:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
 		free(temp3);
@@ -166,12 +176,20 @@ int ft_parse_singlequote(char *str, t_list **shell, int *i, t_all *all)
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
+		if (!temp)
+			return (-2);  // Malloc failure
 // printf("TEMPsingle:%s\n", temp);
 		char *temp3 = replace_dollar_test2(temp, all->env, all);
+		if (!temp3)
+		{
+			free(temp);
+			return (-2);  // Malloc failure
+		}
 		// char *temp2 = ft_remove_quote(temp3);
 		// printf("1:%s\n2:%s\n3:%s\n", temp, temp3, temp2);
 		// tab = ft_add_double_tab(temp, tab);
 		ft_add(shell, temp3, SINGLEQUOTE);
+		// TODO: Check if ft_add failed and return -2 if needed
 		// printf("single:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
 		free(temp3);
@@ -226,13 +244,21 @@ int ft_parse_space(char *str, t_list **shell, int *i, t_all *all)
 	if (j > 0)
 	{
 		temp = ft_substr(str, *i, j);
+		if (!temp)
+			return (-2);  // Malloc failure
 // printf("TEMPTEST:%s\n", temp);
 		char *temp3 = replace_dollar_test2(temp, all->env, all);
+		if (!temp3)
+		{
+			free(temp);
+			return (-2);  // Malloc failure
+		}
 		// char *temp2 = ft_remove_quote(temp3);
 		// printf("1:%s\n2:%s\n3:%s\n", temp, temp3, temp2);
 		// tab = ft_add_double_tab(temp, tab);
 
 		ft_add(shell, temp3, state);
+		// TODO: Check if ft_add failed and return -2 if needed
 		// printf("space:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
 		free(temp3);

@@ -457,12 +457,20 @@ int main(int argc, char **argv, char **env)
 			add_history(all->str);
 
 			//Parse_decoupe bah elle decoupe l'input en liste chaine
-			if (ft_parse_decoupe(all->str, &all->shell, all) == -1)
+			int parse_result = ft_parse_decoupe(all->str, &all->shell, all);
+			if (parse_result == -1)
 			{
 				// Skip this iteration if parsing failed due to unclosed quotes
 				free(all->str);
 				// ft_free_all(all);
 				continue;
+			}
+			else if (parse_result == -2)
+			{
+				// Malloc failure - exit program
+				free(all->str);
+				ft_err("minishell", "malloc failed");
+				exit(1);
 			}
 			
 			ft_concatenate(&all->shell);
