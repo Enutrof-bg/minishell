@@ -23,8 +23,10 @@
 #include <sys/types.h>//wait
 #include <sys/wait.h>//wait
 #include <sys/stat.h>//stat
-
+# include <signal.h>//signal
 # include "gnl/get_next_line.h"
+
+#include <termios.h> //tcget
 
 #define SINGLEQUOTE 1
 #define DOUBLEQUOTE 2
@@ -44,6 +46,7 @@
 #define OUTFILEAPPEND 22
 
 #define PATH_MAX	4096
+
 
 typedef struct s_redir
 {
@@ -113,9 +116,9 @@ typedef struct s_all
 	t_pid 		*t_pid;
 	char *pid_str;
 
-	struct sigaction sigint;
-	struct sigaction sigstop;
-	struct sigaction sigquit;
+	struct sigaction sigint;   // Pour SIGINT (Ctrl+C)
+	struct sigaction sigquit;  // Pour SIGQUIT (Ctrl+\)
+	struct sigaction sigeof;  // Pour SIGEOF (Ctrl+D)
 }t_all;
 
 char	**ft_split(char const *s, char c);
@@ -220,5 +223,18 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all);
 void	ft_err(char *msg1, char *msg2);
 void	ft_err_2(char *msg1, char *msg2);
 int	exec(char **tab, char **env);
+
+//signals
+void setup_signals(t_all *all);
+void handle_sigint(int sig);
+void handle_sigquit(int sig);
+void handle_sigtstp(int sig);
+void restore_signals(void);
+void setup_child_signals(void);
+void setup_interactive_signals(void);
+int check_signal_received(void);
+void handle_background_sigint(int sig);
+
+extern volatile sig_atomic_t g_signal_received;
 
 #endif

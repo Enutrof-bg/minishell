@@ -49,13 +49,15 @@ void ft_free_all(t_all *all)
 	if (all->shell)
 		ft_clear(&all->shell);
 	int j = 0;
-	while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
+	if (all->t_cmd && all->t_cmd->cmd_tab)
 	{
-		ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
-		j++;
-	}
-	if (all->t_cmd->cmd_tab)
+		while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
+		{
+			ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
+			j++;
+		}
 		free(all->t_cmd->cmd_tab);
+	}
 	if (all->t_cmd)
 		free(all->t_cmd);
 }

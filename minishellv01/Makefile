@@ -44,7 +44,8 @@ parsing_redir.c \
 parsing_lst_utils_2.c \
 parsing_init.c \
 cd_test_4.c \
-parsing_pid.c
+parsing_pid.c \
+# signals.c \
 # cd_test2.c
 
 SRC = ${FILE:.c=.o}

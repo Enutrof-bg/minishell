@@ -1,20 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*			//Compte le nombre de commande
-			all->t_cmd = malloc(sizeof(t_commande));
-			all->t_cmd->nbr_cmd = ft_count_commands(all->shell);
-			// printf("nbr commande: %d\n", all->t_cmd->nbr_cmd);                                                    :::      ::::::::   */
+/*		                                                  :::      ::::::::   */
 /*   parsing_test.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kevwang <kevwang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/18 11:38:30 by kevwang           #+#    #+#             */
+/*   Created: 2025/07														  */
 /*   Updated: 2025/07/18 11:38:32 by kevwang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+int g_sigvaleur;
 // if (i == 0)
 // {
 // 	if (t_cmd->cmd_tab[i].infd >= 0)
@@ -101,6 +99,9 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			t_cmd->cmd_tab[i].id1 = fork();
 			if (t_cmd->cmd_tab[i].id1 == 0)
 			{
+				// Restaurer les signaux par défaut pour les processus enfants
+				// setup_child_signals();
+				
 				if (t_cmd->cmd_tab[i].infd >= 0)
 					dup2(t_cmd->cmd_tab[i].infd, 0);
 				else if (i > 0)  // Si pas de redirection d'entrée, utiliser le pipe précédent
@@ -151,6 +152,9 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
                 t_cmd->cmd_tab[i].id1 = fork();
                 if (t_cmd->cmd_tab[i].id1 == 0)
                 {
+                    // Restaurer les signaux par défaut pour les processus enfants
+                    // setup_child_signals();
+                    
                     ft_close_pipe(t_cmd);
                     ft_close_fd(all);
                     if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
@@ -165,7 +169,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			if (!t_cmd->cmd_tab[i].cmd_args[1])
 			{
 				write(1, "exit\n", 5); //sortie ou 2 
-				exit(0);
+				exit((*all)->exit_status);
 			}
 			if (!ft_is_digit(t_cmd->cmd_tab[i].cmd_args[1])
 				|| ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) > INT_MAX
@@ -183,6 +187,9 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 				t_cmd->cmd_tab[i].id1 = fork();
 				if (t_cmd->cmd_tab[i].id1 == 0)
 				{
+					// Restaurer les signaux par défaut pour les processus enfants
+					// setup_child_signals();
+					
 					ft_close_pipe(t_cmd);
 					ft_close_fd(all);
 					exit(1);
@@ -198,6 +205,9 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			t_cmd->cmd_tab[i].id1 = fork();
 			if (t_cmd->cmd_tab[i].id1 == 0)
 			{
+				// Restaurer les signaux par défaut pour les processus enfants
+				// setup_child_signals();
+				
 				// printf("J'arrive la \n");
 				// Gestion des redirections d'entrée pour toutes les commandes
 				// printf("infd:%d\n", (*t_cmd).cmd_tab[i].infd);
@@ -412,12 +422,221 @@ int ft_init_triple_tab(t_all **all)
 	return (0);
 }
 
+int ft_check_parse(t_all **all)
+{
+	int parse_result = ft_parse_decoupe((*all)->str, &(*all)->shell, (*all));
+	if (parse_result == -1)
+	{
+		// Skip this iteration if parsing failed due to unclosed quotes
+		free((*all)->str);
+		if ((*all)->shell)
+			ft_clear(&(*all)->shell);
+		// ft_free_(*all)((*all));
+		// continue;
+		return (-1);
+	}
+	else if (parse_result == -2)
+	{
+		// M(*all)oc failure - exit program
+		free((*all)->str);
+		if ((*all)->shell)
+			ft_clear(&(*all)->shell);
+		ft_err("minishell", "malloc failed");
+		// exit(1);
+		return (-2);
+	}
+	return (0);
+}
+int ft_read_input(t_all **all)
+{
+	(*all)->str = readline("CacaTest > ");
+	if (g_sigvaleur == 1)
+		return (-2);
+	if (!(*all)->str) // Ctrl+D (EOF)
+	{
+		printf("exit\n");
+		return (-1);
+	}
+	if (!(*all)->str[0]) // Chaîne vide
+	{
+		free((*all)->str);
+		return (-2);
+	}
+	add_history((*all)->str);
+	return (0);
+}
+
+int ft_parse(t_all **all)
+{
+//Parse_decoupe bah elle decoupe l'input en liste chaine
+	int parse_result = ft_check_parse(all);
+	if (parse_result == -1)
+		return (-1); // Continue si la parsing a échoué à cause de guillemets non fermés
+	else if (parse_result == -2)
+		return (-2); // Malloc failure - exit program
+	ft_concatenate(&(*all)->shell);
+// ft_print(all->shell);
+	if (ft_lstiter_env(&(*all)->shell, (*all)->env, *all) == -1)
+	{
+		ft_free_all(*all);
+		return (-1);
+	}
+// ft_print(all->shell);
+	if (ft_init_triple_tab(all) == -2)
+		return (ft_free_all(*all), -2);
+	if (ft_create_triple_tab(&(*all)->shell, &(*all)->t_cmd, all) == -2)
+		return (ft_free_all(*all), -2);
+	if (ft_check_arg(all) == -1)
+		return (-1);
+	return (0);
+}
+
+int ft_all(t_all **all)
+{
+	(*all)->shell = NULL;
+	// int read_result = ft_read_input(all);
+	// if (read_result == -1)
+	// 	return (-1); // Exit if EOF (Ctrl+D) is detected
+	// else if (read_result == -2)
+	// 	return (-2); // Continue if empty string is detected
+
+	// int parse_result = ft_parse(all);
+	// if (parse_result == -1)
+	// 	return (-2); // Continue if parsing failed due to unclosed quotes
+	// else if (parse_result == -2)
+	// 	return (-1); // Malloc failure - exit program
+
+// ft_print_triple_tab(all->t_cmd);
+	// if (ft_open_pipe((*all)->t_cmd) == 1)
+	// 	return (-1);
+	// ft_exec_commande((*all)->t_cmd, (*all)->t_red, all, (*all)->env);
+	// ft_waitpid((*all)->t_cmd);
+	// ft_close_pipe((*all)->t_cmd);
+	// ft_check_exit_status(all);
+	// ft_free_all(*all);
+	return (0);
+}
+
+void ft_test(int signum, siginfo_t *info, void *oldpr)
+{
+	(void)signum;
+	(void)info;
+	(void)oldpr;
+	write(1, "\n", 1);
+    rl_replace_line("", 0);
+    rl_on_new_line();
+    rl_redisplay();
+}
+
+void ft_sigquit(int signum, siginfo_t *info, void *oldpr)
+{
+	(void)signum;
+	(void)info;
+	(void)oldpr;
+	// write(1, "\n", 1);
+    // rl_replace_line("CacaTest > ", 5);
+    // rl_on_new_line();
+    // rl_redisplay();
+	
+	// struct termios term;
+
+    // tcgetattr(STDIN_FILENO, &term);
+	// term.c_lflag |= ECHOCTL;
+	// tcsetattr(STDIN_FILENO, TCSANOW, &term);
+}
+// int ft_all()
+
+
 //caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c ft_itoa.c -lreadline -o minishell
 int main(int argc, char **argv, char **env)
 {
 	(void)argv;
 	t_all *all;
-	// char *str;
+
+	if (argc == 1)
+	{
+		all = malloc(sizeof(t_all));
+		if (!all)
+			return (1);
+		
+		// Configuration des signaux
+		// setup_signals(all);
+		
+		// Configuration de l'environnement
+		if (env[0])
+		{
+        	all->env = env;
+			ft_shlvl(&all);
+		}
+		else
+		{
+			// printf("no env\n");
+			all->env = create_default_env();
+			if (!all->env)
+			{
+				ft_err("minishell", "malloc failed");
+				free(all);
+				return (1);
+			}
+		}
+		g_sigvaleur = 0;
+		printf("%d\n", g_sigvaleur);
+		all->sigquit.sa_sigaction = ft_sigquit;
+		sigaction(SIGQUIT, &all->sigquit, NULL);
+
+		all->sigint.sa_sigaction = ft_test;
+		sigaction(SIGINT, &all->sigint, NULL);
+		// sigaction(SIGINT, &all->sigint, NULL);
+		// all->pid_str = NULL;
+		// all->pid_str = ft_get_pid(all); //peut etre a enlever
+		all->exit_status = 0; // Initialiser l'exit status à 0 au début du programme
+		while (1)
+		{
+		// 	struct termios term;
+
+		// tcgetattr(STDIN_FILENO, &term);         // Récupère les attributs actuels
+		// term.c_lflag &= ~ECHOCTL;               // Désactive l'affichage des caractères de contrôle (comme ^\)
+		// tcsetattr(STDIN_FILENO, TCSANOW, &term);
+			g_sigvaleur = 0;
+			// int all_result = ft_all(&all);
+			// if (all_result == -1)
+			// 	continue; // Continue if EOF (Ctrl+D) is detected
+			// else if (all_result == -2)
+			// 	return (1); // Malloc failure - exit program
+
+			all->shell = NULL;
+			int read_result = ft_read_input(&all);
+			if (read_result == -1)
+				break; // Exit if EOF (Ctrl+D) is detected
+			else if (read_result == -2)
+				continue; // Continue if empty string is detected
+
+			int parse_result = ft_parse(&all);
+			if (parse_result == -1)
+				continue; // Continue if parsing failed due to unclosed quotes
+			else if (parse_result == -2)
+				return (1); // Malloc failure - exit program
+
+	// // ft_print_triple_tab(all->t_cmd);
+			if (ft_open_pipe(all->t_cmd) == 1)
+				return (1);
+			ft_exec_commande(all->t_cmd, all->t_red, &all, all->env);
+			ft_waitpid(all->t_cmd);
+			ft_close_pipe(all->t_cmd);
+			ft_check_exit_status(&all);
+			ft_free_all(all);
+		}
+		free(all);
+	}
+	return (0);
+}
+
+/*
+//caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c ft_itoa.c -lreadline -o minishell
+int main(int argc, char **argv, char **env)
+{
+	(void)argv;
+	t_all *all;
 
 	if (argc == 1)
 	{
@@ -446,7 +665,6 @@ int main(int argc, char **argv, char **env)
 		}
 		// all->pid_str = NULL;
 		// all->pid_str = ft_get_pid(all); //peut etre a enlever
-		// printf("pid:%s", all->pid_str);
 		all->exit_status = 0; // Initialiser l'exit status à 0 au début du programme
 		while (1)
 		{
@@ -470,25 +688,30 @@ int main(int argc, char **argv, char **env)
 			add_history(all->str);
 
 			//Parse_decoupe bah elle decoupe l'input en liste chaine
-			int parse_result = ft_parse_decoupe(all->str, &all->shell, all);
+			int parse_result = ft_check_parse(&all);
 			if (parse_result == -1)
-			{
-				// Skip this iteration if parsing failed due to unclosed quotes
-				free(all->str);
-				if (all->shell)
-					ft_clear(&all->shell);
-				// ft_free_all(all);
-				continue;
-			}
+				continue; // Continue si la parsing a échoué à cause de guillemets non fermés
 			else if (parse_result == -2)
-			{
-				// Malloc failure - exit program
-				free(all->str);
-				if (all->shell)
-					ft_clear(&all->shell);
-				ft_err("minishell", "malloc failed");
-				exit(1);
-			}
+				return (1); // Malloc failure - exit program
+			// int parse_result = ft_parse_decoupe(all->str, &all->shell, all);
+			// if (parse_result == -1)
+			// {
+			// 	// Skip this iteration if parsing failed due to unclosed quotes
+			// 	free(all->str);
+			// 	if (all->shell)
+			// 		ft_clear(&all->shell);
+			// 	// ft_free_all(all);
+			// 	continue;
+			// }
+			// else if (parse_result == -2)
+			// {
+			// 	// Malloc failure - exit program
+			// 	free(all->str);
+			// 	if (all->shell)
+			// 		ft_clear(&all->shell);
+			// 	ft_err("minishell", "malloc failed");
+			// 	exit(1);
+			// }
 			
 			ft_concatenate(&all->shell);
 
@@ -510,14 +733,14 @@ int main(int argc, char **argv, char **env)
 			if (ft_init_triple_tab(&all) == -2)
 			{
 				// continue;
-				free(all->str);
-				if (all->shell)
-					ft_clear(&all->shell);
-				if (all->t_cmd && all->t_cmd->cmd_tab)
-					free(all->t_cmd->cmd_tab);
-				if (all->t_cmd)
-					free(all->t_cmd);
-				return (/*ft_free_all(all), */1);
+				// free(all->str);
+				// if (all->shell)
+				// 	ft_clear(&all->shell);
+				// if (all->t_cmd && all->t_cmd->cmd_tab)
+				// 	free(all->t_cmd->cmd_tab);
+				// if (all->t_cmd)
+				// 	free(all->t_cmd);
+				return (ft_free_all(all), 1);
 			}
 			//Compte le nombre de commande
 			// all->t_cmd = malloc(sizeof(t_commande));
@@ -532,24 +755,22 @@ int main(int argc, char **argv, char **env)
 			// ft_set_triple_tab_null(all->t_cmd);
 			if (ft_create_triple_tab(&all->shell, &all->t_cmd, &all) == -2)
 			{
-				printf("malloc failed\n");
-				if (all->shell)
-					ft_clear(&all->shell);
-				free(all->str);
-				if (all->t_cmd && all->t_cmd->cmd_tab)
-				{
-					int j = 0;
-					while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
-					{
-						ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
-						j++;
-					}
-					free(all->t_cmd->cmd_tab);
-				}
-				if (all->t_cmd)
-					free(all->t_cmd);
-				// ft_free_all(all);
-				return (1);
+				// if (all->shell)
+				// 	ft_clear(&all->shell);
+				// free(all->str);
+				// if (all->t_cmd && all->t_cmd->cmd_tab)
+				// {
+				// 	int j = 0;
+				// 	while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
+				// 	{
+				// 		ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
+				// 		j++;
+				// 	}
+				// 	free(all->t_cmd->cmd_tab);
+				// }
+				// if (all->t_cmd)
+				// 	free(all->t_cmd);
+				return (ft_free_all(all), 1);
 			}
 			
 			if (ft_check_arg(&all) == -1)
@@ -655,3 +876,4 @@ int main(int argc, char **argv, char **env)
 	}
 	return (0);
 }
+*/
