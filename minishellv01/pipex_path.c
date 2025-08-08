@@ -33,6 +33,17 @@ void	ft_err(char *msg1, char *msg2)
 	}
 }
 
+void	ft_err_2(char *msg1, char *msg2)
+{
+	write(2, msg1, ft_strlen(msg1));
+	if (msg2)
+	{
+		write(2, "`", 1);
+		write(2, msg2, ft_strlen(msg2));
+		write(2, "'\n", 2);
+	}
+}
+
 char	*get_path(char **env)
 {
 	char	*str;

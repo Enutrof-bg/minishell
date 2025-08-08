@@ -267,22 +267,31 @@ void ft_assign_cmd_arg_states(t_list **lst)
 	*lst = temp;
 }
 
-
 char **create_default_env(void)
 {
     char **tab = NULL;
     char    *str = NULL;
 
     char    cwd[PATH_MAX];
-    getcwd(cwd, sizeof(cwd));
+    if (!getcwd(cwd, sizeof(cwd)))
+        return (NULL);
     str = ft_strjoin("PWD=", cwd); // non free
+	if (!str)
+		return (NULL);
     tab = ft_add_double_tab(str, tab);
+	if (!tab)
+		return (free(str), NULL);
     tab = ft_add_double_tab("_=/usr/bin/env", tab);
+	if (!tab)
+		return (free(str), NULL);
 	tab = ft_add_double_tab("SHLVL=1", tab);
+	if (!tab)
+		return (free(str), NULL);
 	// tab = ft_add_double_tab("PATH=/home/kevwang/.local/funcheck/host:/home/kevwang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin", tab);
 	tab = ft_add_double_tab("PATH=/bin", tab);
-
-   return (tab);
+	if (!tab)
+		return (free(str), NULL);
+	return (tab);
 }
 
 void ft_concatenate(t_list **lst)
@@ -307,9 +316,7 @@ void ft_concatenate(t_list **lst)
 			(*lst)->next = (*lst)->next->next;
 			continue ;
 		}
-
 		(*lst) = (*lst)->next;
-		
 	}
 	(*lst) = temp;
 	if ((*lst)->state == NORMAL && (!(*lst)->str || (*lst)->str[0] == '\0'))
@@ -396,11 +403,11 @@ int ft_init_triple_tab(t_all **all)
 {
 	(*all)->t_cmd = malloc(sizeof(t_commande));
 	if (!(*all)->t_cmd)
-		return (1);
+		return (-2);
 	(*all)->t_cmd->nbr_cmd = ft_count_commands((*all)->shell);
 	(*all)->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * (*all)->t_cmd->nbr_cmd);
 	if (!(*all)->t_cmd->cmd_tab)
-		return (1);
+		return (-2);
 	ft_set_triple_tab_null((*all)->t_cmd);
 	return (0);
 }
@@ -430,9 +437,15 @@ int main(int argc, char **argv, char **env)
 		{
 			// printf("no env\n");
 			all->env = create_default_env();
+			if (!all->env)
+			{
+				ft_err("minishell", "malloc failed");
+				free(all);
+				return (1);
+			}
 		}
 		// all->pid_str = NULL;
-		// all->pid_str = ft_get_pid(all);
+		// all->pid_str = ft_get_pid(all); //peut etre a enlever
 		// printf("pid:%s", all->pid_str);
 		all->exit_status = 0; // Initialiser l'exit status à 0 au début du programme
 		while (1)
@@ -462,6 +475,8 @@ int main(int argc, char **argv, char **env)
 			{
 				// Skip this iteration if parsing failed due to unclosed quotes
 				free(all->str);
+				if (all->shell)
+					ft_clear(&all->shell);
 				// ft_free_all(all);
 				continue;
 			}
@@ -469,6 +484,8 @@ int main(int argc, char **argv, char **env)
 			{
 				// Malloc failure - exit program
 				free(all->str);
+				if (all->shell)
+					ft_clear(&all->shell);
 				ft_err("minishell", "malloc failed");
 				exit(1);
 			}
@@ -476,7 +493,7 @@ int main(int argc, char **argv, char **env)
 			ft_concatenate(&all->shell);
 
 			//lstiter_env pour verifier les redirecions '<' '>' '>>' '<<'
-
+	// ft_print(all->shell);
 			// ft_lstiter_env(&all->shell, all->env, all);
 			if (ft_lstiter_env(&all->shell, all->env, all) == -1)
 			{
@@ -490,8 +507,16 @@ int main(int argc, char **argv, char **env)
 
 			// ft_assign_cmd_arg_states(&all->shell);
 
-			if (ft_init_triple_tab(&all) == 1)
+			if (ft_init_triple_tab(&all) == -2)
 			{
+				// continue;
+				free(all->str);
+				if (all->shell)
+					ft_clear(&all->shell);
+				if (all->t_cmd && all->t_cmd->cmd_tab)
+					free(all->t_cmd->cmd_tab);
+				if (all->t_cmd)
+					free(all->t_cmd);
 				return (/*ft_free_all(all), */1);
 			}
 			//Compte le nombre de commande
@@ -505,9 +530,26 @@ int main(int argc, char **argv, char **env)
 
 			//Creation des doubles tableaux pour les commandes
 			// ft_set_triple_tab_null(all->t_cmd);
-			if (ft_create_triple_tab(&all->shell, &all->t_cmd, &all) == -1)
+			if (ft_create_triple_tab(&all->shell, &all->t_cmd, &all) == -2)
 			{
-				return (/*ft_free_all(all), */1);
+				printf("malloc failed\n");
+				if (all->shell)
+					ft_clear(&all->shell);
+				free(all->str);
+				if (all->t_cmd && all->t_cmd->cmd_tab)
+				{
+					int j = 0;
+					while (j < all->t_cmd->nbr_cmd && all->t_cmd->cmd_tab[j].cmd_args)
+					{
+						ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
+						j++;
+					}
+					free(all->t_cmd->cmd_tab);
+				}
+				if (all->t_cmd)
+					free(all->t_cmd);
+				// ft_free_all(all);
+				return (1);
 			}
 			
 			if (ft_check_arg(&all) == -1)

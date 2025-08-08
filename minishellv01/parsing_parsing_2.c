@@ -119,7 +119,8 @@ int ft_parse_double_quote(char *str, t_list **shell, int *i, t_all *all)
 		// char *temp2 = ft_remove_quote(temp3);
 		// printf("1:%s\n2:%s\n3:%s\n", temp, temp3, temp2);
 		// tab = ft_add_double_tab(temp, tab);
-		ft_add(shell, temp3, DOUBLEQUOTE);
+		if (ft_add(shell, temp3, DOUBLEQUOTE) == -2)
+			return (free(temp), free(temp3), -2);
 		// TODO: Check if ft_add failed and return -2 if needed
 		// printf("double:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
@@ -188,7 +189,8 @@ int ft_parse_singlequote(char *str, t_list **shell, int *i, t_all *all)
 		// char *temp2 = ft_remove_quote(temp3);
 		// printf("1:%s\n2:%s\n3:%s\n", temp, temp3, temp2);
 		// tab = ft_add_double_tab(temp, tab);
-		ft_add(shell, temp3, SINGLEQUOTE);
+		if (ft_add(shell, temp3, SINGLEQUOTE) == -2)
+			return (free(temp), free(temp3), -2);
 		// TODO: Check if ft_add failed and return -2 if needed
 		// printf("single:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
@@ -257,7 +259,8 @@ int ft_parse_space(char *str, t_list **shell, int *i, t_all *all)
 		// printf("1:%s\n2:%s\n3:%s\n", temp, temp3, temp2);
 		// tab = ft_add_double_tab(temp, tab);
 
-		ft_add(shell, temp3, state);
+		if (ft_add(shell, temp3, state) == -2)
+			return (free(temp), free(temp3), -2);
 		// TODO: Check if ft_add failed and return -2 if needed
 		// printf("space:%s i:%d j:%d\n", temp, i, j);
 		free(temp);

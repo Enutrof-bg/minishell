@@ -179,7 +179,7 @@ int ft_count_commands(t_list *lst);
 //parsing_lst_utils.c
 t_list	*ft_lst(char *str, int state);
 void	ft_lstadd_back(t_list **lst, t_list *new);
-void ft_add(t_list **lst, char *str, int state);
+int ft_add(t_list **lst, char *str, int state);
 
 //parsing_lst_utils_2.c
 int ft_size(t_list *lst);
@@ -218,6 +218,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all);
 
 //pipex_path
 void	ft_err(char *msg1, char *msg2);
+void	ft_err_2(char *msg1, char *msg2);
 int	exec(char **tab, char **env);
 
 #endif

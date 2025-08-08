@@ -208,7 +208,14 @@ char *replace_dollar_test2(char *str, char **env, t_all *all)
             if (str[i + 1] == '?')
             {
                 all->exit_status_char = ft_itoa(all->exit_status);
+                if (!all->exit_status_char)
+                    return (NULL);
                 temp = ft_strjoin(result, all->exit_status_char);
+                if (!temp)
+                {
+                    free(all->exit_status_char);
+                    return (NULL);
+                }
                 free(result);
                 result = temp;
                 free(all->exit_status_char);
@@ -218,6 +225,8 @@ char *replace_dollar_test2(char *str, char **env, t_all *all)
             {
                 // all->exit_status_char = ft_itoa(all->exit_status);
                 temp = ft_strjoin(result, all->pid_str);
+                if (!temp)
+                    return (NULL);
                 free(result);
                 result = temp;
                 // free(all->pid_str);
@@ -232,6 +241,11 @@ char *replace_dollar_test2(char *str, char **env, t_all *all)
                     if (env_var)
                     {
                         temp = ft_strjoin(result, env_var);
+                        if (!temp)
+                        {
+                            free(env_name);
+                            return (NULL);
+                        }
                         free(result);
                         result = temp;
                     }

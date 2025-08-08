@@ -76,7 +76,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 		{
 			(*t_cmd)->cmd_tab[i].cmd_args = ft_add_double_tab((*shell)->str, (*t_cmd)->cmd_tab[i].cmd_args);
 			if (!(*t_cmd)->cmd_tab[i].cmd_args)
-				return (-1);
+				return (-2);
 		}
 		if ((*shell)->state == INFILE && (*t_cmd)->cmd_tab[i].input_failed == 0)
 		{
@@ -97,8 +97,6 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 			else
 				prev_infd = (*t_cmd)->cmd_tab[i].infd;
 		}
-
-
 		if ((*shell)->state == LIMITER && (*t_cmd)->cmd_tab[i].input_failed == 0)
 		{
 			if (prev_infd != -1)
