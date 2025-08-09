@@ -216,7 +216,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
                	signal(SIGINT, SIG_DFL);
                 signal(SIGQUIT, SIG_DFL);  // Comportement par défaut pour SIGQUIT
 				
-				printf("J'arrive la \n");
+				// printf("J'arrive la \n");
 				// Gestion des redirections d'entrée pour toutes les commandes
 				// printf("infd:%d\n", (*t_cmd).cmd_tab[i].infd);
 				if (t_cmd->cmd_tab[i].infd >= 0)
@@ -369,7 +369,8 @@ void ft_check_exit_status(t_all **all)
 			write(1, "Quit (core dumped)\n", 20);
 		else if (sig == SIGINT)
 			write (1, "\n", 1);
-		(*all)->exit_status = 128 + sig; //128 + le code du signal
+		if (sig != SIGPIPE)
+			(*all)->exit_status = 128 + sig; //128 + le code du signal
 	}
 	else if (process_executed == 0)
 	{
@@ -532,8 +533,11 @@ int ft_parse(t_all **all)
 // ft_print((*all)->shell);
 	if (ft_init_triple_tab(all) == -2)
 		return (ft_free_all(*all), -2);
-	if (ft_create_triple_tab(&(*all)->shell, &(*all)->t_cmd, all) == -2)
+	parse_result = ft_create_triple_tab(&(*all)->shell, &(*all)->t_cmd, all);
+	if (parse_result == -2)
 		return (ft_free_all(*all), -2);
+	if (parse_result == -1)
+		return (ft_free_all(*all), -1);
 	if (ft_check_arg(all) == -1)
 		return (-1);
 	return (0);
@@ -630,7 +634,7 @@ int main(int argc, char **argv, char **env)
 		{
 			all->shell = NULL;
 			int read_result = ft_read_input(&all);
-			printf("DEBUG: read_result = %d, g_sigvaleur = %d\n", read_result, g_sigvaleur);
+			// printf("DEBUG: read_result = %d, g_sigvaleur = %d\n", read_result, g_sigvaleur);
 			if (read_result == -1)
 			{
 				exit(all->exit_status);
@@ -638,7 +642,7 @@ int main(int argc, char **argv, char **env)
 			}
 			else if (read_result == -2)
 			{
-				printf("DEBUG: Entrée dans read_result == -2\n");
+				// printf("DEBUG: Entrée dans read_result == -2\n");
 				// Si c'est à cause d'un signal, mettre à jour l'exit status
 				if (g_sigvaleur == 1)
 				{

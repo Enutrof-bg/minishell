@@ -25,6 +25,7 @@
 #include <sys/stat.h>//stat
 # include <signal.h>//signal
 # include "gnl/get_next_line.h"
+# include <errno.h>
 
 #include <termios.h> //tcget
 
@@ -65,6 +66,7 @@ typedef struct s_cmd_tab
 	int input_failed; // 1 si redirection d'entrée a échoué, 0 sinon
 	int output_failed;
 	
+	int id_here_doc;
 	int heredoc;
 	char *in_str;
 	char *out_str;
@@ -235,6 +237,8 @@ void setup_interactive_signals(void);
 int check_signal_received(void);
 void handle_background_sigint(int sig);
 
-extern volatile sig_atomic_t g_signal_received;
+// extern volatile sig_atomic_t g_signal_received;
+extern int g_sigvaleur;
 
+void ft_test(int signum);
 #endif
