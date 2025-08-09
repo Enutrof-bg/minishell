@@ -100,7 +100,8 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			if (t_cmd->cmd_tab[i].id1 == 0)
 			{
 				// Restaurer les signaux par défaut pour les processus enfants
-				// setup_child_signals();
+				signal(SIGINT, SIG_DFL);   // Comportement par défaut pour SIGINT
+				signal(SIGQUIT, SIG_DFL);  // Comportement par défaut pour SIGQUIT
 				
 				if (t_cmd->cmd_tab[i].infd >= 0)
 					dup2(t_cmd->cmd_tab[i].infd, 0);
@@ -153,7 +154,8 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
                 if (t_cmd->cmd_tab[i].id1 == 0)
                 {
                     // Restaurer les signaux par défaut pour les processus enfants
-                    // setup_child_signals();
+                    signal(SIGINT, SIG_DFL);   // Comportement par défaut pour SIGINT
+                    signal(SIGQUIT, SIG_DFL);  // Comportement par défaut pour SIGQUIT
                     
                     ft_close_pipe(t_cmd);
                     ft_close_fd(all);
@@ -205,8 +207,9 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			t_cmd->cmd_tab[i].id1 = fork();
 			if (t_cmd->cmd_tab[i].id1 == 0)
 			{
-				// Restaurer les signaux par défaut pour les processus enfants
-				// setup_child_signals();
+				 // Restaurer les signaux par défaut pour les processus enfants
+                signal(SIGINT, SIG_DFL);   // Comportement par défaut pour SIGINT
+                signal(SIGQUIT, SIG_DFL);  // Comportement par défaut pour SIGQUIT
 				
 				// printf("J'arrive la \n");
 				// Gestion des redirections d'entrée pour toutes les commandes
@@ -354,6 +357,13 @@ void ft_check_exit_status(t_all **all)
 	}
 	if (process_executed && WIFEXITED((*all)->t_cmd->status))
 		(*all)->exit_status = WEXITSTATUS((*all)->t_cmd->status);
+	else if (process_executed && WIFSIGNALED((*all)->t_cmd->status))
+	{
+		int sig = WTERMSIG((*all)->t_cmd->status);
+		if (sig == SIGQUIT)
+			write(1, "Quit (core dumped)\n", 20);
+		(*all)->exit_status = 128 + sig; //128 + le code du signal
+	}
 	else if (process_executed == 0)
 	{
 		int has_error = 0;
@@ -424,6 +434,7 @@ int ft_init_triple_tab(t_all **all)
 
 int ft_check_parse(t_all **all)
 {
+	// (*all)->str = replace_dollar_test2((*all)->str, (*all)->env, *all);
 	int parse_result = ft_parse_decoupe((*all)->str, &(*all)->shell, (*all));
 	if (parse_result == -1)
 	{
@@ -447,11 +458,26 @@ int ft_check_parse(t_all **all)
 	}
 	return (0);
 }
+
 int ft_read_input(t_all **all)
 {
-	(*all)->str = readline("CacaTest > ");
+	// Si un signal a été reçu avant readline, on le gère ici
 	if (g_sigvaleur == 1)
+	{
+		g_sigvaleur = 0;  // Reset le flag
+		return (-2);      // Indique qu'il faut continuer la boucle
+	}
+	
+	(*all)->str = readline("CacaTest > ");
+	
+	// Vérifier si readline a été interrompu par un signal
+	if (g_sigvaleur == 1)
+	{
+		if ((*all)->str)
+			free((*all)->str);
 		return (-2);
+	}
+	
 	if (!(*all)->str) // Ctrl+D (EOF)
 	{
 		printf("exit\n");
@@ -481,7 +507,7 @@ int ft_parse(t_all **all)
 		ft_free_all(*all);
 		return (-1);
 	}
-// ft_print(all->shell);
+ft_print((*all)->shell);
 	if (ft_init_triple_tab(all) == -2)
 		return (ft_free_all(*all), -2);
 	if (ft_create_triple_tab(&(*all)->shell, &(*all)->t_cmd, all) == -2)
@@ -517,22 +543,21 @@ int ft_all(t_all **all)
 	return (0);
 }
 
-void ft_test(int signum, siginfo_t *info, void *oldpr)
+void ft_test(int signum)
 {
 	(void)signum;
-	(void)info;
-	(void)oldpr;
-	write(1, "\n", 1);
-    rl_replace_line("", 0);
-    rl_on_new_line();
-    rl_redisplay();
+	g_sigvaleur = 1; // Marquer qu'un signal sigint a été reçu
+	write(STDOUT_FILENO, "\n", 1);
+    rl_replace_line("", 0);      // Vider la ligne courante
+    rl_on_new_line();            // Indiquer qu'on est sur une nouvelle ligne
+    rl_redisplay();              // Réafficher le prompt
 }
 
-void ft_sigquit(int signum, siginfo_t *info, void *oldpr)
+void ft_sigquit(int signum)
 {
 	(void)signum;
-	(void)info;
-	(void)oldpr;
+	// g_sigvaleur = 2; //Marquer qu'un signal sigquit a été reçu
+	
 	// write(1, "\n", 1);
     // rl_replace_line("CacaTest > ", 5);
     // rl_on_new_line();
@@ -580,36 +605,33 @@ int main(int argc, char **argv, char **env)
 			}
 		}
 		g_sigvaleur = 0;
-		printf("%d\n", g_sigvaleur);
-		all->sigquit.sa_sigaction = ft_sigquit;
-		sigaction(SIGQUIT, &all->sigquit, NULL);
+		// printf("%d\n", g_sigvaleur);
 
-		all->sigint.sa_sigaction = ft_test;
-		sigaction(SIGINT, &all->sigint, NULL);
-		// sigaction(SIGINT, &all->sigint, NULL);
+		// Configuration des signaux avec signal() au lieu de sigaction()
+		signal(SIGQUIT, SIG_IGN);
+		signal(SIGINT, ft_test);
+		
 		// all->pid_str = NULL;
 		// all->pid_str = ft_get_pid(all); //peut etre a enlever
 		all->exit_status = 0; // Initialiser l'exit status à 0 au début du programme
 		while (1)
 		{
-		// 	struct termios term;
-
-		// tcgetattr(STDIN_FILENO, &term);         // Récupère les attributs actuels
-		// term.c_lflag &= ~ECHOCTL;               // Désactive l'affichage des caractères de contrôle (comme ^\)
-		// tcsetattr(STDIN_FILENO, TCSANOW, &term);
-			g_sigvaleur = 0;
-			// int all_result = ft_all(&all);
-			// if (all_result == -1)
-			// 	continue; // Continue if EOF (Ctrl+D) is detected
-			// else if (all_result == -2)
-			// 	return (1); // Malloc failure - exit program
-
+			// g_sigvaleur = 0;  // Reset du signal au début de chaque itération
+			
 			all->shell = NULL;
 			int read_result = ft_read_input(&all);
 			if (read_result == -1)
-				break; // Exit if EOF (Ctrl+D) is detected
+			{
+				exit(all->exit_status);
+			// 	break; // Exit if EOF (Ctrl+D) is detected
+			}
 			else if (read_result == -2)
-				continue; // Continue if empty string is detected
+			{
+				// Si c'est à cause d'un signal, mettre à jour l'exit status
+				if (g_sigvaleur == 1)
+					all->exit_status = 130;  // Code pour SIGINT
+				continue; // Continue if empty string is detected or signal received
+			}
 
 			int parse_result = ft_parse(&all);
 			if (parse_result == -1)
