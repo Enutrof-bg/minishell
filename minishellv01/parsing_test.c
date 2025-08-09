@@ -367,8 +367,8 @@ void ft_check_exit_status(t_all **all)
 		int sig = WTERMSIG((*all)->t_cmd->status);
 		if (sig == SIGQUIT)
 			write(1, "Quit (core dumped)\n", 20);
-		// else if (sig == SIGINT)
-			// write (1, "test\n", 5);
+		else if (sig == SIGINT)
+			write (1, "\n", 1);
 		(*all)->exit_status = 128 + sig; //128 + le code du signal
 	}
 	else if (process_executed == 0)
