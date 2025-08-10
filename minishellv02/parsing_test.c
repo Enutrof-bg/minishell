@@ -697,7 +697,7 @@ int main(int argc, char **argv, char **env)
 
 			if (tcgetattr(STDIN_FILENO, &all->term) == 0)
             {
-                all->term.c_lflag |= ECHOCTL;
+                all->term.c_lflag |= 0001000; // Désactiver ECHOCTL pour ne pas afficher les caractères de contrôle
                 tcsetattr(STDIN_FILENO, TCSANOW, &all->term);
             }
 

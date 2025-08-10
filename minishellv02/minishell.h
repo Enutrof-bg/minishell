@@ -48,6 +48,9 @@
 
 #define PATH_MAX	4096
 
+// #ifdef ECHOCTL
+#define ECHOCTL 0001000
+// #endif
 
 typedef struct s_redir
 {

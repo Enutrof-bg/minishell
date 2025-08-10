@@ -135,6 +135,13 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 					signal(SIGINT, SIG_DFL);
 					signal(SIGQUIT, SIG_IGN);
 					// prev_infd = (*t_cmd)->cmd_tab[i].infd;
+
+					if (tcgetattr(STDIN_FILENO, &(*all)->term) == 0)
+                    {
+                        (*all)->term.c_lflag &= ~0001000; // Désactiver ECHOCTL pour ne pas afficher les caractères de contrôle
+                        tcsetattr(STDIN_FILENO, TCSANOW,  &(*all)->term);
+                    }
+
 					(*t_cmd)->cmd_tab[i].heredoc++;
 					if (access("temp", F_OK) == 0)
 					{
@@ -166,6 +173,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 					int status;
 					waitpid((*t_cmd)->cmd_tab[i].id_here_doc, &status, 0);
 					// printf("signal0");
+					signal(SIGINT, ft_test);
 					if (WIFSIGNALED(status))
 					{
 						// printf("signal1");
@@ -173,7 +181,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 						if (sig == SIGINT)
 						{
 							// printf("signal2");
-							write (1, "\n", 1);
+							write (1, "^C\n", 3);
 							(*all)->exit_status = 128 + sig;
 							return (-1);
 						}
@@ -192,7 +200,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 						prev_infd = (*t_cmd)->cmd_tab[i].infd;
 					}
 				}
-				signal(SIGINT, ft_test);
+				// signal(SIGINT, ft_test);
 				// if (g_sigvaleur == 1)
 				// {
 
