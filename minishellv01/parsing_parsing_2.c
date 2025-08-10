@@ -77,6 +77,8 @@ int ft_parse_double_quote(char *str, t_list **shell, int *i, t_all *all)
 	// while (str[*i + j] != '"' && str[*i + j] != '\0')
 		// j++;
 
+	// str = replace_dollar_test2(str, all->env, all);
+	// str = replace_dollar_pour_de_vrai(str, all);
 	while ((str[*i + j] != ' ' /*&& str[*i + j] != '"' && str[*i + j] != '\''*/
 			&& str[*i + j] != '|' && str[*i + j] != '\0')
 		|| (indoublequote == 1 || insinglequote == 1))
@@ -110,17 +112,19 @@ int ft_parse_double_quote(char *str, t_list **shell, int *i, t_all *all)
 		if (!temp)
 			return (-2);  // Malloc failure
 // printf("TEMPdouble:%s\n", temp);
+
 		char *temp3 = replace_dollar_test2(temp, all->env, all);
 		if (!temp3)
 		{
 			free(temp);
 			return (-2);  // Malloc failure
 		}
+
 		// char *temp2 = ft_remove_quote(temp3);
 		// printf("1:%s\n2:%s\n3:%s\n", temp, temp3, temp2);
 		// tab = ft_add_double_tab(temp, tab);
 		if (ft_add(shell, temp3, DOUBLEQUOTE) == -2)
-			return (free(temp), free(temp3), -2);
+			return (free(temp), free(temp3),-2);
 		// TODO: Check if ft_add failed and return -2 if needed
 		// printf("double:%s i:%d j:%d\n", temp, i, j);
 		free(temp);
@@ -145,7 +149,7 @@ int ft_parse_singlequote(char *str, t_list **shell, int *i, t_all *all)
 	j = 0;
 	// while (str[*i + j] != '\'' && str[*i + j] != '\0')
 		// j++;
-
+	// str = replace_dollar_pour_de_vrai(str, all);
 	while ((str[*i + j] != ' ' /*&& str[*i + j] != '"' && str[*i + j] != '\''*/
 			&& str[*i + j] != '|' && str[*i + j] != '\0')
 		|| (indoublequote == 1 || insinglequote == 1))
@@ -216,6 +220,8 @@ int ft_parse_space(char *str, t_list **shell, int *i, t_all *all)
 	indoublequote = 0;
 	j = 0;
 	state = NORMAL;
+
+	// str = replace_dollar_pour_de_vrai(str, all);
 	while ((str[*i + j] != ' ' /*&& str[*i + j] != '"' && str[*i + j] != '\''*/
 			&& str[*i + j] != '|' && str[*i + j] != '>'
 			&& str[*i + j] != '<'&& str[*i + j] != '\0')

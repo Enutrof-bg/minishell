@@ -309,6 +309,7 @@ char **create_default_env(void)
 	tab = ft_add_double_tab("PATH=/bin", tab);
 	if (!tab)
 		return (free(str), NULL);
+	free(str); // Libérer str avant de retourner
 	return (tab);
 }
 
@@ -443,6 +444,11 @@ int ft_init_triple_tab(t_all **all)
 int ft_check_parse(t_all **all)
 {
 	// (*all)->str = replace_dollar_test2((*all)->str, (*all)->env, *all);
+	char *temp;
+	
+	temp = replace_dollar_pour_de_vrai((*all)->str, *all);
+	free((*all)->str);
+	(*all)->str = temp;
 	int parse_result = ft_parse_decoupe((*all)->str, &(*all)->shell, (*all));
 	if (parse_result == -1)
 	{
@@ -569,6 +575,16 @@ int ft_all(t_all **all)
 	return (0);
 }
 
+void set_exit(int *exit2)
+{
+	static int *new_exit = NULL;
+
+	if (new_exit == NULL)
+		new_exit = exit2;
+	
+	*new_exit = 130;
+}
+
 void ft_test(int signum)
 {
 	(void)signum;
@@ -577,6 +593,7 @@ void ft_test(int signum)
     rl_replace_line("", 0);      // Vider la ligne courante
     rl_on_new_line();            // Indiquer qu'on est sur une nouvelle ligne
     rl_redisplay();              // Réafficher le prompt
+    set_exit(&g_sigvaleur);
 }
 
 void ft_sigquit(int signum)
@@ -585,13 +602,14 @@ void ft_sigquit(int signum)
 	// Pour SIGQUIT (Ctrl+\) au prompt : ne rien faire (comme bash)
 	// Le signal sera géré par les processus enfants avec SIG_DFL
 }
-// int ft_all()
 
+// int ft_all()
 
 //caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c ft_itoa.c -lreadline -o minishell
 int main(int argc, char **argv, char **env)
 {
 	(void)argv;
+	(void)env;
 	t_all *all;
 
 	if (argc == 1)
@@ -600,49 +618,63 @@ int main(int argc, char **argv, char **env)
 		if (!all)
 			return (1);
 		
-		// Configuration des signaux
-		// setup_signals(all);
+		// Initialiser tous les pointeurs à NULL pour ft_free_all
+		all->str = NULL;
+		all->shell = NULL;
+		all->t_cmd = NULL;
+		all->env = NULL;
+		all->exit_status_char = NULL;
+		all->exit_status = 0;
 		
 		// Configuration de l'environnement
 		if (env[0])
 		{
-        	all->env = env;
+        	all->env = ft_copy_double_tab(env);
+        	if (!all->env)
+			{
+				ft_free_all(all);
+				free(all);
+				return (1);
+			}
 			ft_shlvl(&all);
 		}
 		else
 		{
-			// printf("no env\n");
 			all->env = create_default_env();
 			if (!all->env)
 			{
 				ft_err("minishell", "malloc failed");
+				ft_free_all(all);
 				free(all);
 				return (1);
 			}
 		}
 		g_sigvaleur = 0;
-		// printf("%d\n", g_sigvaleur);
+		set_exit(&(all)->exit_status);
 
 		// Configuration des signaux avec signal() au lieu de sigaction()
 		signal(SIGQUIT, SIG_IGN);
 		signal(SIGINT, ft_test);
 		
-		// all->pid_str = NULL;
-		// all->pid_str = ft_get_pid(all); //peut etre a enlever
 		all->exit_status = 0; // Initialiser l'exit status à 0 au début du programme
 		while (1)
 		{
 			all->shell = NULL;
+
+			if (tcgetattr(STDIN_FILENO, &all->term) == 0)
+            {
+                all->term.c_lflag |= ECHOCTL;
+                tcsetattr(STDIN_FILENO, TCSANOW, &all->term);
+            }
+
+	
 			int read_result = ft_read_input(&all);
-			// printf("DEBUG: read_result = %d, g_sigvaleur = %d\n", read_result, g_sigvaleur);
 			if (read_result == -1)
 			{
 				exit(all->exit_status);
-			// 	break; // Exit if EOF (Ctrl+D) is detected
 			}
 			else if (read_result == -2)
 			{
-				// printf("DEBUG: Entrée dans read_result == -2\n");
 				// Si c'est à cause d'un signal, mettre à jour l'exit status
 				if (g_sigvaleur == 1)
 				{
@@ -650,15 +682,26 @@ int main(int argc, char **argv, char **env)
 					g_sigvaleur = 0;         // Reset après traitement
 				}
 				continue; // Continue if empty string is detected or signal received
+				// return (0); // Continue if empty string is detected
 			}
+
+			// if (tcgetattr(STDIN_FILENO, &all->term) == 0)
+            // {
+            //     all->term.c_lflag |= ECHOCTL;
+            //     tcsetattr(STDIN_FILENO, TCSANOW, &all->term);
+            // }
+
+
 
 			int parse_result = ft_parse(&all);
 			if (parse_result == -1)
 				continue; // Continue if parsing failed due to unclosed quotes
+				// return (1); // Continue if parsing failed due to unclosed quotes
 			else if (parse_result == -2)
 				return (1); // Malloc failure - exit program
 
-	// // ft_print_triple_tab(all->t_cmd);
+
+
 			if (ft_open_pipe(all->t_cmd) == 1)
 				return (1);
 			
@@ -673,6 +716,7 @@ int main(int argc, char **argv, char **env)
 			
 			ft_close_pipe(all->t_cmd);
 			ft_check_exit_status(&all);
+	
 			ft_free_all(all);
 		}
 		free(all);

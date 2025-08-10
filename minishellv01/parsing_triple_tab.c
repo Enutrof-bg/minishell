@@ -128,12 +128,22 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 			else
 			{
 				signal(SIGINT, SIG_IGN);
+				// signal(SIGQUIT, SIG_IGN);
 				(*t_cmd)->cmd_tab[i].id_here_doc = fork();
 				if ((*t_cmd)->cmd_tab[i].id_here_doc == 0)
 				{
 					signal(SIGINT, SIG_DFL);
-					signal(SIGQUIT, SIG_DFL);
+					signal(SIGQUIT, SIG_IGN);
 					// prev_infd = (*t_cmd)->cmd_tab[i].infd;
+
+
+					if (tcgetattr(STDIN_FILENO, &(*all)->term) == 0)
+                    {
+                        (*all)->term.c_lflag &= ~ECHOCTL;
+                        tcsetattr(STDIN_FILENO, TCSANOW,  &(*all)->term);
+                    }
+
+
 					(*t_cmd)->cmd_tab[i].heredoc++;
 					if (access("temp", F_OK) == 0)
 					{
@@ -141,6 +151,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 						unlink("temp");
 					}
 					(*t_cmd)->cmd_tab[i].infd  = open("temp", O_WRONLY | O_CREAT | O_APPEND, 0644);
+					//protec open
 
 					char *test = get_next_line(0);
 					while (test && g_sigvaleur == 0)
@@ -163,6 +174,8 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 					// Processus parent: attendre la fin du heredoc
 					int status;
 					waitpid((*t_cmd)->cmd_tab[i].id_here_doc, &status, 0);
+					signal(SIGINT, ft_test);
+					
 					// printf("signal0");
 					if (WIFSIGNALED(status))
 					{
@@ -171,13 +184,14 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 						if (sig == SIGINT)
 						{
 							// printf("signal2");
-							write (1, "\n", 1);
+							write (1, "^C\n", 3);
 							(*all)->exit_status = 128 + sig;
 							return (-1);
 						}
 					}
 					// Ouvrir le fichier temp en lecture pour la commande
 					close((*t_cmd)->cmd_tab[i].infd);  // Fermer le fd d'écriture
+					// unlink("temp");
 					(*t_cmd)->cmd_tab[i].infd = open("temp", O_RDONLY, 0644);
 					if ((*t_cmd)->cmd_tab[i].infd < 0)
 					{
@@ -189,7 +203,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 						prev_infd = (*t_cmd)->cmd_tab[i].infd;
 					}
 				}
-				signal(SIGINT, ft_test);
+				// signal(SIGINT, ft_test);
 				// if (g_sigvaleur == 1)
 				// {
 

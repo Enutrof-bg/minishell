@@ -118,6 +118,8 @@ typedef struct s_all
 	t_pid 		*t_pid;
 	char *pid_str;
 
+	struct termios        term;
+	
 	struct sigaction sigint;   // Pour SIGINT (Ctrl+C)
 	struct sigaction sigquit;  // Pour SIGQUIT (Ctrl+\)
 	struct sigaction sigeof;  // Pour SIGEOF (Ctrl+D)
@@ -167,6 +169,7 @@ char *get_env_var(char *str, char **env);
 char *get_env_name(char *str, int start);
 char *replace_dollar_vars(char *str, char **env, t_all *all);
 char *replace_dollar_test2(char *str, char **env, t_all *all);
+char *replace_dollar_pour_de_vrai(char *str, t_all *all);
 
 //parsing_double_tab.c
 char	**ft_copy_double_tab(char **tab);
@@ -239,6 +242,10 @@ void handle_background_sigint(int sig);
 
 // extern volatile sig_atomic_t g_signal_received;
 extern int g_sigvaleur;
+
+// Fonctions pour gérer l'exit code via static pointer
+void init_exit_handler(int *exit_status);
+void signal_set_exit(int code);
 
 void ft_test(int signum);
 #endif
