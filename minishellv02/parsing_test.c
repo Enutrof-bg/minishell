@@ -47,6 +47,10 @@ int ft_close_fd(t_all **all)
 			close((*all)->t_cmd->cmd_tab[i].outfd);
 		i++;
 	}
+	// if (access("temp", F_OK) == 0)
+	// {
+		// unlink("temp");
+	// }
 	return (0);
 }
 
@@ -560,7 +564,9 @@ int ft_parse(t_all **all)
 // ft_print(all->shell);
 	if (ft_lstiter_env(&(*all)->shell, (*all)->env, *all) == -1)
 	{
-		ft_free_all(*all);
+		free((*all)->str);
+		if ((*all)->shell)
+			ft_clear(&(*all)->shell);
 		return (-1);
 	}
 // ft_print((*all)->shell);
@@ -699,6 +705,7 @@ int main(int argc, char **argv, char **env)
 			int read_result = ft_read_input(&all);
 			if (read_result == -1)
 			{
+				// ft_free_all(all);
 				ft_free_double_tab(all->env);
 				int temp = all->exit_status;
 				free(all);
@@ -726,8 +733,9 @@ int main(int argc, char **argv, char **env)
 
 			int parse_result = ft_parse(&all);
 			if (parse_result == -1)
-				continue; // Continue if parsing failed due to unclosed quotes
-				// return (1); // Continue if parsing failed due to unclosed quotes
+			{
+				continue; // ft_parse a déjà libéré shell et str en cas d'erreur
+			}
 			else if (parse_result == -2)
 				return (ft_free_double_tab(all->env), free(all), 1); // Malloc failure - exit program
 

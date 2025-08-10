@@ -356,40 +356,80 @@ int	ft_cd_change_dir(t_all **all, char *str)
 	return 0;
 }
 
-int	homemade_cd(char **tab, t_all **all)
+// int	homemade_cd(char **tab, t_all **all)
+// {
+// 	if (!is_cd(tab[0]))
+// 	{
+// 		// printf("1\n");
+// 		return (1);
+// 	}
+// 	if (tab[2])
+// 	{
+// 		// printf("2\n");
+// 		// return (perror("cd : too may arguemtents"), 1);
+// 		return (ft_err(tab[0], "too many arguments"), 1);
+// 	}
+// 	if (is_cd(tab[0]) && (!tab[1] || is_home(tab[1])))
+// 	{
+// 		// printf("3\n");
+// 		return (cd_home(all));
+// 	}
+// 	if (is_cd(tab[0]) && (ft_strcmp(tab[1], "-") == 0))
+// 	{
+// 		// printf("4\n");
+// 		return (cd_oldpwd(all));
+// 	}
+// 	if (is_cd(tab[0]) && (ft_strcmp(tab[1], "/") == 0))
+// 	{
+// 		// printf("5\n");
+// 		return (cd_root(all));	
+// 	}
+// 	if (is_cd(tab[0]) && tab[1])
+// 	{
+// 		// printf("6");
+// 		return (ft_cd_change_dir(all, tab[1]));
+// 	}
+// 	return (1);
+// }
+
+int    homemade_cd(char **tab, t_all **all)
 {
-	if (!is_cd(tab[0]))
-	{
-		// printf("1\n");
-		return (1);
-	}
-	if (tab[2])
-	{
-		// printf("2\n");
-		// return (perror("cd : too may arguemtents"), 1);
-		return (ft_err(tab[0], "too many arguments"), 1);
-	}
-	if (is_cd(tab[0]) && (!tab[1] || is_home(tab[1])))
-	{
-		// printf("3\n");
-		return (cd_home(all));
-	}
-	if (is_cd(tab[0]) && (ft_strcmp(tab[1], "-") == 0))
-	{
-		// printf("4\n");
-		return (cd_oldpwd(all));
-	}
-	if (is_cd(tab[0]) && (ft_strcmp(tab[1], "/") == 0))
-	{
-		// printf("5\n");
-		return (cd_root(all));	
-	}
-	if (is_cd(tab[0]) && tab[1])
-	{
-		// printf("6");
-		return (ft_cd_change_dir(all, tab[1]));
-	}
-	return (1);
+    if (!is_cd(tab[0]))
+    {
+        // printf("1\n");
+        return (1);
+    }
+    if (is_cd(tab[0]) && (!tab[1] || is_home(tab[1])))
+    {
+        return (cd_home(all));
+    }
+    
+    if (tab[2])
+    {
+        // printf("2\n");
+        // return (perror("cd : too may arguemtents"), 1);
+        return (ft_err(tab[0], "too many arguments"), 1);
+    }
+
+    if (tab[1])
+    {
+        if (is_cd(tab[0]) && (ft_strcmp(tab[1], "-") == 0))
+        {
+            // printf("4\n");
+            return (cd_oldpwd(all));
+        }
+        if (is_cd(tab[0]) && (ft_strcmp(tab[1], "/") == 0))
+        {
+            // printf("5\n");
+            return (cd_root(all));    
+        }
+        if (is_cd(tab[0]) && tab[1])
+        {
+            // printf("6");
+            return (ft_cd_change_dir(all, tab[1]));
+        }
+    }
+    return (1);
 }
 
 int	is_echo(char *str)
