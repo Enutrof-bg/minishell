@@ -26,12 +26,10 @@ int ft_strcmp(char *s1, char *s2)
 char **ft_replace_double_tab(char *var_name, char *str, char **tab)
 {
     int        i;
-    int        j;
     char    **newtab;
 	char	*var_name_equal;
 	
     i = 0;
-    j = 0;
 	var_name_equal = malloc(sizeof(ft_strlen(var_name) + 2));
 	while (var_name && var_name[i])
 	{
@@ -154,6 +152,28 @@ int ft_atoi(char *str)
 	int i = 0;
 	int sign = 1;
 	int nb = 0;
+
+	while ((str[i] >= 9 && str[i] <= 13) || str[i] == 32)
+		i++;
+	if (str[i] == '-' || str[i] =='+')
+	{
+		if (str[i] == '-')
+			sign *= -1;
+		i++;
+	}
+	while (str[i] >= '0' && str[i] <= '9')
+	{
+		nb = nb * 10 + (str[i] - '0');
+		i++;
+	}
+	return (nb * sign);
+}
+
+long long ft_long_atoi(char *str)
+{
+	long long i = 0;
+	long long sign = 1;
+	long long nb = 0;
 
 	while ((str[i] >= 9 && str[i] <= 13) || str[i] == 32)
 		i++;

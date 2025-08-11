@@ -63,6 +63,7 @@ ${NAME}: ${SRC}
 	${CC} ${CFLAGS} -c $^
 
 clean: 
+	make -C gnl clean
 	rm -f parsing_test.o \
 	pipex_path.o \
 	parsing_dollar.o \
@@ -85,6 +86,7 @@ clean:
 	cd_test.o \
 
 fclean:clean
+	make -C gnl fclean
 	rm -f minishell
 
 re:fclean

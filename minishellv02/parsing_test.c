@@ -193,8 +193,8 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 				exit(temp_exit_status);
 			}
 			if (!ft_is_digit(t_cmd->cmd_tab[i].cmd_args[1])
-				|| (long long)ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) > LLONG_MAX
-				|| (long long)ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) < LLONG_MIN)
+				|| (long long)ft_long_atoi(t_cmd->cmd_tab[i].cmd_args[1]) > LLONG_MAX
+				|| (long long)ft_long_atoi(t_cmd->cmd_tab[i].cmd_args[1]) < LLONG_MIN)
             {
                 write(1, "exit\n", 5); //sortie 1 ou 2 
                 ft_err(t_cmd->cmd_tab[i].cmd_args[1], "numeric argument required");

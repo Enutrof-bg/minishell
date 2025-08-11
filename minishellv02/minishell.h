@@ -131,6 +131,7 @@ typedef struct s_all
 char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);
 char	*ft_itoa(int n);
+long long ft_long_atoi(char *str);
 //gnl
 
 

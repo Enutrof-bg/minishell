@@ -85,11 +85,9 @@ char **ft_add_double_tab(char *str, char **tab)
 char **ft_remove_double_tab(char *str, char **tab)
 {
 	int		i;
-	int		j;
 	char	**newtab;
 
 	i = 0;
-	j = 0;
 	if (tab == NULL)
 	{
 		newtab = malloc(sizeof(char *) * 1);
