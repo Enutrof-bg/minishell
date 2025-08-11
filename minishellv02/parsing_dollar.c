@@ -12,17 +12,16 @@
 
 #include "minishell.h"
 
-char *ft_strcpy(char *dest, char *src);
-int ft_isalnum(char c);
-char *get_env_var(char *str, char **env);
-char *get_env_name(char *str, int start);
-char *replace_dollar_vars(char *str, char **env, t_all *all);
+char	*ft_strcpy(char *dest, char *src);
+int		ft_isalnum(char c);
+char	*get_env_var(char *str, char **env);
+char	*get_env_name(char *str, int start);
+char	*replace_dollar_vars(char *str, char **env, t_all *all);
 
-
-char *ft_strcpy(char *dest, char *src)
+char	*ft_strcpy(char *dest, char *src)
 {
-	int i;
-	
+	int	i;
+
 	i = 0;
 	while (src[i])
 	{
@@ -33,15 +32,17 @@ char *ft_strcpy(char *dest, char *src)
 	return (dest);
 }
 
-int ft_isalnum(char c)
+int	ft_isalnum(char c)
 {
-	return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'));
+	return ((c >= 'a' && c <= 'z')
+		|| (c >= 'A' && c <= 'Z')
+		|| (c >= '0' && c <= '9'));
 }
 
-char *get_env_var(char *str, char **env)
+char	*get_env_var(char *str, char **env)
 {
-	int i;
-	int len;
+	int	i;
+	int	len;
 
 	i = 0;
 	if (!str || !env)
@@ -51,24 +52,22 @@ char *get_env_var(char *str, char **env)
 	{
 		if (ft_strncmp(str, env[i], len) == 0 && env[i][len] == '=')
 		{
-			return (&env[i][len+1]);
+			return (&env[i][len + 1]);
 		}
 		i++;
 	}
 	return (NULL);
 }
 
-char *get_env_name(char *str, int start)
+char	*get_env_name(char *str, int start)
 {
-	int i;
-	int len;
+	int	i;
+	int	len;
 
 	len = 0;
 	i = start;
-	// printf("test1:%s\n", str);
 	if (!str)
 		return (NULL);
-	// printf("test2:%s\n", str);
 	while (str[i] && (ft_isalnum(str[i]) || str[i] == '_'))
 	{
 		i++;
@@ -80,16 +79,17 @@ char *get_env_name(char *str, int start)
 }
 
 //Remplace uniquement les variables avec $ sauf dans les single quotes
-//traite $? pour exit status, $$ pour PID, et $VAR pour variables d'environnement
-char *replace_dollar_pour_de_vrai(char *str, t_all *all)
+//traite $? pour exit status, $$ pour PID,
+//et $VAR pour variables d'environnement
+char	*replace_dollar_pour_de_vrai(char *str, t_all *all)
 {
-    int i;
-    char *result;
-    char *env_name;
-    char *env_var;
-    char *temp;
-    int len;
-    int insinglequote;
+	int		i;
+	char	*result;
+	char	*env_name;
+	char	*env_var;
+	char	*temp;
+	int		len;
+	int		insinglequote;
 
     insinglequote = 0;
     result = malloc(sizeof(char) * 1);

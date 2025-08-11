@@ -38,13 +38,14 @@ void	ft_close_pipe(t_commande *t_cmd)
 		i++;
 	}
 }
+
 // Vérification des arguments d'entrée
 // Fermer les descripteurs de fichier d'entrée s'ils sont valides
 // Fermer les descripteurs de fichier de sortie s'ils sont valides
 // Marquer comme fermé
-int ft_close_fd(t_all **all)
+int	ft_close_fd(t_all **all)
 {
-	int i;
+	int	i;
 
 	if (!all || !*all || !(*all)->t_cmd || !(*all)->t_cmd->cmd_tab)
 		return (-1);
@@ -54,7 +55,7 @@ int ft_close_fd(t_all **all)
 		if ((*all)->t_cmd->cmd_tab[i].infd >= 0)
 		{
 			close((*all)->t_cmd->cmd_tab[i].infd);
-			(*all)->t_cmd->cmd_tab[i].infd = -1;  
+			(*all)->t_cmd->cmd_tab[i].infd = -1;
 		}
 		if ((*all)->t_cmd->cmd_tab[i].outfd >= 0)
 		{
@@ -66,6 +67,7 @@ int ft_close_fd(t_all **all)
 	return (0);
 }
 
+// Seulement attendre les processus valides
 void	ft_waitpid(t_commande *t_cmd)
 {
 	int	j;
@@ -73,7 +75,7 @@ void	ft_waitpid(t_commande *t_cmd)
 	j = 0;
 	while (j < t_cmd->nbr_cmd)
 	{
-		if (t_cmd->cmd_tab[j].id1 > 0) // Seulement attendre les processus valides
+		if (t_cmd->cmd_tab[j].id1 > 0)
 			waitpid(t_cmd->cmd_tab[j].id1, &t_cmd->status, 0);
 		j++;
 	}
@@ -87,4 +89,3 @@ int	ft_dup(int fd0, int fd1)
 		return (-1);
 	return (0);
 }
-

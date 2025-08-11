@@ -55,7 +55,7 @@ char	*ft_strdup(char *s)
 	char	*newstr;
 	int		i;
 
-	if(!s)
+	if (!s)
 		return (NULL);
 	i = 0;
 	newstr = malloc(sizeof(char) * ft_strlen(s) + 1);
