@@ -39,6 +39,26 @@ void	ft_close_pipe(t_commande *t_cmd)
 	}
 }
 
+int ft_close_fd(t_all **all)
+{
+	int i;
+
+	i = 0;
+	while (i < (*all)->t_cmd->nbr_cmd)
+	{
+		if ((*all)->t_cmd->cmd_tab[i].infd != -1)
+			close((*all)->t_cmd->cmd_tab[i].infd);
+		if ((*all)->t_cmd->cmd_tab[i].outfd != -1)
+			close((*all)->t_cmd->cmd_tab[i].outfd);
+		i++;
+	}
+	// if (access("temp", F_OK) == 0)
+	// {
+		// unlink("temp");
+	// }
+	return (0);
+}
+
 void	ft_waitpid(t_commande *t_cmd)
 {
 	int	j;

@@ -151,6 +151,7 @@ int	ft_open_pipe(t_commande *t_cmd);
 void	ft_close_pipe(t_commande *t_cmd);
 void	ft_waitpid(t_commande *t_cmd);
 int	ft_dup(int fd0, int fd1);
+int ft_close_fd(t_all **all);
 
 //minishell_exec
 // void		exec(char *arg, char **env);

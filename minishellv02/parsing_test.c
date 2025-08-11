@@ -13,46 +13,26 @@
 #include "minishell.h"
 
 int g_sigvaleur;
-// if (i == 0)
-// {
-// 	if (t_cmd->cmd_tab[i].infd >= 0)
-// 		dup2(t_cmd->cmd_tab[i].infd, 0);
-// 	if (t_cmd->nbr_cmd > 1)
-// 		dup2(t_cmd->cmd_tab[i].fd[1], 1);
-// 	else if (t_cmd->cmd_tab[i].outfd >= 0)
-// 		dup2(t_cmd->cmd_tab[i].outfd, 1);
-// }
-// else if (i == t_cmd->nbr_cmd - 1)
-// {
-// 	dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
-// 	if (t_cmd->cmd_tab[i].outfd >= 0)
-// 		dup2(t_cmd->cmd_tab[i].outfd, 1);
-// }
-// else
-// {
-// 	dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
-// 	dup2(t_cmd->cmd_tab[i].fd[1], 1);
-// }
 
-int ft_close_fd(t_all **all)
-{
-	int i;
+// int ft_close_fd(t_all **all)
+// {
+// 	int i;
 
-	i = 0;
-	while (i < (*all)->t_cmd->nbr_cmd)
-	{
-		if ((*all)->t_cmd->cmd_tab[i].infd != -1)
-			close((*all)->t_cmd->cmd_tab[i].infd);
-		if ((*all)->t_cmd->cmd_tab[i].outfd != -1)
-			close((*all)->t_cmd->cmd_tab[i].outfd);
-		i++;
-	}
-	// if (access("temp", F_OK) == 0)
-	// {
-		// unlink("temp");
-	// }
-	return (0);
-}
+// 	i = 0;
+// 	while (i < (*all)->t_cmd->nbr_cmd)
+// 	{
+// 		if ((*all)->t_cmd->cmd_tab[i].infd != -1)
+// 			close((*all)->t_cmd->cmd_tab[i].infd);
+// 		if ((*all)->t_cmd->cmd_tab[i].outfd != -1)
+// 			close((*all)->t_cmd->cmd_tab[i].outfd);
+// 		i++;
+// 	}
+// 	// if (access("temp", F_OK) == 0)
+// 	// {
+// 		// unlink("temp");
+// 	// }
+// 	return (0);
+// }
 
 //execute les commandes 
 int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
