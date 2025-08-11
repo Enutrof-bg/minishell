@@ -532,35 +532,35 @@ int ft_read_input(t_all **all)
 	return (0);
 }
 
-int ft_parse(t_all **all)
-{
-//Parse_decoupe bah elle decoupe l'input en liste chaine
-	int parse_result = ft_check_parse(all);
-	if (parse_result == -1)
-		return (-1); // Continue si la parsing a échoué à cause de guillemets non fermés
-	else if (parse_result == -2)
-		return (-2); // Malloc failure - exit program
-	ft_concatenate(&(*all)->shell);
-// ft_print(all->shell);
-	if (ft_lstiter_env(&(*all)->shell, (*all)->env, *all) == -1)
-	{
-		free((*all)->str);
-		if ((*all)->shell)
-			ft_clear(&(*all)->shell);
-		return (-1);
-	}
-// ft_print((*all)->shell);
-	if (ft_init_triple_tab(all) == -2)
-		return (ft_free_all(*all), -2);
-	parse_result = ft_create_triple_tab(&(*all)->shell, &(*all)->t_cmd, all);
-	if (parse_result == -2)
-		return (ft_free_all(*all), -2);
-	if (parse_result == -1)
-		return (ft_free_all(*all), -1);
-	if (ft_check_arg(all) == -1)
-		return (-1);
-	return (0);
-}
+// int ft_parse(t_all **all)
+// {
+// //Parse_decoupe bah elle decoupe l'input en liste chaine
+// 	int parse_result = ft_check_parse(all);
+// 	if (parse_result == -1)
+// 		return (-1); // Continue si la parsing a échoué à cause de guillemets non fermés
+// 	else if (parse_result == -2)
+// 		return (-2); // Malloc failure - exit program
+// 	ft_concatenate(&(*all)->shell);
+// // ft_print(all->shell);
+// 	if (ft_lstiter_env(&(*all)->shell, (*all)->env, *all) == -1)
+// 	{
+// 		free((*all)->str);
+// 		if ((*all)->shell)
+// 			ft_clear(&(*all)->shell);
+// 		return (-1);
+// 	}
+// // ft_print((*all)->shell);
+// 	if (ft_init_triple_tab(all) == -2)
+// 		return (ft_free_all(*all), -2);
+// 	parse_result = ft_create_triple_tab(&(*all)->shell, &(*all)->t_cmd, all);
+// 	if (parse_result == -2)
+// 		return (ft_free_all(*all), -2);
+// 	if (parse_result == -1)
+// 		return (ft_free_all(*all), -1);
+// 	if (ft_check_arg(all) == -1)
+// 		return (-1);
+// 	return (0);
+// }
 
 int ft_all(t_all **all)
 {
@@ -588,33 +588,33 @@ int ft_all(t_all **all)
 	return (0);
 }
 
-void set_exit(int *exit2)
-{
-	static int *new_exit = NULL;
+// void set_exit(int *exit2)
+// {
+// 	static int *new_exit = NULL;
 
-	if (new_exit == NULL)
-		new_exit = exit2;
+// 	if (new_exit == NULL)
+// 		new_exit = exit2;
 	
-	*new_exit = 130;
-}
+// 	*new_exit = 130;
+// }
 
-void ft_test(int signum)
-{
-	(void)signum;
-	g_sigvaleur = 1; // IMPORTANT : Marquer qu'un signal sigint a été reçu
-	write(1, "\n", 1);
-    rl_replace_line("", 0);      // Vider la ligne courante
-    rl_on_new_line();            // Indiquer qu'on est sur une nouvelle ligne
-    rl_redisplay();              // Réafficher le prompt
-    set_exit(&g_sigvaleur);
-}
+// void ft_test(int signum)
+// {
+// 	(void)signum;
+// 	g_sigvaleur = 1; // IMPORTANT : Marquer qu'un signal sigint a été reçu
+// 	write(1, "\n", 1);
+//     rl_replace_line("", 0);      // Vider la ligne courante
+//     rl_on_new_line();            // Indiquer qu'on est sur une nouvelle ligne
+//     rl_redisplay();              // Réafficher le prompt
+//     set_exit(&g_sigvaleur);
+// }
 
-void ft_sigquit(int signum)
-{
-	(void)signum;
-	// Pour SIGQUIT (Ctrl+\) au prompt : ne rien faire (comme bash)
-	// Le signal sera géré par les processus enfants avec SIG_DFL
-}
+// void ft_sigquit(int signum)
+// {
+// 	(void)signum;
+// 	// Pour SIGQUIT (Ctrl+\) au prompt : ne rien faire (comme bash)
+// 	// Le signal sera géré par les processus enfants avec SIG_DFL
+// }
 
 // int ft_all()
 

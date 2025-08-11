@@ -207,6 +207,9 @@ int ft_check(char *str, char c);
 int 	ft_lstiter_env(t_list **lst, char **env, t_all *all);
 void ft_lstiteration(t_all **all, void(*f)(char *));
 
+//parsing_parsing_0.c
+int ft_parse(t_all **all);
+
 //parsing_parsing_1.c
 int ft_parse_decoupe(char *str, t_list **shell, t_all *all);
 
@@ -226,6 +229,11 @@ char *ft_get_pid(t_all *all);
 
 //parsing_redir.c
 int ft_create_fd(t_list **shell, t_redir **t_red);
+
+
+int ft_check_parse(t_all **all);
+int ft_check_arg(t_all **all);
+int ft_init_triple_tab(t_all **all);
 
 // //parsing_test
 // int ft_count_commands(t_list *lst);

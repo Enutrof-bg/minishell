@@ -37,6 +37,7 @@ parsing_free.c \
 parsing_double_tab.c \
 parsing_triple_tab.c \
 exec_pipe.c \
+parsing_parsing_0.c \
 parsing_parsing_1.c \
 parsing_parsing_2.c \
 parsing_parsing_3.c \
@@ -45,10 +46,10 @@ parsing_lst_utils_2.c \
 parsing_init.c \
 cd_test_4.c \
 parsing_concatenate.c \
-exec_check_exit_status.c
-
+exec_check_exit_status.c \
+signals.c \
 # parsing_pid.c \
-# signals.c \
+
 # cd_test2.c
 
 SRC = ${FILE:.c=.o}
