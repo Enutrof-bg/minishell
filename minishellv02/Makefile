@@ -48,6 +48,8 @@ cd_test_4.c \
 parsing_concatenate.c \
 exec_check_exit_status.c \
 signals.c \
+parsing_check_arg.c \
+
 # parsing_pid.c \
 
 # cd_test2.c

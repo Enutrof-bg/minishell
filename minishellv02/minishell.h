@@ -170,6 +170,10 @@ void	ft_print_tab(char **tab);
 char	*ft_strdup(char *s);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 
+
+//parsing_check_arg.c
+int ft_check_arg(t_all **all);
+
 //parsing_concatenate
 void ft_concatenate(t_list **lst);
 
