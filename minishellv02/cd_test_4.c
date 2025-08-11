@@ -479,10 +479,10 @@ int    homemade_cd(char **tab, t_all **all)
 
 int	is_echo(char *str)
 {
-	// if (ft_strcmp(str, "echo") == 0)
-	// 	return (1);
-	if (ft_strncmp(str, "echo", 4) == 0)
+	if (ft_strcmp(str, "echo") == 0)
 		return (1);
+	// if (ft_strncmp(str, "echo", 4) == 0)
+		// return (1);
 	return (0);
 }
 

@@ -72,11 +72,11 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 		//condition pour verifier uniquement si les builtin existent
 		//puis dup2
 		//puis executer les fonctions
-		if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "echo", 4) == 0
-			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd", 3) == 0
-			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "env", 3) == 0
-			|| (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "export", 6) == 0 &&  t_cmd->nbr_cmd > 1)
-			|| (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 5) == 0 && t_cmd->nbr_cmd > 1))
+		if (ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "echo") == 0
+			|| ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd") == 0
+			|| ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "env") == 0
+			|| (ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "export") == 0 &&  t_cmd->nbr_cmd > 1)
+			|| (ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0 && t_cmd->nbr_cmd > 1))
 		{
 
 			// printf("builtin\n");
@@ -125,12 +125,12 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			}
 		}
 		else if (
-			ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "export", 6) == 0
-			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "unset", 5) == 0
-			|| ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "cd", 2) == 0
-			// || ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd", 3) == 0
-			// || ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0
-			// || ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "env", 3) == 0
+			ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "export") == 0
+			|| ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "unset") == 0
+			|| ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "cd") == 0
+			// || ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd") == 0
+			// || ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0
+			// || ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "env") == 0
 			)
 		{
             if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, all) == 1)
