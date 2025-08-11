@@ -64,68 +64,67 @@ int ft_check(char *str, char c)
 }
 
 //ft_iter pour les redirections, a modifier | pas fonctionnelle correctemnt
+// Vérifie si le token de redirection est suivi d'un token
+// Vérifie si le token qui suit est un token valide pour une redirection
+// Met à jour l'état du token suivant pour indiquer son rôle
+int	check_redirect_syntax(t_list **lst, t_list *temp, int new_state)
+{
+	if (!(*lst)->next)
+		return (*lst = temp, ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
+
+	if ((*lst)->next->state != NORMAL && 
+		(*lst)->next->state != SINGLEQUOTE && 
+		(*lst)->next->state != DOUBLEQUOTE)
+		return (*lst = temp, ft_err_2("syntax error near unexpected token ", (*lst)->next->str), -1);
+	(*lst)->next->state = new_state;
+	return (0);
+}
+// Vérifie si le premier token est un pipe
+// Vérifie si un pipe est le dernier token
+// Traitement des différents types de redirections
 int	ft_lstiter_env(t_list **lst, char **env, t_all *all)
 {
 	t_list *temp;
+	int ret;
 	(void)env;
 	(void)all;
-	// char *new_str;
 
+	if (!lst || !*lst)
+		return (0);
 	temp = *lst;
-	if ((*lst) && (*lst)->state == PIPE)
+	if ((*lst)->state == PIPE)
 		return (ft_err("syntax error near unexpected token `|'\n", NULL), -1);
 	while (*lst)
 	{
-		// if ((*lst)->state == DOUBLEQUOTE || (*lst)->state == NORMAL)
-		// {
-		// 	new_str = replace_dollar_vars((*lst)->str, env, all);
-		// 	if (new_str)
-		// 	{
-		// 		free((*lst)->str);
-		// 		(*lst)->str = new_str;
-		// 	}
-		// }
-		// (*lst)->redir = -1;
 		if ((*lst)->next && (*lst)->next->state == PIPE && !(*lst)->next->next)
 		{
 			*lst = temp;
 			return (ft_err("syntax error near unexpected token `|'\n", NULL), -1);
 		}
-		if ((*lst)->state == INPUT && (*lst)->next
-			&& ((*lst)->next->state != NORMAL && (*lst)->next->state != SINGLEQUOTE
-			&& (*lst)->next->state != DOUBLEQUOTE))
-			return (*lst = temp, ft_err_2("syntax error near unexpected token ", (*lst)->next->str), -1);
-		if ((*lst)->state == INPUT && (*lst)->next)
-			(*lst)->next->state = INFILE;
-		else if ((*lst)->state == INPUT && !(*lst)->next)
-			return (*lst = temp, ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
-		
-		if ((*lst)->state == HEREDOC && (*lst)->next
-			&& ((*lst)->next->state != NORMAL && (*lst)->next->state != SINGLEQUOTE
-			&& (*lst)->next->state != DOUBLEQUOTE))
-			return (*lst = temp, ft_err_2("syntax error near unexpected token ", (*lst)->next->str), -1);
-		if ((*lst)->state == HEREDOC && (*lst)->next)
-			(*lst)->next->state = LIMITER;
-		else if ((*lst)->state == HEREDOC && !(*lst)->next)
-			return (*lst = temp, ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
-
-		if ((*lst)->state == OUTPUT && (*lst)->next
-			&& ((*lst)->next->state != NORMAL && (*lst)->next->state != SINGLEQUOTE
-			&& (*lst)->next->state != DOUBLEQUOTE))
-			return (*lst = temp, ft_err_2("syntax error near unexpected token ", (*lst)->next->str), -1);
-		if ((*lst)->state == OUTPUT && (*lst)->next)
-			(*lst)->next->state = OUTFILE;
-		else if ((*lst)->state == OUTPUT && !(*lst)->next)
-			return (*lst = temp, ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
-
-		if ((*lst)->state == APPEND && (*lst)->next
-			&& ((*lst)->next->state != NORMAL && (*lst)->next->state != SINGLEQUOTE
-			&& (*lst)->next->state != DOUBLEQUOTE))
-			return (*lst = temp, ft_err_2("syntax error near unexpected token ", (*lst)->next->str), -1);
-		if ((*lst)->state == APPEND && (*lst)->next)
-			(*lst)->next->state = OUTFILEAPPEND;
-		else if ((*lst)->state == APPEND && !(*lst)->next)
-			return (*lst = temp, ft_err("syntax error near unexpected token `newline'\n", NULL), -1);
+		if ((*lst)->state == INPUT)
+		{
+			ret = check_redirect_syntax(lst, temp, INFILE);
+			if (ret != 0)
+				return (ret);
+		}
+		else if ((*lst)->state == HEREDOC)
+		{
+			ret = check_redirect_syntax(lst, temp, LIMITER);
+			if (ret != 0)
+				return (ret);
+		}
+		else if ((*lst)->state == OUTPUT)
+		{
+			ret = check_redirect_syntax(lst, temp, OUTFILE);
+			if (ret != 0)
+				return (ret);
+		}
+		else if ((*lst)->state == APPEND)
+		{
+			ret = check_redirect_syntax(lst, temp, OUTFILEAPPEND);
+			if (ret != 0)
+				return (ret);
+		}
 		(*lst) = (*lst)->next;
 	}
 	*lst = temp;

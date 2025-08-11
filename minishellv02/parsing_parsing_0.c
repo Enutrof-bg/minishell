@@ -18,6 +18,8 @@ int ft_check_parse(t_all **all)
 	char *temp;
 	
 	temp = replace_dollar_pour_de_vrai((*all)->str, *all);
+	if (!temp)
+		return (free((*all)->str), -2); // Malloc failure - exit program
 	free((*all)->str);
 	(*all)->str = temp;
 	int parse_result = ft_parse_decoupe((*all)->str, &(*all)->shell, (*all));
@@ -53,7 +55,7 @@ int ft_parse(t_all **all)
 	else if (parse_result == -2)
 		return (-2); // Malloc failure - exit program
 	ft_concatenate(&(*all)->shell);
-// ft_print(all->shell);
+// ft_print((*all)->shell);
 	if (ft_lstiter_env(&(*all)->shell, (*all)->env, *all) == -1)
 	{
 		free((*all)->str);
@@ -69,6 +71,9 @@ int ft_parse(t_all **all)
 		return (ft_free_all(*all), -2);
 	if (parse_result == -1)
 		return (ft_free_all(*all), -1);
+
+// ft_print_triple_tab((*all)->t_cmd);
+
 	if (ft_check_arg(all) == -1)
 		return (-1);
 	return (0);

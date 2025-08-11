@@ -18,7 +18,7 @@ int ft_read_input(t_all **all)
 	
 	if (!(*all)->str) // Ctrl+D (EOF)
 	{
-		printf("exit\n");
+		write(1, "exit\n", 5);
 		return (-1);
 	}
 	if (!(*all)->str[0]) // Chaîne vide

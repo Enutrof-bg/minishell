@@ -158,7 +158,7 @@ int	ft_export(char **tab, t_all **all)
             else
                 (*all)->env = ft_replace_double_tab(var_name, equal_pos + 1, (*all)->env);
             free(var_name);
-			return (0);
+			// return (0);
         }
         i++;
     }
@@ -220,7 +220,7 @@ void ft_shlvl(t_all **all)
         if (ft_strncmp((*all)->env[i], "SHLVL=", 6) == 0)
         {
             equal_pos = ft_strchr((*all)->env[i], '=');
-            if (equal_pos && (equal_pos + 1))
+            if (equal_pos && *(equal_pos + 1))
             {
                 nb = ft_atoi(equal_pos + 1);
 				nb++;
@@ -271,10 +271,16 @@ int is_builtin_2(char **tab, t_all **all)
 		(*all)->exit_status = exit_code;
 		return (1); 
 	}
-	 if (ft_strcmp(tab[0], "unset") == 0)
-	{
-		return (ft_unset(tab, all));
-	}
+	//  if (ft_strcmp(tab[0], "unset") == 0)
+	// {
+	// 	return (ft_unset(tab, all));
+	// }
+	if (ft_strcmp(tab[0], "unset") == 0)
+    {
+        exit_code = ft_unset(tab, all);
+        (*all)->exit_status = exit_code;
+        return (1);
+    }
 	 if (ft_strcmp(tab[0], "env") == 0 && !tab[1])
 	{
 		ft_env(all);
@@ -364,6 +370,7 @@ int cd_oldpwd(t_all **all)
 	getcwd(cwd, sizeof(cwd));
 	(*all)->env = ft_replace_double_tab("PWD", cwd, (*all)->env);
 	ft_putstr(cwd);
+	write(1, "\n", 1);
 	// printf("%s\n", cwd);
 	return 0;
 }

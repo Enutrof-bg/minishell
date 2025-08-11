@@ -18,7 +18,7 @@ void set_exit(int *exit2)
 
 	if (new_exit == NULL)
 		new_exit = exit2;
-	
+
 	*new_exit = 130;
 }
 

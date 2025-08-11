@@ -38,24 +38,31 @@ void	ft_close_pipe(t_commande *t_cmd)
 		i++;
 	}
 }
-
+// Vérification des arguments d'entrée
+// Fermer les descripteurs de fichier d'entrée s'ils sont valides
+// Fermer les descripteurs de fichier de sortie s'ils sont valides
+// Marquer comme fermé
 int ft_close_fd(t_all **all)
 {
 	int i;
 
+	if (!all || !*all || !(*all)->t_cmd || !(*all)->t_cmd->cmd_tab)
+		return (-1);
 	i = 0;
 	while (i < (*all)->t_cmd->nbr_cmd)
 	{
-		if ((*all)->t_cmd->cmd_tab[i].infd != -1)
+		if ((*all)->t_cmd->cmd_tab[i].infd >= 0)
+		{
 			close((*all)->t_cmd->cmd_tab[i].infd);
-		if ((*all)->t_cmd->cmd_tab[i].outfd != -1)
+			(*all)->t_cmd->cmd_tab[i].infd = -1;  
+		}
+		if ((*all)->t_cmd->cmd_tab[i].outfd >= 0)
+		{
 			close((*all)->t_cmd->cmd_tab[i].outfd);
+			(*all)->t_cmd->cmd_tab[i].outfd = -1;
+		}
 		i++;
 	}
-	// if (access("temp", F_OK) == 0)
-	// {
-		// unlink("temp");
-	// }
 	return (0);
 }
 

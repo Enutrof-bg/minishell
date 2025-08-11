@@ -426,13 +426,12 @@ int main(int argc, char **argv, char **env)
 
 
 
-
 			if (ft_open_pipe(all->t_cmd) == 1)
 				return (1);
 			
 			// Ignorer SIGINT pendant l'exécution des commandes enfants
 			signal(SIGINT, SIG_IGN);
-			
+			// printf("test1\n");
 			ft_exec_commande(all->t_cmd, all->t_red, &all, all->env);
 			ft_waitpid(all->t_cmd);
 			
@@ -441,7 +440,7 @@ int main(int argc, char **argv, char **env)
 			
 			ft_close_pipe(all->t_cmd);
 			ft_check_exit_status(&all);
-	
+			// printf("test\n");
 			ft_free_all(all);
 		}
 		ft_free_double_tab(all->env);

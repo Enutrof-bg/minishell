@@ -88,7 +88,7 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 		{
 			(*t_cmd)->cmd_tab[i].cmd_args = ft_add_double_tab((*shell)->str, (*t_cmd)->cmd_tab[i].cmd_args);
 			if (!(*t_cmd)->cmd_tab[i].cmd_args)
-				return (-2);
+				return (*shell = temp, -2);
 		}
 		if ((*shell)->state == INFILE && (*t_cmd)->cmd_tab[i].input_failed == 0)
 		{
@@ -310,9 +310,6 @@ int ft_create_triple_tab(t_list **shell ,t_commande **t_cmd, t_all **all)
 					printf("5DEBUG:g_sig:%d\n", g_sigvaleur);
 					*/
 			}
-
-
-
 		if ((*shell)->state == OUTFILE && (*t_cmd)->cmd_tab[i].output_failed == 0 && (*t_cmd)->cmd_tab[i].input_failed == 0)
 		{
 			if (prev_outfd != -1)
