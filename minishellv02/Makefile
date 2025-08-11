@@ -44,6 +44,8 @@ parsing_redir.c \
 parsing_lst_utils_2.c \
 parsing_init.c \
 cd_test_4.c \
+parsing_concatenate.c \
+
 # parsing_pid.c \
 # signals.c \
 # cd_test2.c
@@ -84,6 +86,7 @@ clean:
 	parsing_init.o \
 	cd_test_4.o \
 	cd_test.o \
+	parsing_concatenate.o \
 
 fclean:clean
 	make -C gnl fclean

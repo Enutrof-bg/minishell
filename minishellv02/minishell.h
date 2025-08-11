@@ -166,6 +166,9 @@ void	ft_print_tab(char **tab);
 char	*ft_strdup(char *s);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 
+//parsing_concatenate
+void ft_concatenate(t_list **lst);
+
 //parsing_dollar
 char *ft_strcpy(char *dest, char *src);
 int ft_isalnum(char c);

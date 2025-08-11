@@ -344,37 +344,37 @@ char **create_default_env(void)
 	return (tab);
 }
 
-void ft_concatenate(t_list **lst)
-{
-	// t_list *current;
-	// t_list *next;
-	t_list *temp;
-	// char *new_str;
+// void ft_concatenate(t_list **lst)
+// {
+// 	// t_list *current;
+// 	// t_list *next;
+// 	t_list *temp;
+// 	// char *new_str;
 
-	if (!lst || !*lst)
-		return;
-	// current = *lst;
-	temp = *lst;
-	// if ((*lst)->state == NORMAL && (!(*lst)->str || (*lst)->str[0] == '\0'))
-	// {
-	// 	(*lst) = (*lst)->next;
-	// }
-	while (*lst && (*lst)->next)
-	{
-		if ((*lst)->next->state == NORMAL && (!(*lst)->next->str || (*lst)->next->str[0] == '\0'))
-		{
-			(*lst)->next = (*lst)->next->next;
-			continue ;
-		}
-		(*lst) = (*lst)->next;
-	}
-	(*lst) = temp;
-	if ((*lst)->state == NORMAL && (!(*lst)->str || (*lst)->str[0] == '\0'))
-	{
-		(*lst) = (*lst)->next;
-	}
-	// (*lst) = temp;
-}
+// 	if (!lst || !*lst)
+// 		return;
+// 	// current = *lst;
+// 	temp = *lst;
+// 	// if ((*lst)->state == NORMAL && (!(*lst)->str || (*lst)->str[0] == '\0'))
+// 	// {
+// 	// 	(*lst) = (*lst)->next;
+// 	// }
+// 	while (*lst && (*lst)->next)
+// 	{
+// 		if ((*lst)->next->state == NORMAL && (!(*lst)->next->str || (*lst)->next->str[0] == '\0'))
+// 		{
+// 			(*lst)->next = (*lst)->next->next;
+// 			continue ;
+// 		}
+// 		(*lst) = (*lst)->next;
+// 	}
+// 	(*lst) = temp;
+// 	if ((*lst)->state == NORMAL && (!(*lst)->str || (*lst)->str[0] == '\0'))
+// 	{
+// 		(*lst) = (*lst)->next;
+// 	}
+// 	// (*lst) = temp;
+// }
 
 //Seulement mettre à jour l'exit status si un processus a réellement été exécuté
 //Si aucun processus n'a été exécuté mais qu'aucune erreur n'a été détectée, exit_status = 0
