@@ -505,7 +505,7 @@ int    ft_echo(char **tab)
     int i = 1;
     
     if (!tab[1])
-        return (0);
+        return (write (1, "\n", 1), 0);
     if (tab[i] && ft_strncmp(tab[i], "-n", 2) == 0)
     {
         while (tab[i] && tab[i][0] == '-' && is_only_n(tab[i]))
