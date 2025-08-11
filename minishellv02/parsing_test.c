@@ -323,301 +323,6 @@ char **create_default_env(void)
 	free(str); // Libérer str avant de retourner
 	return (tab);
 }
-
-// void ft_concatenate(t_list **lst)
-// {
-// 	// t_list *current;
-// 	// t_list *next;
-// 	t_list *temp;
-// 	// char *new_str;
-
-// 	if (!lst || !*lst)
-// 		return;
-// 	// current = *lst;
-// 	temp = *lst;
-// 	// if ((*lst)->state == NORMAL && (!(*lst)->str || (*lst)->str[0] == '\0'))
-// 	// {
-// 	// 	(*lst) = (*lst)->next;
-// 	// }
-// 	while (*lst && (*lst)->next)
-// 	{
-// 		if ((*lst)->next->state == NORMAL && (!(*lst)->next->str || (*lst)->next->str[0] == '\0'))
-// 		{
-// 			(*lst)->next = (*lst)->next->next;
-// 			continue ;
-// 		}
-// 		(*lst) = (*lst)->next;
-// 	}
-// 	(*lst) = temp;
-// 	if ((*lst)->state == NORMAL && (!(*lst)->str || (*lst)->str[0] == '\0'))
-// 	{
-// 		(*lst) = (*lst)->next;
-// 	}
-// 	// (*lst) = temp;
-// }
-
-// //Seulement mettre à jour l'exit status si un processus a réellement été exécuté
-// //Si aucun processus n'a été exécuté mais qu'aucune erreur n'a été détectée, exit_status = 0
-// //Si aucun processus n'a été exécuté à cause d'erreurs, garder l'exit_status précédent
-// void ft_check_exit_status(t_all **all)
-// {
-// 	int process_executed = 0;
-// 	int j = 0;
-// 	while (j < (*all)->t_cmd->nbr_cmd)
-// 	{
-// 		if ((*all)->t_cmd->cmd_tab[j].id1 > 0)
-// 		{
-// 			process_executed = 1;
-// 			break;
-// 		}
-// 		j++;
-// 	}
-// 	if (process_executed && WIFEXITED((*all)->t_cmd->status))
-// 		(*all)->exit_status = WEXITSTATUS((*all)->t_cmd->status);
-// 	else if (process_executed && WIFSIGNALED((*all)->t_cmd->status))
-// 	{
-// 		int sig = WTERMSIG((*all)->t_cmd->status);
-// 		if (sig == SIGQUIT)
-// 			write(1, "Quit (core dumped)\n", 20);
-// 		else if (sig == SIGINT)
-// 			write (1, "\n", 1);
-// 		if (sig != SIGPIPE)
-// 			(*all)->exit_status = 128 + sig; //128 + le code du signal
-// 	}
-// 	else if (process_executed == 0)
-// 	{
-// 		int has_error = 0;
-// 		j = 0;
-// 		while (j < (*all)->t_cmd->nbr_cmd)
-// 		{
-// 			if ((*all)->t_cmd->cmd_tab[j].input_failed == 1
-// 				|| (*all)->t_cmd->cmd_tab[j].output_failed == 1)
-// 			{
-// 				has_error = 1;
-// 				break;
-// 			}
-// 			j++;
-// 		}
-// 		if (has_error == 0)
-// 			(*all)->exit_status = 0;
-// 	}
-// }
-
-// // Vérifier si au moins une commande a des arguments
-// // Pas de commande valide, nettoyer et return(-1) aui va continue ;
-// int ft_check_arg(t_all **all)
-// {
-// 	int has_valid_cmd = 0;
-// 	int j = 0;
-
-// 	while (j < (*all)->t_cmd->nbr_cmd)
-// 	{
-// 		if ((*all)->t_cmd->cmd_tab[j].cmd_args && (*all)->t_cmd->cmd_tab[j].cmd_args[0])
-// 		{
-// 			has_valid_cmd = 1;
-// 			break;
-// 		}
-// 		j++;
-// 	}
-// 	if (!has_valid_cmd)
-// 	{
-// 		j = 0;
-// 		while (j < (*all)->t_cmd->nbr_cmd && (*all)->t_cmd->cmd_tab[j].cmd_args)
-// 		{
-// 			ft_free_double_tab((*all)->t_cmd->cmd_tab[j].cmd_args);
-// 			j++;
-// 		}
-// 		free((*all)->t_cmd->cmd_tab);
-// 		free((*all)->t_cmd);
-// 		free((*all)->str);
-// 		if ((*all)->shell)
-// 		{
-// 			ft_clear(&(*all)->shell);
-// 		}
-// 		return (-1);
-// 	}
-// 	return (0);
-// }
-
-// int ft_init_triple_tab(t_all **all)
-// {
-// 	(*all)->t_cmd = malloc(sizeof(t_commande));
-// 	if (!(*all)->t_cmd)
-// 		return (-2);
-// 	(*all)->t_cmd->nbr_cmd = ft_count_commands((*all)->shell);
-// 	(*all)->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * (*all)->t_cmd->nbr_cmd);
-// 	if (!(*all)->t_cmd->cmd_tab)
-// 		return (-2);
-// 	ft_set_triple_tab_null((*all)->t_cmd);
-// 	return (0);
-// }
-
-// int ft_check_parse(t_all **all)
-// {
-// 	// (*all)->str = replace_dollar_test2((*all)->str, (*all)->env, *all);
-// 	char *temp;
-	
-// 	temp = replace_dollar_pour_de_vrai((*all)->str, *all);
-// 	free((*all)->str);
-// 	(*all)->str = temp;
-// 	int parse_result = ft_parse_decoupe((*all)->str, &(*all)->shell, (*all));
-// 	if (parse_result == -1)
-// 	{
-// 		// Skip this iteration if parsing failed due to unclosed quotes
-// 		free((*all)->str);
-// 		if ((*all)->shell)
-// 			ft_clear(&(*all)->shell);
-// 		// ft_free_(*all)((*all));
-// 		// continue;
-// 		return (-1);
-// 	}
-// 	else if (parse_result == -2)
-// 	{
-// 		// M(*all)oc failure - exit program
-// 		free((*all)->str);
-// 		if ((*all)->shell)
-// 			ft_clear(&(*all)->shell);
-// 		ft_err("minishell", "malloc failed");
-// 		// exit(1);
-// 		return (-2);
-// 	}
-// 	return (0);
-// }
-/*
-int ft_read_input(t_all **all)
-{
-	(*all)->str = readline("CacaTest > ");
-	
-	if (!(*all)->str) // Ctrl+D (EOF)
-	{
-		printf("exit\n");
-		return (-1);
-	}
-	if (!(*all)->str[0]) // Chaîne vide
-	{
-		if ((*all)->str)
-			free((*all)->str);
-		// printf("test:%s\n", (*all)->str);
-		return (-2);
-	}
-	
-	// Si on arrive ici, l'utilisateur a tapé quelque chose de valide
-	// Reset le flag de signal car on a une commande valide
-	g_sigvaleur = 0;
-	
-	add_history((*all)->str);
-	return (0);
-}*/
-
-// int ft_read_input(t_all **all)
-// {
-// 	(*all)->str = readline("CacaTest > ");
-	
-// 	if (!(*all)->str) // Ctrl+D (EOF)
-// 	{
-// 		printf("exit\n");
-// 		return (-1);
-// 	}
-// 	if (!(*all)->str[0]) // Chaîne vide
-// 	{
-// 		free((*all)->str);
-// 		return (-2);
-// 	}
-
-// 	// Si on arrive ici, une commande valide a été saisie
-// 	// Reset g_sigvaleur car nous avons une vraie commande à traiter
-// 	g_sigvaleur = 0;
-	
-// 	add_history((*all)->str);
-// 	return (0);
-// }
-
-// int ft_parse(t_all **all)
-// {
-// //Parse_decoupe bah elle decoupe l'input en liste chaine
-// 	int parse_result = ft_check_parse(all);
-// 	if (parse_result == -1)
-// 		return (-1); // Continue si la parsing a échoué à cause de guillemets non fermés
-// 	else if (parse_result == -2)
-// 		return (-2); // Malloc failure - exit program
-// 	ft_concatenate(&(*all)->shell);
-// // ft_print(all->shell);
-// 	if (ft_lstiter_env(&(*all)->shell, (*all)->env, *all) == -1)
-// 	{
-// 		free((*all)->str);
-// 		if ((*all)->shell)
-// 			ft_clear(&(*all)->shell);
-// 		return (-1);
-// 	}
-// // ft_print((*all)->shell);
-// 	if (ft_init_triple_tab(all) == -2)
-// 		return (ft_free_all(*all), -2);
-// 	parse_result = ft_create_triple_tab(&(*all)->shell, &(*all)->t_cmd, all);
-// 	if (parse_result == -2)
-// 		return (ft_free_all(*all), -2);
-// 	if (parse_result == -1)
-// 		return (ft_free_all(*all), -1);
-// 	if (ft_check_arg(all) == -1)
-// 		return (-1);
-// 	return (0);
-// }
-
-int ft_all(t_all **all)
-{
-	(*all)->shell = NULL;
-	// int read_result = ft_read_input(all);
-	// if (read_result == -1)
-	// 	return (-1); // Exit if EOF (Ctrl+D) is detected
-	// else if (read_result == -2)
-	// 	return (-2); // Continue if empty string is detected
-
-	// int parse_result = ft_parse(all);
-	// if (parse_result == -1)
-	// 	return (-2); // Continue if parsing failed due to unclosed quotes
-	// else if (parse_result == -2)
-	// 	return (-1); // Malloc failure - exit program
-
-// ft_print_triple_tab(all->t_cmd);
-	// if (ft_open_pipe((*all)->t_cmd) == 1)
-	// 	return (-1);
-	// ft_exec_commande((*all)->t_cmd, (*all)->t_red, all, (*all)->env);
-	// ft_waitpid((*all)->t_cmd);
-	// ft_close_pipe((*all)->t_cmd);
-	// ft_check_exit_status(all);
-	// ft_free_all(*all);
-	return (0);
-}
-
-// void set_exit(int *exit2)
-// {
-// 	static int *new_exit = NULL;
-
-// 	if (new_exit == NULL)
-// 		new_exit = exit2;
-	
-// 	*new_exit = 130;
-// }
-
-// void ft_test(int signum)
-// {
-// 	(void)signum;
-// 	g_sigvaleur = 1; // IMPORTANT : Marquer qu'un signal sigint a été reçu
-// 	write(1, "\n", 1);
-//     rl_replace_line("", 0);      // Vider la ligne courante
-//     rl_on_new_line();            // Indiquer qu'on est sur une nouvelle ligne
-//     rl_redisplay();              // Réafficher le prompt
-//     set_exit(&g_sigvaleur);
-// }
-
-// void ft_sigquit(int signum)
-// {
-// 	(void)signum;
-// 	// Pour SIGQUIT (Ctrl+\) au prompt : ne rien faire (comme bash)
-// 	// Le signal sera géré par les processus enfants avec SIG_DFL
-// }
-
-// int ft_all()
-
 //caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c ft_itoa.c -lreadline -o minishell
 int main(int argc, char **argv, char **env)
 {
@@ -990,4 +695,275 @@ int main(int argc, char **argv, char **env)
 	}
 	return (0);
 }
+*/
+
+/*
+// void ft_concatenate(t_list **lst)
+// {
+// 	// t_list *current;
+// 	// t_list *next;
+// 	t_list *temp;
+// 	// char *new_str;
+
+// 	if (!lst || !*lst)
+// 		return;
+// 	// current = *lst;
+// 	temp = *lst;
+// 	// if ((*lst)->state == NORMAL && (!(*lst)->str || (*lst)->str[0] == '\0'))
+// 	// {
+// 	// 	(*lst) = (*lst)->next;
+// 	// }
+// 	while (*lst && (*lst)->next)
+// 	{
+// 		if ((*lst)->next->state == NORMAL && (!(*lst)->next->str || (*lst)->next->str[0] == '\0'))
+// 		{
+// 			(*lst)->next = (*lst)->next->next;
+// 			continue ;
+// 		}
+// 		(*lst) = (*lst)->next;
+// 	}
+// 	(*lst) = temp;
+// 	if ((*lst)->state == NORMAL && (!(*lst)->str || (*lst)->str[0] == '\0'))
+// 	{
+// 		(*lst) = (*lst)->next;
+// 	}
+// 	// (*lst) = temp;
+// }
+
+// //Seulement mettre à jour l'exit status si un processus a réellement été exécuté
+// //Si aucun processus n'a été exécuté mais qu'aucune erreur n'a été détectée, exit_status = 0
+// //Si aucun processus n'a été exécuté à cause d'erreurs, garder l'exit_status précédent
+// void ft_check_exit_status(t_all **all)
+// {
+// 	int process_executed = 0;
+// 	int j = 0;
+// 	while (j < (*all)->t_cmd->nbr_cmd)
+// 	{
+// 		if ((*all)->t_cmd->cmd_tab[j].id1 > 0)
+// 		{
+// 			process_executed = 1;
+// 			break;
+// 		}
+// 		j++;
+// 	}
+// 	if (process_executed && WIFEXITED((*all)->t_cmd->status))
+// 		(*all)->exit_status = WEXITSTATUS((*all)->t_cmd->status);
+// 	else if (process_executed && WIFSIGNALED((*all)->t_cmd->status))
+// 	{
+// 		int sig = WTERMSIG((*all)->t_cmd->status);
+// 		if (sig == SIGQUIT)
+// 			write(1, "Quit (core dumped)\n", 20);
+// 		else if (sig == SIGINT)
+// 			write (1, "\n", 1);
+// 		if (sig != SIGPIPE)
+// 			(*all)->exit_status = 128 + sig; //128 + le code du signal
+// 	}
+// 	else if (process_executed == 0)
+// 	{
+// 		int has_error = 0;
+// 		j = 0;
+// 		while (j < (*all)->t_cmd->nbr_cmd)
+// 		{
+// 			if ((*all)->t_cmd->cmd_tab[j].input_failed == 1
+// 				|| (*all)->t_cmd->cmd_tab[j].output_failed == 1)
+// 			{
+// 				has_error = 1;
+// 				break;
+// 			}
+// 			j++;
+// 		}
+// 		if (has_error == 0)
+// 			(*all)->exit_status = 0;
+// 	}
+// }
+
+// // Vérifier si au moins une commande a des arguments
+// // Pas de commande valide, nettoyer et return(-1) aui va continue ;
+// int ft_check_arg(t_all **all)
+// {
+// 	int has_valid_cmd = 0;
+// 	int j = 0;
+
+// 	while (j < (*all)->t_cmd->nbr_cmd)
+// 	{
+// 		if ((*all)->t_cmd->cmd_tab[j].cmd_args && (*all)->t_cmd->cmd_tab[j].cmd_args[0])
+// 		{
+// 			has_valid_cmd = 1;
+// 			break;
+// 		}
+// 		j++;
+// 	}
+// 	if (!has_valid_cmd)
+// 	{
+// 		j = 0;
+// 		while (j < (*all)->t_cmd->nbr_cmd && (*all)->t_cmd->cmd_tab[j].cmd_args)
+// 		{
+// 			ft_free_double_tab((*all)->t_cmd->cmd_tab[j].cmd_args);
+// 			j++;
+// 		}
+// 		free((*all)->t_cmd->cmd_tab);
+// 		free((*all)->t_cmd);
+// 		free((*all)->str);
+// 		if ((*all)->shell)
+// 		{
+// 			ft_clear(&(*all)->shell);
+// 		}
+// 		return (-1);
+// 	}
+// 	return (0);
+// }
+
+// int ft_init_triple_tab(t_all **all)
+// {
+// 	(*all)->t_cmd = malloc(sizeof(t_commande));
+// 	if (!(*all)->t_cmd)
+// 		return (-2);
+// 	(*all)->t_cmd->nbr_cmd = ft_count_commands((*all)->shell);
+// 	(*all)->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * (*all)->t_cmd->nbr_cmd);
+// 	if (!(*all)->t_cmd->cmd_tab)
+// 		return (-2);
+// 	ft_set_triple_tab_null((*all)->t_cmd);
+// 	return (0);
+// }
+
+// int ft_check_parse(t_all **all)
+// {
+// 	// (*all)->str = replace_dollar_test2((*all)->str, (*all)->env, *all);
+// 	char *temp;
+	
+// 	temp = replace_dollar_pour_de_vrai((*all)->str, *all);
+// 	free((*all)->str);
+// 	(*all)->str = temp;
+// 	int parse_result = ft_parse_decoupe((*all)->str, &(*all)->shell, (*all));
+// 	if (parse_result == -1)
+// 	{
+// 		// Skip this iteration if parsing failed due to unclosed quotes
+// 		free((*all)->str);
+// 		if ((*all)->shell)
+// 			ft_clear(&(*all)->shell);
+// 		// ft_free_(*all)((*all));
+// 		// continue;
+// 		return (-1);
+// 	}
+// 	else if (parse_result == -2)
+// 	{
+// 		// M(*all)oc failure - exit program
+// 		free((*all)->str);
+// 		if ((*all)->shell)
+// 			ft_clear(&(*all)->shell);
+// 		ft_err("minishell", "malloc failed");
+// 		// exit(1);
+// 		return (-2);
+// 	}
+// 	return (0);
+// }
+
+int ft_read_input(t_all **all)
+{
+	(*all)->str = readline("CacaTest > ");
+	
+	if (!(*all)->str) // Ctrl+D (EOF)
+	{
+		printf("exit\n");
+		return (-1);
+	}
+	if (!(*all)->str[0]) // Chaîne vide
+	{
+		if ((*all)->str)
+			free((*all)->str);
+		// printf("test:%s\n", (*all)->str);
+		return (-2);
+	}
+	
+	// Si on arrive ici, l'utilisateur a tapé quelque chose de valide
+	// Reset le flag de signal car on a une commande valide
+	g_sigvaleur = 0;
+	
+	add_history((*all)->str);
+	return (0);
+}
+
+// int ft_read_input(t_all **all)
+// {
+// 	(*all)->str = readline("CacaTest > ");
+	
+// 	if (!(*all)->str) // Ctrl+D (EOF)
+// 	{
+// 		printf("exit\n");
+// 		return (-1);
+// 	}
+// 	if (!(*all)->str[0]) // Chaîne vide
+// 	{
+// 		free((*all)->str);
+// 		return (-2);
+// 	}
+
+// 	// Si on arrive ici, une commande valide a été saisie
+// 	// Reset g_sigvaleur car nous avons une vraie commande à traiter
+// 	g_sigvaleur = 0;
+	
+// 	add_history((*all)->str);
+// 	return (0);
+// }
+
+// int ft_parse(t_all **all)
+// {
+// //Parse_decoupe bah elle decoupe l'input en liste chaine
+// 	int parse_result = ft_check_parse(all);
+// 	if (parse_result == -1)
+// 		return (-1); // Continue si la parsing a échoué à cause de guillemets non fermés
+// 	else if (parse_result == -2)
+// 		return (-2); // Malloc failure - exit program
+// 	ft_concatenate(&(*all)->shell);
+// // ft_print(all->shell);
+// 	if (ft_lstiter_env(&(*all)->shell, (*all)->env, *all) == -1)
+// 	{
+// 		free((*all)->str);
+// 		if ((*all)->shell)
+// 			ft_clear(&(*all)->shell);
+// 		return (-1);
+// 	}
+// // ft_print((*all)->shell);
+// 	if (ft_init_triple_tab(all) == -2)
+// 		return (ft_free_all(*all), -2);
+// 	parse_result = ft_create_triple_tab(&(*all)->shell, &(*all)->t_cmd, all);
+// 	if (parse_result == -2)
+// 		return (ft_free_all(*all), -2);
+// 	if (parse_result == -1)
+// 		return (ft_free_all(*all), -1);
+// 	if (ft_check_arg(all) == -1)
+// 		return (-1);
+// 	return (0);
+// }
+
+// void set_exit(int *exit2)
+// {
+// 	static int *new_exit = NULL;
+
+// 	if (new_exit == NULL)
+// 		new_exit = exit2;
+	
+// 	*new_exit = 130;
+// }
+
+// void ft_test(int signum)
+// {
+// 	(void)signum;
+// 	g_sigvaleur = 1; // IMPORTANT : Marquer qu'un signal sigint a été reçu
+// 	write(1, "\n", 1);
+//     rl_replace_line("", 0);      // Vider la ligne courante
+//     rl_on_new_line();            // Indiquer qu'on est sur une nouvelle ligne
+//     rl_redisplay();              // Réafficher le prompt
+//     set_exit(&g_sigvaleur);
+// }
+
+// void ft_sigquit(int signum)
+// {
+// 	(void)signum;
+// 	// Pour SIGQUIT (Ctrl+\) au prompt : ne rien faire (comme bash)
+// 	// Le signal sera géré par les processus enfants avec SIG_DFL
+// }
+
+// int ft_all()
+
 */
