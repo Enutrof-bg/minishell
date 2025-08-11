@@ -213,6 +213,7 @@ int 	ft_lstiter_env(t_list **lst, char **env, t_all *all);
 void ft_lstiteration(t_all **all, void(*f)(char *));
 
 //parsing_parsing_0.c
+int ft_check_parse(t_all **all);
 int ft_parse(t_all **all);
 
 //parsing_parsing_1.c
@@ -235,8 +236,7 @@ char *ft_get_pid(t_all *all);
 //parsing_redir.c
 int ft_create_fd(t_list **shell, t_redir **t_red);
 
-
-int ft_check_parse(t_all **all);
+//parsing_check_arg.c 
 int ft_check_arg(t_all **all);
 
 

@@ -12,6 +12,38 @@
 
 #include "minishell.h"
 
+int ft_check_parse(t_all **all)
+{
+	// (*all)->str = replace_dollar_test2((*all)->str, (*all)->env, *all);
+	char *temp;
+	
+	temp = replace_dollar_pour_de_vrai((*all)->str, *all);
+	free((*all)->str);
+	(*all)->str = temp;
+	int parse_result = ft_parse_decoupe((*all)->str, &(*all)->shell, (*all));
+	if (parse_result == -1)
+	{
+		// Skip this iteration if parsing failed due to unclosed quotes
+		free((*all)->str);
+		if ((*all)->shell)
+			ft_clear(&(*all)->shell);
+		// ft_free_(*all)((*all));
+		// continue;
+		return (-1);
+	}
+	else if (parse_result == -2)
+	{
+		// M(*all)oc failure - exit program
+		free((*all)->str);
+		if ((*all)->shell)
+			ft_clear(&(*all)->shell);
+		ft_err("minishell", "malloc failed");
+		// exit(1);
+		return (-2);
+	}
+	return (0);
+}
+
 int ft_parse(t_all **all)
 {
 //Parse_decoupe bah elle decoupe l'input en liste chaine
