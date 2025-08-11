@@ -296,31 +296,31 @@ void ft_assign_cmd_arg_states(t_list **lst)
 	*lst = temp;
 }
 
+// Chemin par défaut plus complet pour fonctionner même en cas d'utilisation de env -i
 char **create_default_env(void)
 {
-    char **tab = NULL;
-    char    *str = NULL;
+	char **tab = NULL;
+	char    *str = NULL;
+	char    cwd[PATH_MAX];
 
-    char    cwd[PATH_MAX];
-    if (!getcwd(cwd, sizeof(cwd)))
-        return (NULL);
-    str = ft_strjoin("PWD=", cwd); // non free
+	if (!getcwd(cwd, sizeof(cwd)))
+		return (NULL);
+	str = ft_strjoin("PWD=", cwd);
 	if (!str)
 		return (NULL);
-    tab = ft_add_double_tab(str, tab);
+	tab = ft_add_double_tab(str, tab);
 	if (!tab)
 		return (free(str), NULL);
-    tab = ft_add_double_tab("_=/usr/bin/env", tab);
+	free(str);
+	tab = ft_add_double_tab("_=/usr/bin/env", tab);
 	if (!tab)
-		return (free(str), NULL);
+		return (NULL);
 	tab = ft_add_double_tab("SHLVL=1", tab);
 	if (!tab)
-		return (free(str), NULL);
-	// tab = ft_add_double_tab("PATH=/home/kevwang/.local/funcheck/host:/home/kevwang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin", tab);
-	tab = ft_add_double_tab("PATH=/bin", tab);
+		return (NULL);
+	tab = ft_add_double_tab("PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", tab);
 	if (!tab)
-		return (free(str), NULL);
-	free(str); // Libérer str avant de retourner
+		return (NULL);
 	return (tab);
 }
 //caca parsing_test.c pipex_path.c parsing_dollar.c minishell_utils.c ft_strjoin.c ft_split.c ft_itoa.c -lreadline -o minishell
