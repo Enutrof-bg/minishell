@@ -249,7 +249,11 @@ extern int g_sigvaleur;
 
 // Fonctions pour gérer l'exit code via static pointer
 void init_exit_handler(int *exit_status);
-void signal_set_exit(int code);
 
+//signal.c
+// void signal_set_exit(int code);
+void set_exit(int *exit2);
 void ft_test(int signum);
+void ft_sigquit(int signum);
+
 #endif
