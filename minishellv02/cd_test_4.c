@@ -528,7 +528,7 @@ int    ft_echo(char **tab)
                     write (1, " ", 1);
                 i++;
             }
-            return (1);
+            return (0);
         }
     }
     else if (tab[1])
@@ -638,7 +638,7 @@ int is_builtin_3(char **tab, t_all **all)
 	{
 		exit_code = ft_echo(tab);		
 		(*all)->exit_status = exit_code;
-		return (1);
+		return (exit_code);
 	}
 	if (is_pwd(tab[0]))
 	{
