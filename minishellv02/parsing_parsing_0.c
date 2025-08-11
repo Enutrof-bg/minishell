@@ -29,6 +29,7 @@ int ft_check_parse(t_all **all)
 		free((*all)->str);
 		if ((*all)->shell)
 			ft_clear(&(*all)->shell);
+		(*all)->exit_status = 2;
 		// ft_free_(*all)((*all));
 		// continue;
 		return (-1);
@@ -61,6 +62,7 @@ int ft_parse(t_all **all)
 		free((*all)->str);
 		if ((*all)->shell)
 			ft_clear(&(*all)->shell);
+		(*all)->exit_status = 2;
 		return (-1);
 	}
 // ft_print((*all)->shell);

@@ -77,7 +77,9 @@ int ft_parse_out(char *str, t_list **shell, int *i)
 				return (free(temp), -2);
 		}
 		else if (ft_strlen(temp) == 3)
+		{
 			return (free(temp), ft_err("syntax error near unexpected token `>'\n", NULL), -1);
+		}
 			// ft_add(shell, temp, ERROR);
 		else 
 			return (free(temp), ft_err("syntax error near unexpected token `>>'\n", NULL), -1);
