@@ -509,28 +509,28 @@ int ft_read_input(t_all **all)
 	return (0);
 }*/
 
-int ft_read_input(t_all **all)
-{
-	(*all)->str = readline("CacaTest > ");
+// int ft_read_input(t_all **all)
+// {
+// 	(*all)->str = readline("CacaTest > ");
 	
-	if (!(*all)->str) // Ctrl+D (EOF)
-	{
-		printf("exit\n");
-		return (-1);
-	}
-	if (!(*all)->str[0]) // Chaîne vide
-	{
-		free((*all)->str);
-		return (-2);
-	}
+// 	if (!(*all)->str) // Ctrl+D (EOF)
+// 	{
+// 		printf("exit\n");
+// 		return (-1);
+// 	}
+// 	if (!(*all)->str[0]) // Chaîne vide
+// 	{
+// 		free((*all)->str);
+// 		return (-2);
+// 	}
 
-	// Si on arrive ici, une commande valide a été saisie
-	// Reset g_sigvaleur car nous avons une vraie commande à traiter
-	g_sigvaleur = 0;
+// 	// Si on arrive ici, une commande valide a été saisie
+// 	// Reset g_sigvaleur car nous avons une vraie commande à traiter
+// 	g_sigvaleur = 0;
 	
-	add_history((*all)->str);
-	return (0);
-}
+// 	add_history((*all)->str);
+// 	return (0);
+// }
 
 // int ft_parse(t_all **all)
 // {

@@ -49,6 +49,8 @@ parsing_concatenate.c \
 exec_check_exit_status.c \
 signals.c \
 parsing_check_arg.c \
+read_input.c \
+
 
 # parsing_pid.c \
 
