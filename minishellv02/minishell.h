@@ -143,6 +143,9 @@ int ft_atoi(char *str);
 int ft_exit(char **tab, t_all **all);
 int ft_is_digit(char *str);
 
+//exec_check_exit_status.c
+void ft_check_exit_status(t_all **all);
+
 //exec_pipe.c  
 int	ft_open_pipe(t_commande *t_cmd);
 void	ft_close_pipe(t_commande *t_cmd);

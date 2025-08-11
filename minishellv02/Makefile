@@ -45,6 +45,7 @@ parsing_lst_utils_2.c \
 parsing_init.c \
 cd_test_4.c \
 parsing_concatenate.c \
+exec_check_exit_status.c
 
 # parsing_pid.c \
 # signals.c \
