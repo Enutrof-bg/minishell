@@ -84,6 +84,7 @@ clean:
 	parsing_double_tab.o \
 	parsing_triple_tab.o \
 	exec_pipe.o \
+	parsing_parsing_0.o \
 	parsing_parsing_1.o \
 	parsing_parsing_2.o \
 	parsing_parsing_3.o \
@@ -93,6 +94,11 @@ clean:
 	cd_test_4.o \
 	cd_test.o \
 	parsing_concatenate.o \
+	exec_check_exit_status.o \
+	signals.o \
+	parsing_check_arg.o \
+	read_input.o \
+
 
 fclean:clean
 	make -C gnl fclean

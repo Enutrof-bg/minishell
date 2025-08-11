@@ -25,48 +25,66 @@ int ft_strcmp(char *s1, char *s2)
 
 char **ft_replace_double_tab(char *var_name, char *str, char **tab)
 {
-    int        i;
-    char    **newtab;
+	int		i;
+	int		j;
+	char	**newtab;
 	char	*var_name_equal;
 	
-    i = 0;
-	var_name_equal = malloc(sizeof(ft_strlen(var_name) + 2));
-	while (var_name && var_name[i])
+	i = 0;
+	j = 0;
+	if (!var_name || !str)
+		return (tab);
+	var_name_equal = malloc(ft_strlen(var_name) + 2);
+	if (!var_name_equal)
+		return (NULL);
+	while (var_name[i])
 	{
 		var_name_equal[i] = var_name[i];
 		i++;
 	}
 	var_name_equal[i] = '=';
 	var_name_equal[i + 1] = '\0';
-    if (tab == NULL)
-    {
-        newtab = malloc(sizeof(char *) * 1);
-        // newtab[0] = ft_strdup(str);
-        newtab[0] = 0;
-        return (free(var_name_equal),newtab);
-    }
-    while (tab[i])
-        i++;
-    newtab = malloc(sizeof(char *) * (i + 1));
-    i = 0;
-    while (tab[i])
-    {
-        if (ft_strncmp(tab[i], var_name, ft_strlen(var_name)) != 0)
-        {
-            newtab[i] = ft_strdup(tab[i]);
-        }
-        else
-        {
-            newtab[i] = ft_strjoin(var_name_equal, (str));
-        }
-        i++;
-    }
-    // newtab[i] = ft_strdup(str);
-    // i++;
-    newtab[i] = 0;
+	if (tab == NULL)
+	{
+		newtab = malloc(sizeof(char *) * 1);
+		if (!newtab)
+			return (free(var_name_equal), NULL);
+		newtab[0] = 0;
+		return (free(var_name_equal), newtab);
+	}
+	while (tab[i])
+		i++;
+	newtab = malloc(sizeof(char *) * (i + 1));
+	if (!newtab)
+		return (free(var_name_equal), NULL);
+	i = 0;
+	while (tab[i])
+	{
+		if (ft_strncmp(tab[i], var_name, ft_strlen(var_name)) != 0)
+		{
+			newtab[j] = ft_strdup(tab[i]);
+			if (!newtab[j])
+			{
+				ft_free_double_tab(newtab);
+				return (free(var_name_equal), NULL);
+			}
+		}
+		else
+		{
+			newtab[j] = ft_strjoin(var_name_equal, str);
+			if (!newtab[j])
+			{
+				ft_free_double_tab(newtab);
+				return (free(var_name_equal), NULL);
+			}
+		}
+		i++;
+		j++;
+	}
+	newtab[j] = 0;
 	free(var_name_equal);
-    ft_free_double_tab(tab);
-    return (newtab);
+	ft_free_double_tab(tab);
+	return (newtab);
 }
 
 int is_export(char *str)
