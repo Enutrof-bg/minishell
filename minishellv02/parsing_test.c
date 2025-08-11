@@ -439,18 +439,18 @@ char **create_default_env(void)
 // 	return (0);
 // }
 
-int ft_init_triple_tab(t_all **all)
-{
-	(*all)->t_cmd = malloc(sizeof(t_commande));
-	if (!(*all)->t_cmd)
-		return (-2);
-	(*all)->t_cmd->nbr_cmd = ft_count_commands((*all)->shell);
-	(*all)->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * (*all)->t_cmd->nbr_cmd);
-	if (!(*all)->t_cmd->cmd_tab)
-		return (-2);
-	ft_set_triple_tab_null((*all)->t_cmd);
-	return (0);
-}
+// int ft_init_triple_tab(t_all **all)
+// {
+// 	(*all)->t_cmd = malloc(sizeof(t_commande));
+// 	if (!(*all)->t_cmd)
+// 		return (-2);
+// 	(*all)->t_cmd->nbr_cmd = ft_count_commands((*all)->shell);
+// 	(*all)->t_cmd->cmd_tab = malloc(sizeof(t_cmd_tab) * (*all)->t_cmd->nbr_cmd);
+// 	if (!(*all)->t_cmd->cmd_tab)
+// 		return (-2);
+// 	ft_set_triple_tab_null((*all)->t_cmd);
+// 	return (0);
+// }
 
 int ft_check_parse(t_all **all)
 {

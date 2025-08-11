@@ -198,6 +198,7 @@ void ft_free_all(t_all *all);
 
 //parsing_init.c
 int ft_count_commands(t_list *lst);
+int ft_init_triple_tab(t_all **all);
 
 //parsing_lst_utils.c
 t_list	*ft_lst(char *str, int state);
@@ -237,7 +238,7 @@ int ft_create_fd(t_list **shell, t_redir **t_red);
 
 int ft_check_parse(t_all **all);
 int ft_check_arg(t_all **all);
-int ft_init_triple_tab(t_all **all);
+
 
 // //parsing_test
 // int ft_count_commands(t_list *lst);
