@@ -24,26 +24,21 @@
 #include "minishell.h"
 #include <errno.h>  // Pour errno et EINTR
 
-int			ft_print_triple_tab(t_commande *t_cmd);
-int			ft_set_triple_tab_null(t_commande *t_cmd);
-int			ft_create_triple_tab(t_list **shell, t_commande **t_cmd, t_all **all);
+int ft_print_triple_tab(t_commande *t_cmd);
+int ft_set_triple_tab_null(t_commande *t_cmd);
+int ft_create_triple_tab(t_list **shell, t_commande **t_cmd, t_all **all);
 
 // Fonctions auxiliaires pour ft_create_triple_tab
-// int	ft_handle_cmd_arg(t_list *shell, t_commande *t_cmd, int i);
-// int	ft_handle_infile(t_list *shell, t_commande *t_cmd,
-// 		t_all *all, int i, int *prev_infd);
-// int	ft_handle_limiter(t_list *shell, t_commande *t_cmd,
-//		t_all *all, int i, int *prev_infd);
-// int	ft_handle_outfile(t_list *shell, t_commande *t_cmd,
-// 		t_all *all, int i, int *prev_outfd);
-// int	ft_handle_append(t_list *shell, t_commande *t_cmd,
-//		t_all *all, int i, int *prev_outfd);
-// int	ft_handle_pipe(t_commande *t_cmd, int *i,
-//		int *prev_infd, int *prev_outfd);
+static int ft_handle_cmd_arg(t_list *shell, t_commande *t_cmd, int i);
+static int ft_handle_infile(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *prev_infd);
+static int ft_handle_limiter(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *prev_infd);
+static int ft_handle_outfile(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *prev_outfd);
+static int ft_handle_append(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *prev_outfd);
+static int ft_handle_pipe(t_commande *t_cmd, int *i, int *prev_infd, int *prev_outfd);
 
-int	ft_print_triple_tab(t_commande *t_cmd)
+int ft_print_triple_tab(t_commande *t_cmd)
 {
-	int	j;
+	int j;
 
 	j = 0;
 	while (j < t_cmd->nbr_cmd)
@@ -61,11 +56,9 @@ int	ft_print_triple_tab(t_commande *t_cmd)
 }
 
 //juste initialise a NULL les char**
-int	ft_set_triple_tab_null(t_commande *t_cmd)
+int ft_set_triple_tab_null(t_commande *t_cmd)
 {
-	int	i;
-
-	i = 0;
+	int i = 0;
 	while (i < t_cmd->nbr_cmd)
 	{
 		t_cmd->cmd_tab[i].cmd_args = NULL;
@@ -82,108 +75,80 @@ int	ft_set_triple_tab_null(t_commande *t_cmd)
 }
 
 // Fonction pour gérer les arguments de commande
-int	ft_handle_cmd_arg(t_list *shell, t_commande *t_cmd, int i)
+static int ft_handle_cmd_arg(t_list *shell, t_commande *t_cmd, int i)
 {
 	t_cmd->cmd_tab[i].cmd_args = ft_add_double_tab(shell->str, t_cmd->cmd_tab[i].cmd_args);
 	if (!t_cmd->cmd_tab[i].cmd_args)
-		return (-2);
+		return (-2); // Échec d'allocation mémoire
 	return (0);
 }
 
 // Fonction pour gérer les redirections d'entrée (fichiers)
-int	ft_handle_infile(t_list *shell, t_commande *t_cmd,
-		t_all *all, int i, int *prev_infd)
+static int ft_handle_infile(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *prev_infd)
 {
 	if (*prev_infd != -1)
 		close(*prev_infd);
+
 	t_cmd->cmd_tab[i].infd = open(shell->str, O_RDONLY, 0644);
 	if (t_cmd->cmd_tab[i].infd < 0)
 	{
-		if (t_cmd->cmd_tab[i].input_failed == 0
-			&& t_cmd->cmd_tab[i].output_failed == 0)
+		if (t_cmd->cmd_tab[i].input_failed == 0 && t_cmd->cmd_tab[i].output_failed == 0)
 			perror(shell->str);
-		all->exit_status = 1;
-		t_cmd->cmd_tab[i].infd = -1;
-		t_cmd->cmd_tab[i].input_failed = 1;
+		all->exit_status = 1; // Set exit status to indicate error
+		t_cmd->cmd_tab[i].infd = -1; // Marquer comme échec
+		t_cmd->cmd_tab[i].input_failed = 1; // Marquer que la redirection a échoué
 	}
 	else
 		*prev_infd = t_cmd->cmd_tab[i].infd;
+	
 	return (0);
 }
 
 // Gestion du processus enfant heredoc
-int	ft_handle_heredoc_child(t_list *shell, t_commande *t_cmd, t_all *all, int i)
+static int ft_handle_heredoc_child(t_list *shell, t_commande *t_cmd, t_all *all, int i)
 {
-	char	*test;
-
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_IGN);
+	
 	if (tcgetattr(STDIN_FILENO, &all->term) == 0)
 	{
-		all->term.c_lflag &= ~0001000;
+		all->term.c_lflag &= ~0001000; // Désactiver ECHOCTL
 		tcsetattr(STDIN_FILENO, TCSANOW, &all->term);
 	}
+	
 	t_cmd->cmd_tab[i].heredoc++;
 	if (access("temp", F_OK) == 0)
 	{
 		close(t_cmd->cmd_tab[i].infd);
 		unlink("temp");
 	}
+	
 	t_cmd->cmd_tab[i].infd = open("temp", O_WRONLY | O_CREAT | O_APPEND, 0644);
-	test = get_next_line(0);
+	//protec open
+	
+	char *test = get_next_line(0);
 	while (test && g_sigvaleur == 0)
 	{
 		if (ft_strncmp(test, shell->str, ft_strlen(shell->str)) == 0)
 		{
 			free(test);
-			break ;
+			break;
 		}
 		write(t_cmd->cmd_tab[i].infd, test, ft_strlen(test));
 		free(test);
 		test = get_next_line(0);
 	}
+	
 	close(t_cmd->cmd_tab[i].infd);
 	exit(0);
 }
 
-// Fonction pour traiter la sortie du processus heredoc
-int	ft_process_heredoc_exit(t_commande *t_cmd, int i, int *prev_infd)
-{
-	close(t_cmd->cmd_tab[i].infd);
-	t_cmd->cmd_tab[i].infd = open("temp", O_RDONLY, 0644);
-	if (t_cmd->cmd_tab[i].infd < 0)
-	{
-		perror("temp");
-		t_cmd->cmd_tab[i].input_failed = 1;
-	}
-	else
-		*prev_infd = t_cmd->cmd_tab[i].infd;
-	return (0);
-}
-
-// Fonction pour traiter les signaux du processus heredoc
-int	ft_handle_heredoc_signals(t_all *all, int status)
-{
-	int	sig;
-	
-	if (WIFSIGNALED(status))
-	{
-		sig = WTERMSIG(status);
-		if (sig == SIGINT)
-		{
-			write(1, "^C\n", 3);
-			all->exit_status = 128 + sig;
-			return (-1);
-		}
-	}
-	return (0);
-}
-
-// Fonction pour préparer le fichier temporaire heredoc
-int ft_prepare_heredoc_file(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *prev_infd)
+// Fonction pour gérer les redirections d'entrée via heredoc
+static int ft_handle_limiter(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *prev_infd)
 {
 	if (*prev_infd != -1)
 		close(*prev_infd);
+	
 	t_cmd->cmd_tab[i].infd = open("temp", O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (t_cmd->cmd_tab[i].infd < 0)
 	{
@@ -192,48 +157,53 @@ int ft_prepare_heredoc_file(t_list *shell, t_commande *t_cmd, t_all *all, int i,
 		all->exit_status = 1;
 		t_cmd->cmd_tab[i].infd = -1;
 		t_cmd->cmd_tab[i].input_failed = 1;
-		return (-1); // Erreur lors de l'ouverture du fichier
+		return (0); // Continue parsing
 	}
-	return (0);
-}
-
-// Fonction pour gérer les redirections d'entrée via heredoc
-int ft_handle_limiter(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *prev_infd)
-{
-	int status;
-	int result;
-
-	// Préparer le fichier temporaire
-	if (ft_prepare_heredoc_file(shell, t_cmd, all, i, prev_infd) < 0)
-		return (0); // Continue parsing même en cas d'erreur
-
-	// Configurer les signaux et fork
+	
 	signal(SIGINT, SIG_IGN);
 	t_cmd->cmd_tab[i].id_here_doc = fork();
-
-	// Processus enfant
+	
 	if (t_cmd->cmd_tab[i].id_here_doc == 0)
-		ft_handle_heredoc_child(shell, t_cmd, all, i);
-	// Processus parent
-	else 
 	{
-		// Attendre la fin du heredoc
+		ft_handle_heredoc_child(shell, t_cmd, all, i);
+	}
+	else
+	{
+		// Processus parent: attendre la fin du heredoc
+		int status;
 		waitpid(t_cmd->cmd_tab[i].id_here_doc, &status, 0);
 		signal(SIGINT, ft_test);
 		
-		// Gérer les signaux potentiels
-		result = ft_handle_heredoc_signals(all, status);
-		if (result < 0)
-			return (-1);
+		if (WIFSIGNALED(status))
+		{
+			int sig = WTERMSIG(status);
+			if (sig == SIGINT)
+			{
+				write(1, "^C\n", 3);
+				all->exit_status = 128 + sig;
+				return (-1);
+			}
+		}
 		
-		// Traiter la sortie
-		ft_process_heredoc_exit(t_cmd, i, prev_infd);
+		close(t_cmd->cmd_tab[i].infd);
+		t_cmd->cmd_tab[i].infd = open("temp", O_RDONLY, 0644);
+		
+		if (t_cmd->cmd_tab[i].infd < 0)
+		{
+			perror("temp");
+			t_cmd->cmd_tab[i].input_failed = 1;
+		}
+		else
+		{
+			*prev_infd = t_cmd->cmd_tab[i].infd;
+		}
 	}
+	
 	return (0);
 }
 
 // Fonction pour gérer les redirections de sortie (fichiers)
-int ft_handle_outfile(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *prev_outfd)
+static int ft_handle_outfile(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *prev_outfd)
 {
 	if (*prev_outfd != -1)
 		close(*prev_outfd);
@@ -254,7 +224,7 @@ int ft_handle_outfile(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *
 }
 
 // Fonction pour gérer les redirections de sortie en mode append
-int ft_handle_append(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *prev_outfd)
+static int ft_handle_append(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *prev_outfd)
 {
 	if (*prev_outfd != -1)
 		close(*prev_outfd);
@@ -275,7 +245,7 @@ int ft_handle_append(t_list *shell, t_commande *t_cmd, t_all *all, int i, int *p
 }
 
 // Fonction pour gérer les pipes
-int ft_handle_pipe(t_commande *t_cmd, int *i, int *prev_infd, int *prev_outfd)
+static int ft_handle_pipe(t_commande *t_cmd, int *i, int *prev_infd, int *prev_outfd)
 {
 	(*i)++;
 	t_cmd->cmd_tab[*i].infd = -1;
@@ -286,6 +256,7 @@ int ft_handle_pipe(t_commande *t_cmd, int *i, int *prev_infd, int *prev_outfd)
 	t_cmd->cmd_tab[*i].out_str = NULL;
 	*prev_infd = -1;
 	*prev_outfd = -1;
+	
 	return (0);
 }
 
@@ -296,9 +267,11 @@ int ft_create_triple_tab(t_list **shell, t_commande **t_cmd, t_all **all)
 	int prev_infd = -1;
 	int prev_outfd = -1;
 	int result;
+	
 	(*t_cmd)->cmd_tab[i].infd = -1;
 	(*t_cmd)->cmd_tab[i].outfd = -1;
 	(*t_cmd)->cmd_tab[i].heredoc = 0;
+	
 	t_list *temp = *shell;
 	while (*shell != NULL)
 	{
@@ -309,7 +282,9 @@ int ft_create_triple_tab(t_list **shell, t_commande **t_cmd, t_all **all)
 				return (*shell = temp, -2);
 		}
 		else if ((*shell)->state == INFILE && (*t_cmd)->cmd_tab[i].input_failed == 0)
+		{
 			ft_handle_infile(*shell, *t_cmd, *all, i, &prev_infd);
+		}
 		else if ((*shell)->state == LIMITER && (*t_cmd)->cmd_tab[i].input_failed == 0)
 		{
 			result = ft_handle_limiter(*shell, *t_cmd, *all, i, &prev_infd);
@@ -317,13 +292,21 @@ int ft_create_triple_tab(t_list **shell, t_commande **t_cmd, t_all **all)
 				return (*shell = temp, -1);
 		}
 		else if ((*shell)->state == OUTFILE && (*t_cmd)->cmd_tab[i].output_failed == 0 && (*t_cmd)->cmd_tab[i].input_failed == 0)
+		{
 			ft_handle_outfile(*shell, *t_cmd, *all, i, &prev_outfd);
+		}
 		else if ((*shell)->state == OUTFILEAPPEND && (*t_cmd)->cmd_tab[i].output_failed == 0 && (*t_cmd)->cmd_tab[i].input_failed == 0)
+		{
 			ft_handle_append(*shell, *t_cmd, *all, i, &prev_outfd);
+		}
 		else if ((*shell)->state == PIPE)
+		{
 			ft_handle_pipe(*t_cmd, &i, &prev_infd, &prev_outfd);
+		}
+		
 		(*shell) = (*shell)->next;
 	}
+	
 	(*shell) = temp;
 	return (0);
 }
