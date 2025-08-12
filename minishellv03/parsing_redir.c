@@ -12,13 +12,13 @@
 
 #include "minishell.h"
 
-int ft_create_fd(t_list **shell, t_redir **t_red);
+int	ft_create_fd(t_list **shell, t_redir **t_red);
 
-//creation des fd a partir des redirections
-//pas encore correct
-int ft_create_fd(t_list **shell, t_redir **t_red)
+// creation des fd a partir des redirections
+// pas encore correct
+int	ft_create_fd(t_list **shell, t_redir **t_red)
 {
-	t_list *temp;
+	t_list	*temp;
 
 	temp = *shell;
 	while (*shell)
@@ -31,9 +31,11 @@ int ft_create_fd(t_list **shell, t_redir **t_red)
 				perror("infd error");
 		}
 		if ((*shell)->state == OUTFILE)
-			(*t_red)->outfd = open((*shell)->str, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+			(*t_red)->outfd = open((*shell)->str, O_WRONLY | O_TRUNC | O_CREAT,
+					0644);
 		if ((*shell)->state == OUTFILEAPPEND)
-			(*t_red)->outfd = open((*shell)->str, O_WRONLY | O_APPEND | O_CREAT, 0644);
+			(*t_red)->outfd = open((*shell)->str, O_WRONLY | O_APPEND | O_CREAT,
+					0644);
 		// printf("fd:%d\n", (*t_red)->infd);
 		(*shell) = (*shell)->next;
 	}

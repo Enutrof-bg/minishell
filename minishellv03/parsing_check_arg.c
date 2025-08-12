@@ -20,41 +20,29 @@
 // Libérer la mémoire allouée pour chaque tableau d'arguments de commande
 // Libérer le tableau de commandes et la structure de commandes
 // Libérer la chaîne d'entrée et la liste chaînée
-int ft_check_arg(t_all **all)
+int	ft_check_arg(t_all **all)
 {
-	int has_valid_cmd = 0;
-	int j = 0;
+	int	has_valid_cmd;
+	int	j;
 
+	has_valid_cmd = 0;
+	j = 0;
 	if (!all || !*all || !(*all)->t_cmd)
 		return (-1);
 	while (j < (*all)->t_cmd->nbr_cmd)
 	{
-		if ((*all)->t_cmd->cmd_tab[j].cmd_args && (*all)->t_cmd->cmd_tab[j].cmd_args[0])
+		if ((*all)->t_cmd->cmd_tab[j].cmd_args
+			&& (*all)->t_cmd->cmd_tab[j].cmd_args[0])
 		{
 			has_valid_cmd = 1;
-			break;
+			break ;
 		}
 		j++;
 	}
 	if (!has_valid_cmd)
 	{
-		ft_close_fd(all);
-		j = 0;
-		while (j < (*all)->t_cmd->nbr_cmd && (*all)->t_cmd->cmd_tab[j].cmd_args)
-		{
-			ft_free_double_tab((*all)->t_cmd->cmd_tab[j].cmd_args);
-			j++;
-		}
-		free((*all)->t_cmd->cmd_tab);
-		(*all)->t_cmd->cmd_tab = NULL;
-		free((*all)->t_cmd);
-		(*all)->t_cmd = NULL;
-		free((*all)->str);
-		(*all)->str = NULL;
-		if ((*all)->shell)
-			ft_clear(&(*all)->shell);
+		ft_free_all(*all);
 		return (-1);
 	}
 	return (0);
 }
-

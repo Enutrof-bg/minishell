@@ -12,23 +12,21 @@
 
 #include "minishell.h"
 
+// Initialiser les descripteurs à -1 pour indiquer qu'ils ne sont pas ouverts
+// En cas d'erreur, fermer tous les pipes déjà ouverts
 int	ft_open_pipe(t_commande *t_cmd, t_all **all)
 {
 	int	i;
 
 	if (!t_cmd || !t_cmd->cmd_tab || !all || !*all)
 		return (1);
-
 	i = 0;
 	while (i < t_cmd->nbr_cmd - 1)
 	{
-		// Initialiser les descripteurs à -1 pour indiquer qu'ils ne sont pas ouverts
 		t_cmd->cmd_tab[i].fd[0] = -1;
 		t_cmd->cmd_tab[i].fd[1] = -1;
-		
 		if (pipe(t_cmd->cmd_tab[i].fd) == -1)
 		{
-			// En cas d'erreur, fermer tous les pipes déjà ouverts
 			while (--i >= 0)
 			{
 				close(t_cmd->cmd_tab[i].fd[0]);
@@ -36,11 +34,6 @@ int	ft_open_pipe(t_commande *t_cmd, t_all **all)
 				t_cmd->cmd_tab[i].fd[0] = -1;
 				t_cmd->cmd_tab[i].fd[1] = -1;
 			}
-			// Libérer les ressources allouées
-			// if ((*all)->str)
-			// 	free((*all)->str);
-			// if ((*all)->shell)
-			// 	ft_clear(&(*all)->shell);
 			return (1);
 		}
 		i++;
@@ -53,8 +46,7 @@ void	ft_close_pipe(t_commande *t_cmd)
 	int	i;
 
 	if (!t_cmd || !t_cmd->cmd_tab)
-		return;
-		
+		return ;
 	i = 0;
 	while (i < t_cmd->nbr_cmd - 1)
 	{

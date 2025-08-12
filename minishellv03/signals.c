@@ -12,30 +12,27 @@
 
 #include "minishell.h"
 
-void set_exit(int *exit2)
+void	set_exit(int *exit2)
 {
-	static int *new_exit = NULL;
+	static int	*new_exit = NULL;
 
 	if (new_exit == NULL)
 		new_exit = exit2;
-
 	*new_exit = 130;
 }
 
-void ft_test(int signum)
+void	ft_test(int signum)
 {
 	(void)signum;
-	g_sigvaleur = 1; // IMPORTANT : Marquer qu'un signal sigint a été reçu
+	g_sigvaleur = 1;
 	write(1, "\n", 1);
-    rl_replace_line("", 0);      // Vider la ligne courante
-    rl_on_new_line();            // Indiquer qu'on est sur une nouvelle ligne
-    rl_redisplay();              // Réafficher le prompt
-    set_exit(&g_sigvaleur);
+	rl_replace_line("", 0);
+	rl_on_new_line();
+	rl_redisplay();
+	set_exit(&g_sigvaleur);
 }
 
-void ft_sigquit(int signum)
+void	ft_sigquit(int signum)
 {
 	(void)signum;
-	// Pour SIGQUIT (Ctrl+\) au prompt : ne rien faire (comme bash)
-	// Le signal sera géré par les processus enfants avec SIG_DFL
 }

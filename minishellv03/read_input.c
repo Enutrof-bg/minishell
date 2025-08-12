@@ -12,25 +12,20 @@
 
 #include "minishell.h"
 
-int ft_read_input(t_all **all)
+int	ft_read_input(t_all **all)
 {
 	(*all)->str = readline("CacaTest > ");
-	
-	if (!(*all)->str) // Ctrl+D (EOF)
+	if (!(*all)->str)
 	{
 		write(1, "exit\n", 5);
 		return (-1);
 	}
-	if (!(*all)->str[0]) // Chaîne vide
+	if (!(*all)->str[0])
 	{
 		free((*all)->str);
 		return (-2);
 	}
-
-	// Si on arrive ici, une commande valide a été saisie
-	// Reset g_sigvaleur car nous avons une vraie commande à traiter
 	g_sigvaleur = 0;
-	
 	add_history((*all)->str);
 	return (0);
 }

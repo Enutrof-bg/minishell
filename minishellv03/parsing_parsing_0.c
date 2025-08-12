@@ -12,50 +12,45 @@
 
 #include "minishell.h"
 
-int ft_check_parse(t_all **all)
+int	ft_check_parse(t_all **all)
 {
-	// (*all)->str = replace_dollar_test2((*all)->str, (*all)->env, *all);
-	char *temp;
-	
+	char	*temp;
+	int		parse_result;
+
 	temp = replace_dollar_pour_de_vrai((*all)->str, *all);
-	// printf("temp:'%s'\n", temp);
 	if (!temp)
-		return (free((*all)->str), -2); // Malloc failure - exit program
+		return (free((*all)->str), -2);
 	free((*all)->str);
 	(*all)->str = temp;
-	int parse_result = ft_parse_decoupe((*all)->str, &(*all)->shell, (*all));
+	parse_result = ft_parse_decoupe((*all)->str, &(*all)->shell, (*all));
 	if (parse_result == -1)
 	{
-		// Skip this iteration if parsing failed due to unclosed quotes
 		free((*all)->str);
 		if ((*all)->shell)
 			ft_clear(&(*all)->shell);
-		(*all)->exit_status = 2;
-		// ft_free_(*all)((*all));
-		// continue;
-		return (-1);
+		return ((*all)->exit_status = 2, -1);
 	}
 	else if (parse_result == -2)
 	{
-		// M(*all)oc failure - exit program
 		free((*all)->str);
 		if ((*all)->shell)
 			ft_clear(&(*all)->shell);
-		ft_err("minishell", "malloc failed");
-		// exit(1);
-		return (-2);
+		return (ft_err("minishell", "malloc failed"), -2);
 	}
 	return (0);
 }
 
-int ft_parse(t_all **all)
-{
 //Parse_decoupe bah elle decoupe l'input en liste chaine
-	int parse_result = ft_check_parse(all);
+// Continue si la parsing a échoué à cause de guillemets non fermés
+int	ft_parse(t_all **all)
+{
+	int	parse_result;
+
+	parse_result = ft_check_parse(all);
 	if (parse_result == -1)
-		return (-1); // Continue si la parsing a échoué à cause de guillemets non fermés
+		return (-1);
 	else if (parse_result == -2)
-		return (-2); // Malloc failure - exit program
+		return (-2);
 // ft_print((*all)->shell);
 	ft_concatenate(&(*all)->shell);
 // ft_print((*all)->shell);
@@ -64,8 +59,7 @@ int ft_parse(t_all **all)
 		free((*all)->str);
 		if ((*all)->shell)
 			ft_clear(&(*all)->shell);
-		(*all)->exit_status = 2;
-		return (-1);
+		return ((*all)->exit_status = 2, -1);
 	}
 // ft_print((*all)->shell);
 	if (ft_init_triple_tab(all) == -2)
@@ -75,9 +69,7 @@ int ft_parse(t_all **all)
 		return (ft_free_all(*all), -2);
 	if (parse_result == -1)
 		return (ft_free_all(*all), -1);
-
 // ft_print_triple_tab((*all)->t_cmd);
-
 	if (ft_check_arg(all) == -1)
 		return (-1);
 	return (0);

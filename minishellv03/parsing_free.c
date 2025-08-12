@@ -28,36 +28,56 @@ void	ft_free_double_tab(char **tab)
 	free(tab);
 }
 
+// Sauvegarde le pointeur vers le nœud suivant
+// Vérification pour éviter de libérer un pointeur NULL
+// Avance au nœud suivant
+// Marque la liste comme vide
 void	ft_clear(t_list **lst)
 {
 	t_list	*del;
 	t_list	*next;
 
 	if (!lst || !*lst)
-		return;
-
+		return ;
 	del = *lst;
 	while (del != NULL)
 	{
-		next = del->next;  // Sauvegarde le pointeur vers le nœud suivant
-		
-		if (del->str)      // Vérification pour éviter de libérer un pointeur NULL
+		next = del->next;
+		if (del->str)
 		{
 			free(del->str);
 			del->str = NULL;
 		}
 		free(del);
-		del = next;        // Avance au nœud suivant
+		del = next;
 	}
-	*lst = NULL;  // Marque la liste comme vide
+	*lst = NULL;
 }
 
-void ft_free_all(t_all *all)
+void	ft_free_cmd_tab(t_all *all)
 {
-	int j;
+	int	j;
 
+	if (!all || !all->t_cmd || !all->t_cmd->cmd_tab)
+		return ;
+	j = 0;
+	while (j < all->t_cmd->nbr_cmd)
+	{
+		if (all->t_cmd->cmd_tab[j].cmd_args)
+		{
+			ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
+			all->t_cmd->cmd_tab[j].cmd_args = NULL;
+		}
+		j++;
+	}
+	free(all->t_cmd->cmd_tab);
+	all->t_cmd->cmd_tab = NULL;
+}
+
+void	ft_free_all(t_all *all)
+{
 	if (!all)
-		return;
+		return ;
 	ft_close_fd(&all);
 	if (all->str)
 	{
@@ -66,30 +86,10 @@ void ft_free_all(t_all *all)
 	}
 	if (all->shell)
 		ft_clear(&all->shell);
-	j = 0;
-	if (all->t_cmd && all->t_cmd->cmd_tab)
-	{
-		while (j < all->t_cmd->nbr_cmd/* && all->t_cmd->cmd_tab[j].cmd_args*/)
-		{
-			if (all->t_cmd->cmd_tab[j].cmd_args)
-			{
-				ft_free_double_tab(all->t_cmd->cmd_tab[j].cmd_args);
-				all->t_cmd->cmd_tab[j].cmd_args = NULL;
-			}
-			j++;
-		}
-		free(all->t_cmd->cmd_tab);
-		all->t_cmd->cmd_tab = NULL;
-	}
+	ft_free_cmd_tab(all);
 	if (all->t_cmd)
 	{
 		free(all->t_cmd);
 		all->t_cmd = NULL;
 	}
-	// // Libération de la chaîne d'état de sortie si existante
-	// if (all->exit_status_char)
-	// {
-	// 	free(all->exit_status_char);
-	// 	all->exit_status_char = NULL;
-	// }
 }

@@ -12,11 +12,11 @@
 
 #include "minishell.h"
 
-int ft_count_commands(t_list *lst);
+int	ft_count_commands(t_list *lst);
 
-int ft_count_commands(t_list *lst)
+int	ft_count_commands(t_list *lst)
 {
-	int count;
+	int	count;
 
 	count = 1;
 	while (lst)
@@ -28,7 +28,7 @@ int ft_count_commands(t_list *lst)
 	return (count);
 }
 
-int ft_init_triple_tab(t_all **all)
+int	ft_init_triple_tab(t_all **all)
 {
 	(*all)->t_cmd = malloc(sizeof(t_commande));
 	if (!(*all)->t_cmd)

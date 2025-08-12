@@ -12,25 +12,18 @@
 
 #include "minishell.h"
 
-void ft_concatenate(t_list **lst)
+void	ft_concatenate(t_list **lst)
 {
-	// t_list *current;
-	// t_list *next;
-	t_list *temp;
-	t_list *current;
-	// char *new_str;
+	t_list	*temp;
+	t_list	*current;
 
 	if (!lst || !*lst)
-		return;
-	// current = *lst;
+		return ;
 	temp = *lst;
-	// if ((*lst)->state == NORMAL && (!(*lst)->str || (*lst)->str[0] == '\0'))
-	// {
-	// 	(*lst) = (*lst)->next;
-	// }
 	while (*lst && (*lst)->next)
 	{
-		if ((*lst)->next->state == NORMAL && (!(*lst)->next->str || (*lst)->next->str[0] == '\0'))
+		if ((*lst)->next->state == NORMAL
+			&& (!(*lst)->next->str || (*lst)->next->str[0] == '\0'))
 		{
 			current = (*lst)->next;
 			(*lst)->next = (*lst)->next->next;
@@ -45,5 +38,4 @@ void ft_concatenate(t_list **lst)
 	{
 		(*lst) = (*lst)->next;
 	}
-	// (*lst) = temp;
 }

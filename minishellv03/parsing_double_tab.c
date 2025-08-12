@@ -93,7 +93,7 @@ char	**ft_add_double_tab(char *str, char **tab)
 	return (newtab);
 }
 
-char **ft_remove_double_tab(char *str, char **tab)
+char	**ft_remove_double_tab(char *str, char **tab)
 {
 	int		i;
 	int		j;
