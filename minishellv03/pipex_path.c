@@ -150,9 +150,9 @@ int	exec(char **tab, char **env)
 	{
 		stats = stat(tab[0], &buf);
 		if (stats == 0 && S_ISDIR(buf.st_mode))
-			return (ft_err(tab[0], "Is a directory"),  exit(126), -1);
+			return (ft_err(tab[0], "Is a directory"), exit(126), -1);
 		if (access(tab[0], F_OK) == 0 && access(tab[0], X_OK) == -1)
-			return (ft_err(tab[0], "Permission denied"),  exit(126), -1);
+			return (ft_err(tab[0], "Permission denied"), exit(126), -1);
 		if (access(tab[0], X_OK) == -1)
 			return (ft_err(tab[0], "No such file or directory"), 
 				/*ft_free_double_tab(tab),*/ /*exit(126), */-1);

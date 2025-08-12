@@ -72,12 +72,8 @@ void	ft_check_no_process(t_all **all)
 void	ft_check_exit_status(t_all **all)
 {
 	int	process_executed;
-	int	j;
-	int	has_error;
 
 	process_executed = ft_check_process_executed(*all);
-	j = 0;
-	has_error = 0;
 	if (process_executed && WIFEXITED((*all)->t_cmd->status))
 		(*all)->exit_status = WEXITSTATUS((*all)->t_cmd->status);
 	else if (process_executed && WIFSIGNALED((*all)->t_cmd->status))

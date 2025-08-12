@@ -64,7 +64,7 @@ char	*ft_str_reste(char *str)
 }
 
 char	*ft_read(int fd, char *str)
-{	
+{
 	char	*temp;
 	char	*charread;
 	int		readfd;
