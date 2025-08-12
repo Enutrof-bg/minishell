@@ -18,6 +18,7 @@ int ft_check_parse(t_all **all)
 	char *temp;
 	
 	temp = replace_dollar_pour_de_vrai((*all)->str, *all);
+	// printf("temp:'%s'\n", temp);
 	if (!temp)
 		return (free((*all)->str), -2); // Malloc failure - exit program
 	free((*all)->str);
@@ -55,6 +56,7 @@ int ft_parse(t_all **all)
 		return (-1); // Continue si la parsing a échoué à cause de guillemets non fermés
 	else if (parse_result == -2)
 		return (-2); // Malloc failure - exit program
+// ft_print((*all)->shell);
 	ft_concatenate(&(*all)->shell);
 // ft_print((*all)->shell);
 	if (ft_lstiter_env(&(*all)->shell, (*all)->env, *all) == -1)

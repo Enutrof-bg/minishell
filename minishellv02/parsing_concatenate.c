@@ -17,6 +17,7 @@ void ft_concatenate(t_list **lst)
 	// t_list *current;
 	// t_list *next;
 	t_list *temp;
+	t_list *current;
 	// char *new_str;
 
 	if (!lst || !*lst)
@@ -31,7 +32,10 @@ void ft_concatenate(t_list **lst)
 	{
 		if ((*lst)->next->state == NORMAL && (!(*lst)->next->str || (*lst)->next->str[0] == '\0'))
 		{
+			current = (*lst)->next;
 			(*lst)->next = (*lst)->next->next;
+			free(current->str);
+			free(current);
 			continue ;
 		}
 		(*lst) = (*lst)->next;

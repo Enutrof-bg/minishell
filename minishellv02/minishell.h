@@ -145,7 +145,7 @@ int			ft_is_digit(char *str);
 void		ft_check_exit_status(t_all **all);
 
 //exec_pipe.c  
-int			ft_open_pipe(t_commande *t_cmd);
+int			ft_open_pipe(t_commande *t_cmd, t_all **all);
 void		ft_close_pipe(t_commande *t_cmd);
 void		ft_waitpid(t_commande *t_cmd);
 int			ft_dup(int fd0, int fd1);

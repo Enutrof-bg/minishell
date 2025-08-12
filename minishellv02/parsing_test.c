@@ -173,6 +173,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 				exit(temp_exit_status);
 			}
 			if (!ft_is_digit(t_cmd->cmd_tab[i].cmd_args[1])
+				|| t_cmd->cmd_tab[i].cmd_args[1][0] == '\0'
 				|| (long long)ft_long_atoi(t_cmd->cmd_tab[i].cmd_args[1]) > LLONG_MAX
 				|| (long long)ft_long_atoi(t_cmd->cmd_tab[i].cmd_args[1]) < LLONG_MIN)
             {
@@ -202,6 +203,7 @@ int ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			}
 			if ((*all)->t_cmd->nbr_cmd == 1 && t_cmd->cmd_tab[i].cmd_args[2] == NULL)
 			{
+				printf("exit\n");
 				temp_exit_status = ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) % 256;
 				ft_free_all(*all);
 				ft_free_double_tab((*all)->env);
@@ -426,9 +428,14 @@ int main(int argc, char **argv, char **env)
 
 
 
-			if (ft_open_pipe(all->t_cmd) == 1)
-				return (1);
-			
+			if (ft_open_pipe(all->t_cmd, &all) == 1)
+			{
+				printf("Erreur lors de la création des pipes\n");
+				// Libérer toutes les ressources allouées par ft_parse
+				ft_free_all(all);
+				continue;
+			}
+
 			// Ignorer SIGINT pendant l'exécution des commandes enfants
 			signal(SIGINT, SIG_IGN);
 			// printf("test1\n");
@@ -629,8 +636,13 @@ int main(int argc, char **argv, char **env)
 	// ft_print_triple_tab(all->t_cmd);
 
 			//Execution
-			if (ft_open_pipe(all->t_cmd) == 1)
+			if (ft_open_pipe(all->t_cmd, &all) == 1)
+			{
+				ft_free_all(*all);
+				ft_free_double_tab(all->env);
+				free(all);
 				return (1);
+			}
 			ft_exec_commande(all->t_cmd, all->t_red, &all, all->env);
 			ft_waitpid(all->t_cmd);
 			ft_close_pipe(all->t_cmd);

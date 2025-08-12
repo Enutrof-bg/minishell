@@ -20,6 +20,9 @@ t_list	*ft_lst(char *str, int state)
 {
 	t_list	*newlist;
 
+	// if (!str || !str[0])
+		// return (NULL);
+
 	newlist = malloc(sizeof(t_list));
 	if (!newlist)
 	{
@@ -27,7 +30,7 @@ t_list	*ft_lst(char *str, int state)
 	}
 	newlist->str = ft_strdup(str);
 	if (!newlist->str)
-		return (NULL);
+		return (free(newlist), NULL);
 	newlist->state = state;
 	newlist->next = NULL;
 	return (newlist);

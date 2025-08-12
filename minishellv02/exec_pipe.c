@@ -12,15 +12,37 @@
 
 #include "minishell.h"
 
-int	ft_open_pipe(t_commande *t_cmd)
+int	ft_open_pipe(t_commande *t_cmd, t_all **all)
 {
 	int	i;
+
+	if (!t_cmd || !t_cmd->cmd_tab || !all || !*all)
+		return (1);
 
 	i = 0;
 	while (i < t_cmd->nbr_cmd - 1)
 	{
+		// Initialiser les descripteurs à -1 pour indiquer qu'ils ne sont pas ouverts
+		t_cmd->cmd_tab[i].fd[0] = -1;
+		t_cmd->cmd_tab[i].fd[1] = -1;
+		
 		if (pipe(t_cmd->cmd_tab[i].fd) == -1)
+		{
+			// En cas d'erreur, fermer tous les pipes déjà ouverts
+			while (--i >= 0)
+			{
+				close(t_cmd->cmd_tab[i].fd[0]);
+				close(t_cmd->cmd_tab[i].fd[1]);
+				t_cmd->cmd_tab[i].fd[0] = -1;
+				t_cmd->cmd_tab[i].fd[1] = -1;
+			}
+			// Libérer les ressources allouées
+			// if ((*all)->str)
+			// 	free((*all)->str);
+			// if ((*all)->shell)
+			// 	ft_clear(&(*all)->shell);
 			return (1);
+		}
 		i++;
 	}
 	return (0);
@@ -30,11 +52,22 @@ void	ft_close_pipe(t_commande *t_cmd)
 {
 	int	i;
 
+	if (!t_cmd || !t_cmd->cmd_tab)
+		return;
+		
 	i = 0;
 	while (i < t_cmd->nbr_cmd - 1)
 	{
-		close(t_cmd->cmd_tab[i].fd[0]);
-		close(t_cmd->cmd_tab[i].fd[1]);
+		if (t_cmd->cmd_tab[i].fd[0] >= 0)
+		{
+			close(t_cmd->cmd_tab[i].fd[0]);
+			t_cmd->cmd_tab[i].fd[0] = -1;
+		}
+		if (t_cmd->cmd_tab[i].fd[1] >= 0)
+		{
+			close(t_cmd->cmd_tab[i].fd[1]);
+			t_cmd->cmd_tab[i].fd[1] = -1;
+		}
 		i++;
 	}
 }

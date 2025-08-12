@@ -111,7 +111,7 @@ char *ft_strchr(char *str, char c)
 		return (&str[i]);
 	return (NULL);
 }
-
+/*
 int is_alpha(char *str)
 {
 	int  i = 0;
@@ -124,6 +124,33 @@ int is_alpha(char *str)
 	}
 		return (1);
 }
+*/
+
+int is_alpha(char *str)
+{
+    int  i = 0;
+
+    if (!(str[i] >='a' && str[i] <= 'z') && !(str[i] >= 'A' && str[i] <= 'Z') && str[i] != '_')
+		return (0);
+	if (ft_strlen(str) == 1)
+		return (1);
+    i++;
+    while (i < ((int)ft_strlen(str) - 1))
+    {
+        if (!((str[i] >='a' && str[i] <= 'z' ) || (str[i] >= 'A' && str[i] <= 'Z')))
+        {
+            if (!(str[i] >= '0' && str[i] <= '9'))
+            {
+                if (str[i] != '_')
+                    return (0);
+            }
+        }
+        i++;
+    }
+    if (!(str[i] >= 'a' && str[i] <= 'z') && !(str[i] >= 'A' && str[i] <= 'Z') && str[i] != '_')
+        return (0);
+    return (1);
+}
 
 int	ft_export(char **tab, t_all **all)
 {
@@ -134,31 +161,24 @@ int	ft_export(char **tab, t_all **all)
     while (tab[i])
     {
         equal_pos = ft_strchr(tab[i], '=');
-		if (!equal_pos && !is_alpha(tab[i]))
-			return (ft_err(tab[0], "not a valid identifier"), 1);
+		if ((!equal_pos && !is_alpha(tab[i])) || tab[i][0] == '=')
+            return (ft_err(tab[0], "not a valid identifier"), 1);
 		if (ft_strlen(tab[i]) == 1 && tab[i][0] == '=')
 			return (ft_err(tab[0], "not a valid identifier"), 1);
 		else if (!equal_pos && is_alpha(tab[i]))
 			return (0);
-		// if (!is_alpha(tab[i]))
-		// 	return (1);
         if (equal_pos)
         {
             var_name = ft_substr(tab[i], 0, equal_pos - tab[i]);
 			if (!var_name)
 				return (ft_err(tab[0], "malloc failed"), 1);
-			// char	*export_value = ft_substr(tab[i], ft_strlen(var_name) + 1, ft_strlen(tab[i]));
-			// if (!is_alpha(export_value) ||!is_alpha(var_name))
-			// 	return (0); // + free aussi my bad
-			if (!is_alpha(var_name) || !var_name)
-				return (ft_err(tab[0], "not a valid identifier"), free(var_name), 1); // + free aussi my bad
-			// printf("\n\n%s\n\n", var_name);
+			if (is_alpha(var_name) == 0|| !var_name)
+				return (ft_err(tab[0], "not a valid identifier"), free(var_name), 1);
             if (!get_env_var(var_name, (*all)->env))
                 (*all)->env = ft_add_double_tab(tab[i], (*all)->env);
             else
                 (*all)->env = ft_replace_double_tab(var_name, equal_pos + 1, (*all)->env);
             free(var_name);
-			// return (0);
         }
         i++;
     }
@@ -232,7 +252,6 @@ void ft_shlvl(t_all **all)
         }
         i++;
     }
-	// printf("\n\n%d\n\n", nb);
 }
 
 //return value unset = 0 a chaque fois ??
@@ -271,10 +290,6 @@ int is_builtin_2(char **tab, t_all **all)
 		(*all)->exit_status = exit_code;
 		return (1); 
 	}
-	//  if (ft_strcmp(tab[0], "unset") == 0)
-	// {
-	// 	return (ft_unset(tab, all));
-	// }
 	if (ft_strcmp(tab[0], "unset") == 0)
     {
         exit_code = ft_unset(tab, all);
@@ -286,11 +301,6 @@ int is_builtin_2(char **tab, t_all **all)
 		ft_env(all);
 		return (1);
 	}
-	//  if (is_exit(tab[0]))
-	// {
-		//fonction 
-		// return (1);
-	// }
 	return (0);
 }
 
@@ -304,7 +314,6 @@ int is_pwd(char *str)
 int ft_pwd(t_all **all)
 {
 	char cwd[PATH_MAX];
-	// printf("test");
 	if (getcwd(cwd, sizeof(cwd)))
 	{
 		return (printf("%s\n", cwd), 0);
