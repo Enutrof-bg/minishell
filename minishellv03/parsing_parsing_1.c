@@ -29,9 +29,9 @@ int	ft_parse_decoupe(char *str, t_list **shell, t_all *all)
 		if (str[i] == ' ')
 			i++;
 		else if (str[i] == '"')
-			result = ft_parse_double_quote(str, shell, &i, all);
+			result = ft_parse_double_quote(str, shell, &i);
 		else if (str[i] == '\'')
-			result = ft_parse_singlequote(str, shell, &i, all);
+			result = ft_parse_singlequote(str, shell, &i);
 		else if (str[i] == '|')
 			result = ft_parse_pipe(str, shell, &i);
 		else if (str[i] == '>')

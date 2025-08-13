@@ -248,9 +248,8 @@ int			ft_parse(t_all **all);
 int			ft_parse_decoupe(char *str, t_list **shell, t_all *all);
 
 //parsing_parsing_2.c
-int			ft_parse_double_quote(char *str, t_list **shell,
-				int *i, t_all *all);
-int			ft_parse_singlequote(char *str, t_list **shell, int *i, t_all *all);
+int			ft_parse_double_quote(char *str, t_list **shell, int *i);
+int			ft_parse_singlequote(char *str, t_list **shell, int *i);
 char		*ft_remove_quote(char *str);
 int			ft_parse_space(char *str, t_list **shell, int *i, t_all *all);
 
