@@ -52,7 +52,7 @@
 # define ECHOCTL 0001000
 // #endif
 
-extern int g_sigvaleur;
+extern int	g_sigvaleur;
 
 typedef struct s_redir
 {
@@ -134,12 +134,45 @@ long long	ft_long_atoi(char *str);
 int			ft_strcmp(char *s1, char *s2);
 //gnl
 //cd_test.c
+int			ft_echo(char **tab);
+
+int			ft_echo_option_n(char **tab, int i);
+int			is_echo(char *str);
 int			is_builtin(char **tab);
 int			is_builtin2(char **tab, t_all **all);
 int			is_builtin_3(char **tab, t_all **all);
 int			ft_atoi(char *str);
 int			ft_exit(char **tab, t_all **all);
 int			ft_is_digit(char *str);
+int			is_cd(char *str);
+int			is_home(char *str);
+int			cd_home(t_all **all);
+int			cd_oldpwd(t_all **all);
+int			cd_root(t_all **all);
+int			ft_cd_change_dir(t_all **all, char *str);
+int			homemade_cd(char **tab, t_all **all);
+void		ft_putstr(char *str);
+char		**ft_replace_double_tab(char *var_name, char *str, char **tab);
+int			is_export(char *str);
+char		*ft_strchr(char *str, char c);
+int			is_alpha(char *str);
+int			ft_export(char **tab, t_all **all);
+int			ft_atoi(char *str);
+long long	ft_long_atoi(char *str);
+void		ft_shlvl(t_all **all);
+int			ft_unset(char **tab, t_all **all);
+int			ft_env(t_all **all);
+int			is_builtin_2(char **tab, t_all **all);
+int			is_pwd(char *str);
+int			ft_pwd(t_all **all);
+int			ft_echo_option_n(char **tab, int i);
+int			is_only_n(char *str);
+// int			is_builtin(char **tab);
+// int			is_builtin2(char **tab, t_all **all);
+// int			is_builtin_3(char **tab, t_all **all);
+// int			ft_atoi(char *str);
+// int			ft_exit(char **tab, t_all **all);
+// int			ft_is_digit(char *str);
 
 //exec_check_exit_status.c
 void		ft_check_exit_status(t_all **all);
