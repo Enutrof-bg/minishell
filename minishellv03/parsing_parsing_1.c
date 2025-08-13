@@ -29,41 +29,70 @@ int	ft_parse_decoupe(char *str, t_list **shell, t_all *all)
 		if (str[i] == ' ')
 			i++;
 		else if (str[i] == '"')
-		{
 			result = ft_parse_double_quote(str, shell, &i, all);
-			if (result == -1)
-				return (-1);
-		}
 		else if (str[i] == '\'')
-		{
 			result = ft_parse_singlequote(str, shell, &i, all);
-			if (result == -1)
-				return (-1);
-		}
 		else if (str[i] == '|')
-		{
 			result = ft_parse_pipe(str, shell, &i);
-			if (result == -1)
-				return (-1);
-		}
 		else if (str[i] == '>')
-		{
 			result = ft_parse_out(str, shell, &i);
-			if (result == -1)
-				return (-1);
-		}
 		else if (str[i] == '<')
-		{
 			result = ft_parse_in(str, shell, &i);
-			if (result == -1)
-				return (-1);
-		}
 		else
-		{
 			result = ft_parse_space(str, shell, &i, all);
-			if (result == -1)
-				return (-1);
-		}
+		if (result == -1)
+			return (-1);
 	}
 	return (0);
 }
+
+// int	ft_parse_decoupe(char *str, t_list **shell, t_all *all)
+// {
+// 	int	i;
+// 	int	result;
+
+// 	i = 0;
+// 	result = 0;
+// 	while (str[i])
+// 	{
+// 		if (str[i] == ' ')
+// 			i++;
+// 		else if (str[i] == '"')
+// 		{
+// 			result = ft_parse_double_quote(str, shell, &i, all);
+// 			if (result == -1)
+// 				return (-1);
+// 		}
+// 		else if (str[i] == '\'')
+// 		{
+// 			result = ft_parse_singlequote(str, shell, &i, all);
+// 			if (result == -1)
+// 				return (-1);
+// 		}
+// 		else if (str[i] == '|')
+// 		{
+// 			result = ft_parse_pipe(str, shell, &i);
+// 			if (result == -1)
+// 				return (-1);
+// 		}
+// 		else if (str[i] == '>')
+// 		{
+// 			result = ft_parse_out(str, shell, &i);
+// 			if (result == -1)
+// 				return (-1);
+// 		}
+// 		else if (str[i] == '<')
+// 		{
+// 			result = ft_parse_in(str, shell, &i);
+// 			if (result == -1)
+// 				return (-1);
+// 		}
+// 		else
+// 		{
+// 			result = ft_parse_space(str, shell, &i, all);
+// 			if (result == -1)
+// 				return (-1);
+// 		}
+// 	}
+// 	return (0);
+// }
