@@ -63,6 +63,24 @@ char	*ft_remove_quote(char *str)
 	return (new);
 }
 
+int ft_parse_add_list(char *str, int *i, int j, t_list **shell, int state)
+{
+	char *temp;
+	char *temp3;
+
+	temp = ft_substr(str, *i, j);
+	if (!temp)
+		return (-2);
+	temp3 = replace_dollar_test2(temp);
+	if (!temp3)
+		return (free(temp), -2);
+	if (ft_add(shell, temp3, state) == -2)
+		return (free(temp), free(temp3), -2);
+	free(temp);
+	free(temp3);
+	return (0);
+}
+
 int	ft_parse_double_quote(char *str, t_list **shell, int *i, t_all *all)
 {
 	int		j;
@@ -150,7 +168,6 @@ int	ft_parse_singlequote(char *str, t_list **shell, int *i, t_all *all)
 	*i = *i + j;
 	if (str[*i] == '\'')
 		(*i)++;
-	j = 0;
 	return (0);
 }
 
@@ -200,6 +217,5 @@ int	ft_parse_space(char *str, t_list **shell, int *i, t_all *all)
 		free(temp3);
 	}
 	*i = *i + j;
-	j = 0;
 	return (0);
 }
