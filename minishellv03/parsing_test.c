@@ -15,23 +15,24 @@
 int	g_sigvaleur;
 
 // Vérifier si la commande existe et a des arguments
-int ft_check_arg_empty(t_all *all, int *i)
+int	ft_check_arg_empty(t_all *all, int *i)
 {
 	if (!all->t_cmd->cmd_tab[*i].cmd_args
-			|| !all->t_cmd->cmd_tab[*i].cmd_args[0])
+		|| !all->t_cmd->cmd_tab[*i].cmd_args[0])
 	{
 		all->t_cmd->cmd_tab[*i].id1 = -1;
 		(*i)++;
 		return (1);
-	}	
+	}
 	return (0);
 }
 
 // Vérifier si la commande a des redirections d'entrée qui ont échoué
 // Ne pas exécuter la commande si redirection d'entrée a échoué
-int ft_check_input_failed(t_all *all, int *i)
+int	ft_check_input_failed(t_all *all, int *i)
 {
-	if (all->t_cmd->cmd_tab[*i].input_failed == 1 || all->t_cmd->cmd_tab[*i].output_failed == 1)
+	if (all->t_cmd->cmd_tab[*i].input_failed == 1
+		|| all->t_cmd->cmd_tab[*i].output_failed == 1)
 	{
 		all->t_cmd->cmd_tab[*i].id1 = -1;
 		(*i)++;
@@ -43,7 +44,7 @@ int ft_check_input_failed(t_all *all, int *i)
 // Restaurer les signaux par défaut pour les processus enfants
 // Comportement par défaut pour SIGINT
 // Comportement par défaut pour SIGQUT
-void ft_set_signal()
+void	ft_set_signal(void)
 {
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
@@ -53,92 +54,22 @@ void ft_set_signal()
 // Gestion des redirections de sortie pour toutes les commandes
 // Si pas de redirection de sortie, utiliser le pipe suivant
 // Sinon, la sortie reste stdout (cas de la dernière commande sans redirection)
-int ft_redirection(t_all *all, int i)
+int	ft_redirection(t_all *all, int i)
 {
 	if (all->t_cmd->cmd_tab[i].infd >= 0)
 		dup2(all->t_cmd->cmd_tab[i].infd, 0);
-	else if (i > 0) 
+	else if (i > 0)
 		dup2(all->t_cmd->cmd_tab[i - 1].fd[0], 0);
 	if (all->t_cmd->cmd_tab[i].outfd >= 0)
 		dup2(all->t_cmd->cmd_tab[i].outfd, 1);
-	else if (i < all->t_cmd->nbr_cmd - 1)  
+	else if (i < all->t_cmd->nbr_cmd - 1)
 		dup2(all->t_cmd->cmd_tab[i].fd[1], 1);
 	return (0);
 }
 
-//execute les commandes 
-int	ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
-{
-	int	i;
 
-	(void)t_red;
-	(void)all;
-	i = 0;
-	while (i < t_cmd->nbr_cmd)
-	{
-		if (ft_check_arg_empty(*all, &i) == 1)
-			continue;
-		if (ft_check_input_failed(*all, &i) == 1)
-			continue ;
-		//condition pour verifier uniquement si les builtin existent
-		//puis dup2
-		//puis executer les fonctions
-		if (ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "echo") == 0
-			|| ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd") == 0
-			|| ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "env") == 0
-			|| (ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "export") == 0 &&  t_cmd->nbr_cmd > 1)
-			|| (ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0 && t_cmd->nbr_cmd > 1))
-		{
-			t_cmd->cmd_tab[i].id1 = fork();
-			if (t_cmd->cmd_tab[i].id1 == 0)
-			{
-				ft_set_signal();
-				ft_redirection(*all, i);	
-				ft_close_pipe(t_cmd);
-				ft_close_fd(all);
-				if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, all) == 1)
-				{
-					// (*all)->exit_status = 0;
-				}
-				// else
-				// {
-				// 	(*all)->exit_status = 1;
-				// }
-				// ft_close_pipe(t_cmd);
-				t_cmd->cmd_tab[i].id1 = -1; // Les builtins n'ont pas de processus fils
-				int temp_exit_status = (*all)->exit_status;
-				if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
-					temp_exit_status = ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) % 256;
-				exit(temp_exit_status);
-			}
-		}
-		else if (
-			ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "export") == 0
-			|| ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "unset") == 0
-			|| ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "cd") == 0
-			// || ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd") == 0
-			// || ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0
-			// || ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "env") == 0
-			)
-		{
-            if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, all) == 1)
-            {
-                t_cmd->cmd_tab[i].id1 = fork();
-                if (t_cmd->cmd_tab[i].id1 == 0)
-                {
-                    ft_set_signal();           
-                    ft_close_pipe(t_cmd);
-                    ft_close_fd(all);
-                    int temp_exit_status = (*all)->exit_status;
-					if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
-						temp_exit_status = ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) % 256;
-					exit(temp_exit_status);
-                }
-            }
-		}
-		else if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0 && t_cmd->nbr_cmd == 1)
-		{
-			// ft_exit()
+int ft_exit(t_all **all, t_commande *t_cmd)
+{
 			int temp_exit_status = 0;
 			if (!t_cmd->cmd_tab[i].cmd_args[1])
 			{
@@ -178,7 +109,7 @@ int	ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 				}
 				// return (1);
 			}
-			if ((*all)->t_cmd->nbr_cmd == 1 && t_cmd->cmd_tab[i].cmd_args[2] == NULL)
+			if ((*all)->t_cmd->nbr_cmd == 1 && !t_cmd->cmd_tab[i].cmd_args[2])
 			{
 				write(1, "exit\n", 5);
 				temp_exit_status = ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) % 256;
@@ -187,6 +118,120 @@ int	ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 				free(*all);
 				exit(temp_exit_status);
 			}
+}
+//execute les commandes 
+int	ft_exec_commande(t_commande *t_cmd, t_all **all, char **env)
+{
+	int	i;
+
+	i = 0;
+	while (i < t_cmd->nbr_cmd)
+	{
+		if (ft_check_arg_empty(*all, &i) == 1)
+			continue;
+		if (ft_check_input_failed(*all, &i) == 1)
+			continue ;
+		//condition pour verifier uniquement si les builtin existent
+		//puis dup2
+		//puis executer les fonctions
+		if (ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "echo") == 0
+			|| ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd") == 0
+			|| ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "env") == 0
+			|| (ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "export") == 0 &&  t_cmd->nbr_cmd > 1)
+			|| (ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0 && t_cmd->nbr_cmd > 1))
+		{
+			t_cmd->cmd_tab[i].id1 = fork();
+			if (t_cmd->cmd_tab[i].id1 == 0)
+			{
+				ft_set_signal();
+				ft_redirection(*all, i);	
+				ft_close_pipe(t_cmd);
+				ft_close_fd(all);
+				if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, all) == 1)
+				{
+				}
+				t_cmd->cmd_tab[i].id1 = -1; // Les builtins n'ont pas de processus fils
+				int temp_exit_status = (*all)->exit_status;
+				if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
+					temp_exit_status = ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) % 256;
+				exit(temp_exit_status);
+			}
+		}
+		else if (
+			ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "export") == 0
+			|| ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "unset") == 0
+			|| ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "cd") == 0
+			// || ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "pwd") == 0
+			// || ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0
+			// || ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "env") == 0
+			)
+		{
+            if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, all) == 1)
+            {
+                t_cmd->cmd_tab[i].id1 = fork();
+                if (t_cmd->cmd_tab[i].id1 == 0)
+                {
+                    ft_set_signal();           
+                    ft_close_pipe(t_cmd);
+                    ft_close_fd(all);
+                    int temp_exit_status = (*all)->exit_status;
+					if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0)
+						temp_exit_status = ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) % 256;
+					exit(temp_exit_status);
+                }
+            }
+		}
+		else if (ft_strncmp(t_cmd->cmd_tab[i].cmd_args[0], "exit", 4) == 0 && t_cmd->nbr_cmd == 1)
+		{
+			ft_exit_monstre(all, t_cmd);
+			// int temp_exit_status = 0;
+			// if (!t_cmd->cmd_tab[i].cmd_args[1])
+			// {
+			// 	write(1, "exit\n", 5);
+			// 	temp_exit_status = (*all)->exit_status;
+			// 	ft_free_all(*all);
+			// 	ft_free_double_tab((*all)->env);
+			// 	free(*all);
+			// 	exit(temp_exit_status);
+			// }
+			// if (!ft_is_digit(t_cmd->cmd_tab[i].cmd_args[1])
+			// 	|| t_cmd->cmd_tab[i].cmd_args[1][0] == '\0'
+			// 	|| (long long)ft_long_atoi(t_cmd->cmd_tab[i].cmd_args[1]) > LLONG_MAX
+			// 	|| (long long)ft_long_atoi(t_cmd->cmd_tab[i].cmd_args[1]) < LLONG_MIN)
+            // {
+            //     write(1, "exit\n", 5);
+            //     ft_err(t_cmd->cmd_tab[i].cmd_args[1], "numeric argument required");
+			// 	ft_free_all(*all);
+			// 	ft_free_double_tab((*all)->env);
+			// 	free(*all);
+            //     exit(2);
+            // }
+			// if (t_cmd->cmd_tab[i].cmd_args[2])
+			// {
+			// 	write(1, "exit\n", 5);
+			// 	ft_err(t_cmd->cmd_tab[i].cmd_args[1], "too many arguments");
+			// 	(*all)->exit_status = 1;
+			// 	t_cmd->cmd_tab[i].id1 = fork();
+			// 	if (t_cmd->cmd_tab[i].id1 == 0)
+			// 	{
+			// 		// Restaurer les signaux par défaut pour les processus enfants
+			// 		// setup_child_signals();
+					
+			// 		ft_close_pipe(t_cmd);
+			// 		ft_close_fd(all);
+			// 		exit(1);
+			// 	}
+			// 	// return (1);
+			// }
+			// if ((*all)->t_cmd->nbr_cmd == 1 && !t_cmd->cmd_tab[i].cmd_args[2])
+			// {
+			// 	write(1, "exit\n", 5);
+			// 	temp_exit_status = ft_atoi(t_cmd->cmd_tab[i].cmd_args[1]) % 256;
+			// 	ft_free_all(*all);
+			// 	ft_free_double_tab((*all)->env);
+			// 	free(*all);
+			// 	exit(temp_exit_status);
+			// }
 				// ft_free_double_tab((*all)->env);
 				// free(all);
 				
@@ -197,24 +242,8 @@ int	ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			t_cmd->cmd_tab[i].id1 = fork();
 			if (t_cmd->cmd_tab[i].id1 == 0)
 			{
-				// Restaurer les signaux par défaut pour les processus enfants
-               	// Comportement par défaut pour SIGINT
                	ft_set_signal();
-               	// signal(SIGINT, SIG_DFL);
-                // signal(SIGQUIT, SIG_DFL);  // Comportement par défaut pour SIGQUIT				
-				// Gestion des redirections d'entrée pour toutes les commandes
-
 				ft_redirection(*all, i);
-				// if (t_cmd->cmd_tab[i].infd >= 0)
-				// 	dup2(t_cmd->cmd_tab[i].infd, 0);
-				// else if (i > 0)  // Si pas de redirection d'entrée, utiliser le pipe précédent
-				// 	dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
-				// // Gestion des redirections de sortie pour toutes les commandes
-				// if (t_cmd->cmd_tab[i].outfd >= 0)
-				// 	dup2(t_cmd->cmd_tab[i].outfd, 1);
-				// else if (i < t_cmd->nbr_cmd - 1)  // Si pas de redirection de sortie, utiliser le pipe suivant
-				// 	dup2(t_cmd->cmd_tab[i].fd[1], 1);
-				// Sinon, la sortie reste stdout (cas de la dernière commande sans redirection)
 				ft_close_pipe(t_cmd);
 				ft_close_fd(all);
 				if (exec(t_cmd->cmd_tab[i].cmd_args, env) == -1)
@@ -377,7 +406,7 @@ int main(int argc, char **argv, char **env)
 			}
 			// Ignorer SIGINT pendant l'exécution des commandes enfants
 			signal(SIGINT, SIG_IGN);
-			ft_exec_commande(all->t_cmd, all->t_red, &all, all->env);
+			ft_exec_commande(all->t_cmd, &all, all->env);
 			ft_waitpid(all->t_cmd);
 			
 			// Restaurer le handler SIGINT après l'exécution
