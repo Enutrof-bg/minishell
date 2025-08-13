@@ -146,6 +146,19 @@ char	*ft_handle_env_var(char *result, char *str, t_all *all, int *i)
 		return (ft_append_char(result, str[(*i)++]));
 }
 
+//c'est vraiment que pour la norminette cette fonction 
+//parce que ca faisait 27 lignes
+int	ft_init_dollar(char **result, int *i, int *insinglequote)
+{
+	*insinglequote = 0;
+	*result = malloc(sizeof(char) * 1);
+	if (!(*result))
+		return (-1);
+	(*result)[0] = '\0';
+	*i = 0;
+	return (0);
+}
+
 //Remplace uniquement les variables avec $ sauf dans les single quotes
 //traite $? pour exit status, $$ pour PID,
 //et $VAR pour variables d'environnement
@@ -155,12 +168,8 @@ char	*replace_dollar_pour_de_vrai(char *str, t_all *all)
 	char	*result;
 	int		insinglequote;
 
-	insinglequote = 0;
-	result = malloc(sizeof(char) * 1);
-	if (!result)
+	if (ft_init_dollar(&result, &i, &insinglequote) == -1)
 		return (NULL);
-	result[0] = '\0';
-	i = 0;
 	while (str[i])
 	{
 		if (str[i] == '\'')

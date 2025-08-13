@@ -89,24 +89,24 @@ int	ft_export(char **tab, t_all **all)
 			return (0);
 		if (equal_pos)
 		{
-			// var_name = ft_substr(tab[i], 0, equal_pos - tab[i]);
-			// if (!var_name || (is_alpha(var_name) == 0 || !var_name))
-			// 	return (if_equal_pos_return(var_name, tab));
-			// if_equal_pos(all, var_name, &(*tab), equal_pos);
-			// free(var_name);
+			var_name = ft_substr(tab[i], 0, equal_pos - tab[i]);
+			if (!var_name || (is_alpha(var_name) == 0 || !var_name))
+				return (if_equal_pos_return(var_name, tab));
+			if_equal_pos(all, var_name, &(*tab), equal_pos);
+			free(var_name);
 
 			// ou
 			
-			var_name = ft_substr(tab[i], 0, equal_pos - tab[i]);
-			if (!var_name)
-				return (ft_err(tab[0], "malloc failed"), 1);
-			if (is_alpha(var_name) == 0|| !var_name)
-				return (ft_err(tab[0], "not a valid identifier"), free(var_name), 1);
-            if (!get_env_var(var_name, (*all)->env))
-                (*all)->env = ft_add_double_tab(tab[i], (*all)->env);
-            else
-                (*all)->env = ft_replace_double_tab(var_name, equal_pos + 1, (*all)->env);
-            free(var_name);
+			// var_name = ft_substr(tab[i], 0, equal_pos - tab[i]);
+			// if (!var_name)
+			// 	return (ft_err(tab[0], "malloc failed"), 1);
+			// if (is_alpha(var_name) == 0|| !var_name)
+			// 	return (ft_err(tab[0], "not a valid identifier"), free(var_name), 1);
+            // if (!get_env_var(var_name, (*all)->env))
+            //     (*all)->env = ft_add_double_tab(tab[i], (*all)->env);
+            // else
+            //     (*all)->env = ft_replace_double_tab(var_name, equal_pos + 1, (*all)->env);
+            // free(var_name);
 		}
 		i++;
 	}
