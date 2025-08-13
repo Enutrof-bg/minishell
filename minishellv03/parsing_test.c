@@ -39,6 +39,33 @@ int ft_check_input_failed(t_all *all, int *i)
 	}
 	return (0);
 }
+
+// Restaurer les signaux par défaut pour les processus enfants
+// Comportement par défaut pour SIGINT
+// Comportement par défaut pour SIGQUT
+void ft_set_signal()
+{
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+}
+
+// Si pas de redirection d'entrée, utiliser le pipe précédent
+// Gestion des redirections de sortie pour toutes les commandes
+// Si pas de redirection de sortie, utiliser le pipe suivant
+// Sinon, la sortie reste stdout (cas de la dernière commande sans redirection)
+int ft_redirection(t_all *all, int i)
+{
+	if (all->t_cmd->cmd_tab[i].infd >= 0)
+		dup2(all->t_cmd->cmd_tab[i].infd, 0);
+	else if (i > 0) 
+		dup2(all->t_cmd->cmd_tab[i - 1].fd[0], 0);
+	if (all->t_cmd->cmd_tab[i].outfd >= 0)
+		dup2(all->t_cmd->cmd_tab[i].outfd, 1);
+	else if (i < all->t_cmd->nbr_cmd - 1)  
+		dup2(all->t_cmd->cmd_tab[i].fd[1], 1);
+	return (0);
+}
+
 //execute les commandes 
 int	ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 {
@@ -65,20 +92,8 @@ int	ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			t_cmd->cmd_tab[i].id1 = fork();
 			if (t_cmd->cmd_tab[i].id1 == 0)
 			{
-				// Restaurer les signaux par défaut pour les processus enfants
-				signal(SIGINT, SIG_DFL);   // Comportement par défaut pour SIGINT
-				signal(SIGQUIT, SIG_DFL);  // Comportement par défaut pour SIGQUIT
-				if (t_cmd->cmd_tab[i].infd >= 0)
-					dup2(t_cmd->cmd_tab[i].infd, 0);
-				else if (i > 0)  // Si pas de redirection d'entrée, utiliser le pipe précédent
-					dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
-				// Gestion des redirections de sortie pour toutes les commandes
-				if (t_cmd->cmd_tab[i].outfd >= 0)
-					dup2(t_cmd->cmd_tab[i].outfd, 1);
-				else if (i < t_cmd->nbr_cmd - 1)  // Si pas de redirection de sortie, utiliser le pipe suivant
-					dup2(t_cmd->cmd_tab[i].fd[1], 1);
-				// Sinon, la sortie reste stdout (cas de la dernière commande sans redirection)
-				
+				ft_set_signal();
+				ft_redirection(*all, i);	
 				ft_close_pipe(t_cmd);
 				ft_close_fd(all);
 				if (is_builtin_3(t_cmd->cmd_tab[i].cmd_args, all) == 1)
@@ -111,10 +126,7 @@ int	ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
                 t_cmd->cmd_tab[i].id1 = fork();
                 if (t_cmd->cmd_tab[i].id1 == 0)
                 {
-                    // Restaurer les signaux par défaut pour les processus enfants
-                    signal(SIGINT, SIG_DFL);   // Comportement par défaut pour SIGINT
-                    signal(SIGQUIT, SIG_DFL);  // Comportement par défaut pour SIGQUIT
-                    
+                    ft_set_signal();           
                     ft_close_pipe(t_cmd);
                     ft_close_fd(all);
                     int temp_exit_status = (*all)->exit_status;
@@ -187,18 +199,21 @@ int	ft_exec_commande(t_commande *t_cmd, t_redir *t_red, t_all **all, char **env)
 			{
 				// Restaurer les signaux par défaut pour les processus enfants
                	// Comportement par défaut pour SIGINT
-               	signal(SIGINT, SIG_DFL);
-                signal(SIGQUIT, SIG_DFL);  // Comportement par défaut pour SIGQUIT				
+               	ft_set_signal();
+               	// signal(SIGINT, SIG_DFL);
+                // signal(SIGQUIT, SIG_DFL);  // Comportement par défaut pour SIGQUIT				
 				// Gestion des redirections d'entrée pour toutes les commandes
-				if (t_cmd->cmd_tab[i].infd >= 0)
-					dup2(t_cmd->cmd_tab[i].infd, 0);
-				else if (i > 0)  // Si pas de redirection d'entrée, utiliser le pipe précédent
-					dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
-				// Gestion des redirections de sortie pour toutes les commandes
-				if (t_cmd->cmd_tab[i].outfd >= 0)
-					dup2(t_cmd->cmd_tab[i].outfd, 1);
-				else if (i < t_cmd->nbr_cmd - 1)  // Si pas de redirection de sortie, utiliser le pipe suivant
-					dup2(t_cmd->cmd_tab[i].fd[1], 1);
+
+				ft_redirection(*all, i);
+				// if (t_cmd->cmd_tab[i].infd >= 0)
+				// 	dup2(t_cmd->cmd_tab[i].infd, 0);
+				// else if (i > 0)  // Si pas de redirection d'entrée, utiliser le pipe précédent
+				// 	dup2(t_cmd->cmd_tab[i - 1].fd[0], 0);
+				// // Gestion des redirections de sortie pour toutes les commandes
+				// if (t_cmd->cmd_tab[i].outfd >= 0)
+				// 	dup2(t_cmd->cmd_tab[i].outfd, 1);
+				// else if (i < t_cmd->nbr_cmd - 1)  // Si pas de redirection de sortie, utiliser le pipe suivant
+				// 	dup2(t_cmd->cmd_tab[i].fd[1], 1);
 				// Sinon, la sortie reste stdout (cas de la dernière commande sans redirection)
 				ft_close_pipe(t_cmd);
 				ft_close_fd(all);
