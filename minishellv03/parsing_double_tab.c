@@ -43,6 +43,30 @@ char	**ft_copy_double_tab(char **tab)
 	return (newtab);
 }
 
+char	**ft_create_add_new_tab(char *str, char **tab, int size)
+{
+	int		i;
+	char	**newtab;
+
+	i = 0;
+	newtab = malloc(sizeof(char *) * (size + 2));
+	if (!newtab)
+		return (NULL);
+	while (tab[i])
+	{
+		newtab[i] = ft_strdup(tab[i]);
+		if (!newtab[i])
+			return (ft_free_double_tab(newtab), NULL);
+		i++;
+	}
+	newtab[i] = ft_strdup(str);
+	if (!newtab[i])
+		return (ft_free_double_tab(newtab), NULL);
+	i++;
+	newtab[i] = 0;
+	return (newtab);
+}
+
 char	**ft_add_double_tab(char *str, char **tab)
 {
 	int		i;
@@ -58,62 +82,26 @@ char	**ft_add_double_tab(char *str, char **tab)
 			return (NULL);
 		newtab[0] = ft_strdup(str);
 		if (!newtab[0])
-		{
-			free(newtab);
-			return (NULL);
-		}
-		newtab[1] = 0;
-		return (newtab);
+			return (free(newtab), NULL);
+		return (newtab[1] = 0, newtab);
 	}
 	while (tab[i])
 		i++;
-	newtab = malloc(sizeof(char *) * (i + 2));
-	if (!newtab)
-		return (NULL);
-	i = 0;
-	while (tab[i])
-	{
-		newtab[i] = ft_strdup(tab[i]);
-		if (!newtab[i])
-		{
-			ft_free_double_tab(newtab);
-			return (NULL);
-		}
-		i++;
-	}
-	newtab[i] = ft_strdup(str);
-	if (!newtab[i])
-	{
-		ft_free_double_tab(newtab);
-		return (NULL);
-	}
-	i++;
-	newtab[i] = 0;
-	ft_free_double_tab(tab);
-	return (newtab);
+	newtab = ft_create_add_new_tab(str, tab, i);
+	return (ft_free_double_tab(tab), newtab);
 }
 
-char	**ft_remove_double_tab(char *str, char **tab)
+char	**ft_create_remove_tab(char *str, char **tab, int size)
 {
+	char	**newtab;
 	int		i;
 	int		j;
-	char	**newtab;
 
-	i = 0;
-	j = 0;
-	if (tab == NULL)
-	{
-		newtab = malloc(sizeof(char *) * 1);
-		if (!newtab)
-			return (NULL);
-		return (newtab[0] = 0, newtab);
-	}
-	while (tab[i])
-		i++;
-	newtab = malloc(sizeof(char *) * (i + 1));
+	newtab = malloc(sizeof(char *) * (size + 1));
 	if (!newtab)
 		return (NULL);
 	i = 0;
+	j = 0;
 	while (tab[i])
 	{
 		if (ft_strncmp(tab[i], str, ft_strlen(str)) != 0)
@@ -126,5 +114,24 @@ char	**ft_remove_double_tab(char *str, char **tab)
 		i++;
 	}
 	newtab[j] = 0;
+	return (newtab);
+}
+
+char	**ft_remove_double_tab(char *str, char **tab)
+{
+	int		i;
+	char	**newtab;
+
+	i = 0;
+	if (tab == NULL)
+	{
+		newtab = malloc(sizeof(char *) * 1);
+		if (!newtab)
+			return (NULL);
+		return (newtab[0] = 0, newtab);
+	}
+	while (tab[i])
+		i++;
+	newtab = ft_create_remove_tab(str, tab, i);
 	return (ft_free_double_tab(tab), newtab);
 }
