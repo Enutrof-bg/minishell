@@ -27,6 +27,9 @@
 # include "gnl/get_next_line.h"
 # include <errno.h>
 
+# include <string.h>
+# include <dirent.h>
+
 # include <termios.h> //tcget
 
 # define SINGLEQUOTE 1
@@ -174,6 +177,30 @@ int			is_only_n(char *str);
 // int			ft_exit(char **tab, t_all **all);
 // int			ft_is_digit(char *str);
 
+//builtin_exit.c
+int			ft_exit_no_arg(t_all **all);
+int			ft_exit_wrong_arg(t_all **all, int i);
+int			ft_exit_two_arg(t_all **all, int i);
+int			ft_exit_normal(t_all **all, int i);
+int			ft_exit_monstre(t_all **all, t_commande *t_cmd, int i);
+
+//exec_all.c
+int			ft_exec_commande(t_commande *t_cmd, t_all **all, char **env);
+
+//exec_check.c
+int			ft_check_arg_empty(t_all *all, int *i);
+int			ft_check_input_failed(t_all *all, int *i);
+int			ft_check_builtin_cmd_1(t_all **all, int i);
+int			ft_check_builtin_cmd_2(t_all **all, int i);
+
+//exec_launch.c
+int			ft_lauch_exec(t_all **all, int i);
+
+//exec_redir.c
+int			ft_redirection(t_all *all, int i);
+int			ft_launch_builtin_in_child(t_all **all, int i);
+int			ft_launch_builtin_in_parent(t_all **all, int i);
+
 //exec_check_exit_status.c
 void		ft_check_exit_status(t_all **all);
 
@@ -183,6 +210,10 @@ void		ft_close_pipe(t_commande *t_cmd);
 void		ft_waitpid(t_commande *t_cmd);
 int			ft_dup(int fd0, int fd1);
 int			ft_close_fd(t_all **all);
+
+//minishell_err.c
+void		ft_err(char *msg1, char *msg2);
+void		ft_err_2(char *msg1, char *msg2);
 
 //minishell_exec
 // void		exec(char *arg, char **env)
@@ -205,6 +236,9 @@ int			ft_check_arg(t_all **all);
 //parsing_concatenate
 void		ft_concatenate(t_list **lst);
 
+//parsing_delete_quote.c
+char		*replace_dollar_test2(char *str);
+
 //parsing_dollar
 char		*ft_strcpy(char *dest, char *src);
 int			ft_isalnum(char c);
@@ -213,6 +247,16 @@ char		*get_env_name(char *str, int start);
 char		*replace_dollar_vars(char *str, char **env, t_all *all);
 char		*replace_dollar_test2(char *str);
 char		*replace_dollar_pour_de_vrai(char *str, t_all *all);
+
+//parsing_dollar_handle.c
+char		*ft_append_char(char *result, char c);
+char		*ft_handle_exit_status(char *result, t_all *all, int *i);
+char		*ft_handle_env_var(char *result, char *str, t_all *all, int *i);
+
+//parsing_dollar_handle_quote.c
+char		*ft_handle_single_quote(char *result, int *insinglequote, char c);
+char		*ft_handle_double_quote(char *result, int *indoublequote);
+char		*ft_handle_single_quote_test2(char *result, int *insinglequote);
 
 //parsing_double_tab.c
 char		**ft_copy_double_tab(char **tab);
@@ -223,6 +267,10 @@ char		**ft_remove_double_tab(char *str, char **tab);
 void		ft_free_double_tab(char **tab);
 void		ft_clear(t_list **lst);
 void		ft_free_all(t_all *all);
+
+//parsing_get_env.c 
+char		*get_env_var(char *str, char **env);
+char		*get_env_name(char *str, int start);
 
 //parsing_init.c
 int			ft_count_commands(t_list *lst);
@@ -238,7 +286,7 @@ int			ft_size(t_list *lst);
 void		ft_print(t_list *lst);
 int			ft_check(char *str, char c);
 int			ft_lstiter_env(t_list **lst, char **env, t_all *all);
-void		ft_lstiteration(t_all **all, void(*f)(char *));
+// void		ft_lstiteration(t_all **all, void(*f)(char *));
 
 //parsing_parsing_0.c
 int			ft_check_parse(t_all **all);
@@ -251,6 +299,22 @@ int			ft_parse_decoupe(char *str, t_list **shell, t_all *all);
 int			ft_parse_double_quote(char *str, t_list **shell, int *i);
 int			ft_parse_singlequote(char *str, t_list **shell, int *i);
 char		*ft_remove_quote(char *str);
+int			ft_parse_space(char *str, t_list **shell, int *i, t_all *all);
+
+//parsing_parsing_2.c
+int			ft_parse_general(char *str, int *j,
+				int *indoublequote, int *insinglequote);
+
+//parsing_parsing_2_double.c
+int			ft_parse_add_list_double(char *str, int *i, int j, t_list **shell);
+int			ft_parse_double_quote(char *str, t_list **shell, int *i);
+
+//parsing_parsing_2_single.c
+int			ft_parse_add_list_single(char *str, int *i, int j, t_list **shell);
+int			ft_parse_singlequote(char *str, t_list **shell, int *i);
+
+//parsing_parsing_2_space.c
+int			ft_parse_add_list_space(char *str, int *i, int j, t_list **shell);
 int			ft_parse_space(char *str, t_list **shell, int *i, t_all *all);
 
 //parsing_parsing_3.c
@@ -276,6 +340,50 @@ int			ft_set_triple_tab_null(t_commande *t_cmd);
 int			ft_create_triple_tab(t_list **shell,
 				t_commande **t_cmd, t_all **all);
 
+//parsing_triple_tab_heredoc.c
+int			ft_prepare_heredoc_file(t_list *shell,
+				t_all *all, int i, int *prev_infd);
+int			ft_handle_limiter(t_list *shell,
+				t_all *all, int i, int *prev_infd);
+
+//parsing_triple_tab_heredoc_2.c
+void		ft_setup_heredoc_env(t_all *all);
+void		ft_prepare_temp_file(t_commande *t_cmd, int i);
+void		ft_process_heredoc_lines(t_list *shell, t_commande *t_cmd, int i);
+int			ft_handle_heredoc_child(t_list *shell,
+				t_commande *t_cmd, t_all *all, int i);
+
+//parsing_triple_tab_heredoc_3.c
+int			ft_process_heredoc_exit(t_commande *t_cmd, int i, int *prev_infd);
+int			ft_handle_heredoc_signals(t_all *all, int status);
+
+//parsing_triple_tab_init.c
+int			ft_set_triple_tab_null(t_commande *t_cmd);
+void		ft_init_triple_tab_vars(t_commande *t_cmd,
+				int *prev_infd, int *prev_outfd, int i);
+
+//parsing_triple_tab_input.c
+int			ft_handle_infile(t_list *shell,
+				t_all *all, int i, int *prev_infd);
+int			ft_process_input_redirections(t_list *shell,
+				t_all *all, int i, int *prev_infd);
+
+//parsing_triple_tab_normal.c
+int			ft_handle_cmd_arg(t_list *shell, t_commande *t_cmd, int i);
+int			ft_process_text_states(t_list *shell, t_commande *t_cmd, int i);
+
+//parsing_triple_tab_output.c
+int			ft_handle_outfile(t_list *shell,
+				t_all *all, int i, int *prev_outfd);
+int			ft_handle_append(t_list *shell,
+				t_all *all, int i, int *prev_outfd);
+void		ft_process_output_redirections(t_list *shell,
+				t_all *all, int i, int *prev_outfd);
+
+//parsing_triple_tab_pipe.c
+int			ft_handle_pipe(t_commande *t_cmd,
+				int *i, int *prev_infd, int *prev_outfd);
+
 //pipex_path
 void		ft_err(char *msg1, char *msg2);
 void		ft_err_2(char *msg1, char *msg2);
@@ -292,5 +400,6 @@ int			ft_read_input(t_all **all);
 void		set_exit(int *exit2);
 void		ft_test(int signum);
 void		ft_sigquit(int signum);
+void		ft_set_signal(void);
 
 #endif

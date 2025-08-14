@@ -22,27 +22,27 @@ void	ft_free(char **tab1, char **tab2, char *str)
 		free(str);
 }
 
-void	ft_err(char *msg1, char *msg2)
-{
-	write(2, msg1, ft_strlen(msg1));
-	if (msg2)
-	{
-		write(2, ": ", 2);
-		write(2, msg2, ft_strlen(msg2));
-		write(2, "\n", 1);
-	}
-}
+// void	ft_err(char *msg1, char *msg2)
+// {
+// 	write(2, msg1, ft_strlen(msg1));
+// 	if (msg2)
+// 	{
+// 		write(2, ": ", 2);
+// 		write(2, msg2, ft_strlen(msg2));
+// 		write(2, "\n", 1);
+// 	}
+// }
 
-void	ft_err_2(char *msg1, char *msg2)
-{
-	write(2, msg1, ft_strlen(msg1));
-	if (msg2)
-	{
-		write(2, "`", 1);
-		write(2, msg2, ft_strlen(msg2));
-		write(2, "'\n", 2);
-	}
-}
+// void	ft_err_2(char *msg1, char *msg2)
+// {
+// 	write(2, msg1, ft_strlen(msg1));
+// 	if (msg2)
+// 	{
+// 		write(2, "`", 1);
+// 		write(2, msg2, ft_strlen(msg2));
+// 		write(2, "'\n", 2);
+// 	}
+// }
 
 char	*get_path(char **env)
 {
@@ -90,23 +90,6 @@ char	*check_path(char **tab, char **cmd)
 	}
 	return (NULL);
 }
-/*
-char	*ft_str_last(char *str)
-{
-	int	i;
-	int	j;
-
-	j = 0;
-	i = 0;
-	while (str[i])
-		i++;
-	while (str[i - j] != '/' && j < i)
-		j++;
-	if (str[i - j] == '/')
-		j--;
-	return (&str[i - j]);
-}
-*/
 
 int	exec2(char **tab, char **env)
 {
@@ -136,13 +119,8 @@ int	exec2(char **tab, char **env)
 
 int	exec(char **tab, char **env)
 {
-	// char	**tab;
-
-	// tab = ft_split(arg, ' ');
-	// if (!tab)
-		// return (-1);
-	int stats;
-	struct stat buf;
+	int			stats;
+	struct stat	buf;
 
 	if (!tab || !tab[0] || !tab[0][0])
 		return (ft_free_double_tab(tab), -1);
@@ -154,33 +132,30 @@ int	exec(char **tab, char **env)
 		if (access(tab[0], F_OK) == 0 && access(tab[0], X_OK) == -1)
 			return (ft_err(tab[0], "Permission denied"), exit(126), -1);
 		if (access(tab[0], X_OK) == -1)
-			return (ft_err(tab[0], "No such file or directory"), 
-				/*ft_free_double_tab(tab),*/ /*exit(126), */-1);
+			return (ft_err(tab[0], "No such file or directory"), -1);
 		if (execve(tab[0], tab, env) == -1)
-			return (ft_err(tab[0], "No such file or directory"), exit(126), /*ft_free_double_tab(tab),*/ -1);
-		return (/*ft_free_double_tab(tab), */0);
+			return (ft_err(tab[0], "No such file or directory"), exit(126), -1);
+		return (0);
 	}
 	if (exec2(tab, env) == -1)
 		return (-1);
-	return (/*ft_free_double_tab(tab), */0);
+	return (0);
 }
 
-//test
-//caca pipex_path.c ft_split.c pipex_free.c ft_strjoin.c pipex_utlis.c 
-// int	main(int argc, char **argv, char **env)
-// {
-// 	// (void)env;
-// 	if (argc == 2)
-// 	{
-// 	// 	char **tab = ft_split(argv[1], ' ');
-// 	// 	int i = 0;
-// 	// 	while (tab[i])
-// 	// 	{
-// 	// 		printf("%s\n", tab[i]);
-// 	// 		i++;
-// 	// 	}
-// 		exec(argv[1], env);
-// 		// free(tab);
-// 	}
-// 	return (0);
-// }
+/*
+char	*ft_str_last(char *str)
+{
+	int	i;
+	int	j;
+
+	j = 0;
+	i = 0;
+	while (str[i])
+		i++;
+	while (str[i - j] != '/' && j < i)
+		j++;
+	if (str[i - j] == '/')
+		j--;
+	return (&str[i - j]);
+}
+*/

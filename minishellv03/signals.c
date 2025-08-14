@@ -36,3 +36,12 @@ void	ft_sigquit(int signum)
 {
 	(void)signum;
 }
+
+// Restaurer les signaux par défaut pour les processus enfants
+// Comportement par défaut pour SIGINT
+// Comportement par défaut pour SIGQUT
+void	ft_set_signal(void)
+{
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+}

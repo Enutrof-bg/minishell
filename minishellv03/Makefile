@@ -44,7 +44,6 @@ parsing_parsing_3.c \
 parsing_redir.c \
 parsing_lst_utils_2.c \
 parsing_init.c \
-cd_test_4.c \
 parsing_concatenate.c \
 exec_check_exit_status.c \
 signals.c \
@@ -55,7 +54,33 @@ builtin_cd_2.c \
 builtin_echo.c \
 builtin_export.c \
 builtin_utils.c \
-builtin_unset.c
+builtin_unset.c \
+builtin_utils_2.c \
+builtin_if_its.c \
+builtin_utils_3.c \
+parsing_get_env.c \
+parsing_delete_quote.c \
+parsing_dollar_handle.c \
+parsing_dollar_handle_quote.c \
+parsing_parsing_2_double.c\
+parsing_parsing_2_single.c\
+parsing_parsing_2_space.c \
+minishell_err.c \
+parsing_triple_tab_heredoc.c\
+parsing_triple_tab_heredoc_2.c\
+parsing_triple_tab_heredoc_3.c\
+parsing_triple_tab_init.c\
+parsing_triple_tab_input.c\
+parsing_triple_tab_normal.c\
+parsing_triple_tab_output.c\
+parsing_triple_tab_pipe.c\
+builtin_exit.c\
+exec_check.c\
+exec_launch.c\
+exec_redir.c \
+exec_all.c
+
+# cd_test4.c
 
 
 # parsing_pid.c \

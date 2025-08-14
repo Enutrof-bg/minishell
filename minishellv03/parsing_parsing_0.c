@@ -42,6 +42,8 @@ int	ft_check_parse(t_all **all)
 
 //Parse_decoupe bah elle decoupe l'input en liste chaine
 // Continue si la parsing a échoué à cause de guillemets non fermés
+// ft_print((*all)->shell);
+// ft_print_triple_tab((*all)->t_cmd);
 int	ft_parse(t_all **all)
 {
 	int	parse_result;
@@ -51,9 +53,7 @@ int	ft_parse(t_all **all)
 		return (-1);
 	else if (parse_result == -2)
 		return (-2);
-// ft_print((*all)->shell);
 	ft_concatenate(&(*all)->shell);
-// ft_print((*all)->shell);
 	if (ft_lstiter_env(&(*all)->shell, (*all)->env, *all) == -1)
 	{
 		free((*all)->str);
@@ -61,7 +61,6 @@ int	ft_parse(t_all **all)
 			ft_clear(&(*all)->shell);
 		return ((*all)->exit_status = 2, -1);
 	}
-// ft_print((*all)->shell);
 	if (ft_init_triple_tab(all) == -2)
 		return (ft_free_all(*all), -2);
 	parse_result = ft_create_triple_tab(&(*all)->shell, &(*all)->t_cmd, all);
@@ -69,7 +68,6 @@ int	ft_parse(t_all **all)
 		return (ft_free_all(*all), -2);
 	if (parse_result == -1)
 		return (ft_free_all(*all), -1);
-// ft_print_triple_tab((*all)->t_cmd);
 	if (ft_check_arg(all) == -1)
 		return (-1);
 	return (0);

@@ -17,51 +17,51 @@ void	ft_print(t_list *lst);
 int		ft_check(char *str, char c);
 int		ft_lstiter_env(t_list **lst, char **env, t_all *all);
 
-int	ft_size(t_list *lst)
-{
-	int	size;
+// int	ft_size(t_list *lst)
+// {
+// 	int	size;
 
-	size = 0;
-	while (lst)
-	{
-		size++;
-		lst = lst->next;
-	}
-	return (size);
-}
+// 	size = 0;
+// 	while (lst)
+// 	{
+// 		size++;
+// 		lst = lst->next;
+// 	}
+// 	return (size);
+// }
 
-void	ft_print(t_list *lst)
-{
-	int	size;
-	int	i;
+// void	ft_print(t_list *lst)
+// {
+// 	int	size;
+// 	int	i;
 
-	if (lst)
-	{
-		size = ft_size(lst);
-		i = 0;
-		while (i < size)
-		{
-			printf("%d:%s:%d:%zu\n", i, lst->str,
-				lst->state, ft_strlen(lst->str));
-			lst = lst->next;
-			i++;
-		}
-	}
-}
+// 	if (lst)
+// 	{
+// 		size = ft_size(lst);
+// 		i = 0;
+// 		while (i < size)
+// 		{
+// 			printf("%d:%s:%d:%zu\n", i, lst->str,
+// 				lst->state, ft_strlen(lst->str));
+// 			lst = lst->next;
+// 			i++;
+// 		}
+// 	}
+// }
 
-int	ft_check(char *str, char c)
-{
-	int	i;
+// int	ft_check(char *str, char c)
+// {
+// 	int	i;
 
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] == c)
-			return (1);
-		i++;
-	}
-	return (0);
-}
+// 	i = 0;
+// 	while (str[i])
+// 	{
+// 		if (str[i] == c)
+// 			return (1);
+// 		i++;
+// 	}
+// 	return (0);
+// }
 
 //ft_iter pour les redirections, a modifier | pas fonctionnelle correctemnt
 // Vérifie si le token de redirection est suivi d'un token

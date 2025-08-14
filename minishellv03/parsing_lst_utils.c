@@ -20,8 +20,6 @@ t_list	*ft_lst(char *str, int state)
 {
 	t_list	*newlist;
 
-	// if (!str || !str[0])
-		// return (NULL);
 	newlist = malloc(sizeof(t_list));
 	if (!newlist)
 	{
@@ -70,7 +68,6 @@ int	ft_add(t_list **lst, char *str, int state)
 	(*lst)->next = ft_lst(str, state);
 	if (!(*lst)->next)
 		return (-2);
-	// (*lst)->next->state = state;
 	(*lst) = temp;
 	return (0);
 }

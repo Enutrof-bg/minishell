@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*		                                                  :::      ::::::::   */
+/*                                                        :::      ::::::::   */
 /*   parsing_test.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kevwang <kevwang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07														  */
-/*   Updated: 2025/07/18 11:38:32 by kevwang          ###   ########.fr       */
+/*   Created: 2025/08/14 12:38:40 by kevwang           #+#    #+#             */
+/*   Updated: 2025/08/14 12:38:42 by kevwang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,249 +14,249 @@
 
 int	g_sigvaleur;
 
-// Vérifier si la commande existe et a des arguments
-int	ft_check_arg_empty(t_all *all, int *i)
-{
-	if (!all->t_cmd->cmd_tab[*i].cmd_args
-		|| !all->t_cmd->cmd_tab[*i].cmd_args[0])
-	{
-		all->t_cmd->cmd_tab[*i].id1 = -1;
-		(*i)++;
-		return (1);
-	}
-	return (0);
-}
+// // Vérifier si la commande existe et a des arguments
+// int	ft_check_arg_empty(t_all *all, int *i)
+// {
+// 	if (!all->t_cmd->cmd_tab[*i].cmd_args
+// 		|| !all->t_cmd->cmd_tab[*i].cmd_args[0])
+// 	{
+// 		all->t_cmd->cmd_tab[*i].id1 = -1;
+// 		(*i)++;
+// 		return (1);
+// 	}
+// 	return (0);
+// }
 
-// Vérifier si la commande a des redirections d'entrée qui ont échoué
-// Ne pas exécuter la commande si redirection d'entrée a échoué
-int	ft_check_input_failed(t_all *all, int *i)
-{
-	if (all->t_cmd->cmd_tab[*i].input_failed == 1
-		|| all->t_cmd->cmd_tab[*i].output_failed == 1)
-	{
-		all->t_cmd->cmd_tab[*i].id1 = -1;
-		(*i)++;
-		return (1);
-	}
-	return (0);
-}
+// // Vérifier si la commande a des redirections d'entrée qui ont échoué
+// // Ne pas exécuter la commande si redirection d'entrée a échoué
+// int	ft_check_input_failed(t_all *all, int *i)
+// {
+// 	if (all->t_cmd->cmd_tab[*i].input_failed == 1
+// 		|| all->t_cmd->cmd_tab[*i].output_failed == 1)
+// 	{
+// 		all->t_cmd->cmd_tab[*i].id1 = -1;
+// 		(*i)++;
+// 		return (1);
+// 	}
+// 	return (0);
+// }
 
-// Restaurer les signaux par défaut pour les processus enfants
-// Comportement par défaut pour SIGINT
-// Comportement par défaut pour SIGQUT
-void	ft_set_signal(void)
-{
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
-}
+// // Restaurer les signaux par défaut pour les processus enfants
+// // Comportement par défaut pour SIGINT
+// // Comportement par défaut pour SIGQUT
+// void	ft_set_signal(void)
+// {
+// 	signal(SIGINT, SIG_DFL);
+// 	signal(SIGQUIT, SIG_DFL);
+// }
 
 // Si pas de redirection d'entrée, utiliser le pipe précédent
 // Gestion des redirections de sortie pour toutes les commandes
 // Si pas de redirection de sortie, utiliser le pipe suivant
 // Sinon, la sortie reste stdout (cas de la dernière commande sans redirection)
-int	ft_redirection(t_all *all, int i)
-{
-	if (all->t_cmd->cmd_tab[i].infd >= 0)
-		dup2(all->t_cmd->cmd_tab[i].infd, 0);
-	else if (i > 0)
-		dup2(all->t_cmd->cmd_tab[i - 1].fd[0], 0);
-	if (all->t_cmd->cmd_tab[i].outfd >= 0)
-		dup2(all->t_cmd->cmd_tab[i].outfd, 1);
-	else if (i < all->t_cmd->nbr_cmd - 1)
-		dup2(all->t_cmd->cmd_tab[i].fd[1], 1);
-	return (0);
-}
+// int	ft_redirection(t_all *all, int i)
+// {
+// 	if (all->t_cmd->cmd_tab[i].infd >= 0)
+// 		dup2(all->t_cmd->cmd_tab[i].infd, 0);
+// 	else if (i > 0)
+// 		dup2(all->t_cmd->cmd_tab[i - 1].fd[0], 0);
+// 	if (all->t_cmd->cmd_tab[i].outfd >= 0)
+// 		dup2(all->t_cmd->cmd_tab[i].outfd, 1);
+// 	else if (i < all->t_cmd->nbr_cmd - 1)
+// 		dup2(all->t_cmd->cmd_tab[i].fd[1], 1);
+// 	return (0);
+// }
 
-int	ft_exit_no_arg(t_all **all)
-{
-	int	temp_exit_status;
+// int	ft_exit_no_arg(t_all **all)
+// {
+// 	int	temp_exit_status;
 
-	write(1, "exit\n", 5);
-	temp_exit_status = (*all)->exit_status;
-	ft_free_all(*all);
-	ft_free_double_tab((*all)->env);
-	free(*all);
-	exit(temp_exit_status);
-}
+// 	write(1, "exit\n", 5);
+// 	temp_exit_status = (*all)->exit_status;
+// 	ft_free_all(*all);
+// 	ft_free_double_tab((*all)->env);
+// 	free(*all);
+// 	exit(temp_exit_status);
+// }
 
-int	ft_exit_wrong_arg(t_all **all, int i)
-{
-	write(1, "exit\n", 5);
-	ft_err((*all)->t_cmd->cmd_tab[i].cmd_args[1], "numeric argument required");
-	ft_free_all(*all);
-	ft_free_double_tab((*all)->env);
-	free(*all);
-	exit(2);
-}
+// int	ft_exit_wrong_arg(t_all **all, int i)
+// {
+// 	write(1, "exit\n", 5);
+// 	ft_err((*all)->t_cmd->cmd_tab[i].cmd_args[1], "numeric argument required");
+// 	ft_free_all(*all);
+// 	ft_free_double_tab((*all)->env);
+// 	free(*all);
+// 	exit(2);
+// }
 
-int	ft_exit_two_arg(t_all **all, int i)
-{
-	write(1, "exit\n", 5);
-	ft_err((*all)->t_cmd->cmd_tab[i].cmd_args[1], "too many arguments");
-	(*all)->exit_status = 1;
-	(*all)->t_cmd->cmd_tab[i].id1 = fork();
-	if ((*all)->t_cmd->cmd_tab[i].id1 == 0)
-	{
-		ft_close_pipe((*all)->t_cmd);
-		ft_close_fd(all);
-		exit(1);
-	}
-	return (1);
-}
+// int	ft_exit_two_arg(t_all **all, int i)
+// {
+// 	write(1, "exit\n", 5);
+// 	ft_err((*all)->t_cmd->cmd_tab[i].cmd_args[1], "too many arguments");
+// 	(*all)->exit_status = 1;
+// 	(*all)->t_cmd->cmd_tab[i].id1 = fork();
+// 	if ((*all)->t_cmd->cmd_tab[i].id1 == 0)
+// 	{
+// 		ft_close_pipe((*all)->t_cmd);
+// 		ft_close_fd(all);
+// 		exit(1);
+// 	}
+// 	return (1);
+// }
 
-int	ft_exit_normal(t_all **all, int i)
-{
-	int	temp_exit_status;
+// int	ft_exit_normal(t_all **all, int i)
+// {
+// 	int	temp_exit_status;
 
-	write(1, "exit\n", 5);
-	temp_exit_status = ft_atoi((*all)->t_cmd->cmd_tab[i].cmd_args[1]) % 256;
-	ft_free_all(*all);
-	ft_free_double_tab((*all)->env);
-	free(*all);
-	exit(temp_exit_status);
-}
+// 	write(1, "exit\n", 5);
+// 	temp_exit_status = ft_atoi((*all)->t_cmd->cmd_tab[i].cmd_args[1]) % 256;
+// 	ft_free_all(*all);
+// 	ft_free_double_tab((*all)->env);
+// 	free(*all);
+// 	exit(temp_exit_status);
+// }
 
-int	ft_exit_monstre(t_all **all, t_commande *t_cmd, int i)
-{
-	int	temp_exit_status;
+// int	ft_exit_monstre(t_all **all, t_commande *t_cmd, int i)
+// {
+// 	int	temp_exit_status;
 
-	temp_exit_status = 0;
-	if (!t_cmd->cmd_tab[i].cmd_args[1])
-		ft_exit_no_arg(all);
-	if (!ft_is_digit(t_cmd->cmd_tab[i].cmd_args[1])
-		|| t_cmd->cmd_tab[i].cmd_args[1][0] == '\0'
-		|| (long long)ft_long_atoi(t_cmd->cmd_tab[i].cmd_args[1]) > LLONG_MAX
-		|| (long long)ft_long_atoi(t_cmd->cmd_tab[i].cmd_args[1]) < LLONG_MIN)
-		ft_exit_wrong_arg(all, i);
-	if (t_cmd->cmd_tab[i].cmd_args[2])
-		ft_exit_two_arg(all, i);
-	if ((*all)->t_cmd->nbr_cmd == 1 && !t_cmd->cmd_tab[i].cmd_args[2])
-		ft_exit_normal(all, i);
-	return (0);
-}
+// 	temp_exit_status = 0;
+// 	if (!t_cmd->cmd_tab[i].cmd_args[1])
+// 		ft_exit_no_arg(all);
+// 	if (!ft_is_digit(t_cmd->cmd_tab[i].cmd_args[1])
+// 		|| t_cmd->cmd_tab[i].cmd_args[1][0] == '\0'
+// 		|| (long long)ft_long_atoi(t_cmd->cmd_tab[i].cmd_args[1]) > LLONG_MAX
+// 		|| (long long)ft_long_atoi(t_cmd->cmd_tab[i].cmd_args[1]) < LLONG_MIN)
+// 		ft_exit_wrong_arg(all, i);
+// 	if (t_cmd->cmd_tab[i].cmd_args[2])
+// 		ft_exit_two_arg(all, i);
+// 	if ((*all)->t_cmd->nbr_cmd == 1 && !t_cmd->cmd_tab[i].cmd_args[2])
+// 		ft_exit_normal(all, i);
+// 	return (0);
+// }
 
-int	ft_lauch_exec(t_all **all, int i)
-{
-	(*all)->t_cmd->cmd_tab[i].id1 = fork();
-	if ((*all)->t_cmd->cmd_tab[i].id1 == 0)
-	{
-		ft_set_signal();
-		ft_redirection(*all, i);
-		ft_close_pipe((*all)->t_cmd);
-		ft_close_fd(all);
-		if (exec((*all)->t_cmd->cmd_tab[i].cmd_args, (*all)->env) == -1)
-			exit(127);
-		exit(0);
-	}
-	return (0);
-}
+// int	ft_lauch_exec(t_all **all, int i)
+// {
+// 	(*all)->t_cmd->cmd_tab[i].id1 = fork();
+// 	if ((*all)->t_cmd->cmd_tab[i].id1 == 0)
+// 	{
+// 		ft_set_signal();
+// 		ft_redirection(*all, i);
+// 		ft_close_pipe((*all)->t_cmd);
+// 		ft_close_fd(all);
+// 		if (exec((*all)->t_cmd->cmd_tab[i].cmd_args, (*all)->env) == -1)
+// 			exit(127);
+// 		exit(0);
+// 	}
+// 	return (0);
+// }
 
-int	ft_launch_builtin_in_child(t_all **all, int i)
-{
-	int	temp_exit_status;
+// int	ft_launch_builtin_in_child(t_all **all, int i)
+// {
+// 	int	temp_exit_status;
 
-	(*all)->t_cmd->cmd_tab[i].id1 = fork();
-	if ((*all)->t_cmd->cmd_tab[i].id1 == 0)
-	{
-		ft_set_signal();
-		ft_redirection(*all, i);
-		ft_close_pipe((*all)->t_cmd);
-		ft_close_fd(all);
-		if (is_builtin_3((*all)->t_cmd->cmd_tab[i].cmd_args, all) == 1)
-		{
-		}
-		(*all)->t_cmd->cmd_tab[i].id1 = -1;
-		temp_exit_status = (*all)->exit_status;
-		if (ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0)
-			temp_exit_status = ft_atoi((*all)->t_cmd->cmd_tab[i].cmd_args[1])
-				% 256;
-		exit(temp_exit_status);
-	}
-	return (0);
-}
+// 	(*all)->t_cmd->cmd_tab[i].id1 = fork();
+// 	if ((*all)->t_cmd->cmd_tab[i].id1 == 0)
+// 	{
+// 		ft_set_signal();
+// 		ft_redirection(*all, i);
+// 		ft_close_pipe((*all)->t_cmd);
+// 		ft_close_fd(all);
+// 		if (is_builtin_3((*all)->t_cmd->cmd_tab[i].cmd_args, all) == 1)
+// 		{
+// 		}
+// 		(*all)->t_cmd->cmd_tab[i].id1 = -1;
+// 		temp_exit_status = (*all)->exit_status;
+// 		if (ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0)
+// 			temp_exit_status = ft_atoi((*all)->t_cmd->cmd_tab[i].cmd_args[1])
+// 				% 256;
+// 		exit(temp_exit_status);
+// 	}
+// 	return (0);
+// }
 
-int	ft_launch_builtin_in_parent(t_all **all, int i)
-{
-	int	temp_exit;
+// int	ft_launch_builtin_in_parent(t_all **all, int i)
+// {
+// 	int	temp_exit;
 
-	if (is_builtin_3((*all)->t_cmd->cmd_tab[i].cmd_args, all) == 1)
-	{
-		(*all)->t_cmd->cmd_tab[i].id1 = fork();
-		if ((*all)->t_cmd->cmd_tab[i].id1 == 0)
-		{
-			ft_set_signal();
-			ft_close_pipe((*all)->t_cmd);
-			ft_close_fd(all);
-			temp_exit = (*all)->exit_status;
-			if (ft_strncmp((*all)->t_cmd->cmd_tab[i].cmd_args[0],
-					"exit", 4) == 0)
-				temp_exit = ft_atoi((*all)->t_cmd->cmd_tab[i].cmd_args[1])
-					% 256;
-			exit(temp_exit);
-		}
-	}
-	return (0);
-}
+// 	if (is_builtin_3((*all)->t_cmd->cmd_tab[i].cmd_args, all) == 1)
+// 	{
+// 		(*all)->t_cmd->cmd_tab[i].id1 = fork();
+// 		if ((*all)->t_cmd->cmd_tab[i].id1 == 0)
+// 		{
+// 			ft_set_signal();
+// 			ft_close_pipe((*all)->t_cmd);
+// 			ft_close_fd(all);
+// 			temp_exit = (*all)->exit_status;
+// 			if (ft_strncmp((*all)->t_cmd->cmd_tab[i].cmd_args[0],
+// 					"exit", 4) == 0)
+// 				temp_exit = ft_atoi((*all)->t_cmd->cmd_tab[i].cmd_args[1])
+// 					% 256;
+// 			exit(temp_exit);
+// 		}
+// 	}
+// 	return (0);
+// }
 
-int	ft_check_builtin_cmd_1(t_all **all, int i)
-{
-	if (ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "echo") == 0
-		|| ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "pwd") == 0
-		|| ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "env") == 0
-		|| (ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "export") == 0
-			&& (*all)->t_cmd->nbr_cmd > 1)
-		|| (ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0
-			&& (*all)->t_cmd->nbr_cmd > 1))
-		return (0);
-	else
-		return (1);
-}
+// int	ft_check_builtin_cmd_1(t_all **all, int i)
+// {
+// 	if (ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "echo") == 0
+// 		|| ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "pwd") == 0
+// 		|| ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "env") == 0
+// 		|| (ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "export") == 0
+// 			&& (*all)->t_cmd->nbr_cmd > 1)
+// 		|| (ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0
+// 			&& (*all)->t_cmd->nbr_cmd > 1))
+// 		return (0);
+// 	else
+// 		return (1);
+// }
 
-int	ft_check_builtin_cmd_2(t_all **all, int i)
-{
-	if (ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "export") == 0
-		|| ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "unset") == 0
-		|| ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "cd") == 0
-		// || ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "pwd") == 0
-		// || ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0
-		// || ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "env") == 0
-	)
-		return (0);
-	else
-		return (1);
-}
+// int	ft_check_builtin_cmd_2(t_all **all, int i)
+// {
+// 	if (ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "export") == 0
+// 		|| ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "unset") == 0
+// 		|| ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "cd") == 0
+// 		// || ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "pwd") == 0
+// 		// || ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0
+// 		// || ft_strcmp((*all)->t_cmd->cmd_tab[i].cmd_args[0], "env") == 0
+// 	)
+// 		return (0);
+// 	else
+// 		return (1);
+// }
 
-//execute les commandes 
-//condition pour verifier uniquement si les builtin existent
-//puis dup2
-//puis executer les fonctions
-int	ft_exec_commande(t_commande *t_cmd, t_all **all, char **env)
-{
-	int	i;
+// //execute les commandes 
+// //condition pour verifier uniquement si les builtin existent
+// //puis dup2
+// //puis executer les fonctions
+// int	ft_exec_commande(t_commande *t_cmd, t_all **all, char **env)
+// {
+// 	int	i;
 
-	(void)env;
-	i = 0;
-	while (i < t_cmd->nbr_cmd)
-	{
-		if (ft_check_arg_empty(*all, &i) == 1)
-			continue ;
-		if (ft_check_input_failed(*all, &i) == 1)
-			continue ;
-		if (ft_check_builtin_cmd_1(all, i) == 0)
-			ft_launch_builtin_in_child(all, i);
-		else if (ft_check_builtin_cmd_2(all, i) == 0)
-			ft_launch_builtin_in_parent(all, i);
-		else if (ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0
-			&& t_cmd->nbr_cmd == 1)
-			ft_exit_monstre(all, t_cmd, i);
-		else
-			ft_lauch_exec(all, i);
-		i++;
-	}
-	ft_close_pipe(t_cmd);
-	ft_close_fd(all);
-	return (0);
-}
+// 	(void)env;
+// 	i = 0;
+// 	while (i < t_cmd->nbr_cmd)
+// 	{
+// 		if (ft_check_arg_empty(*all, &i) == 1)
+// 			continue ;
+// 		if (ft_check_input_failed(*all, &i) == 1)
+// 			continue ;
+// 		if (ft_check_builtin_cmd_1(all, i) == 0)
+// 			ft_launch_builtin_in_child(all, i);
+// 		else if (ft_check_builtin_cmd_2(all, i) == 0)
+// 			ft_launch_builtin_in_parent(all, i);
+// 		else if (ft_strcmp(t_cmd->cmd_tab[i].cmd_args[0], "exit") == 0
+// 			&& t_cmd->nbr_cmd == 1)
+// 			ft_exit_monstre(all, t_cmd, i);
+// 		else
+// 			ft_lauch_exec(all, i);
+// 		i++;
+// 	}
+// 	ft_close_pipe(t_cmd);
+// 	ft_close_fd(all);
+// 	return (0);
+// }
 
 //pas encore utiliser
 //attribue les state CMD ou ARG sur les token
@@ -296,6 +296,7 @@ char	**create_default_env(void)
 	char	**tab;
 	char	*str;
 	char	cwd[PATH_MAX];
+	char	*path;
 
 	tab = NULL;
 	str = NULL;
@@ -314,8 +315,8 @@ char	**create_default_env(void)
 	tab = ft_add_double_tab("SHLVL=1", tab);
 	if (!tab)
 		return (NULL);
-	tab = ft_add_double_tab("PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-			tab);
+	path = "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+	tab = ft_add_double_tab(path, tab);
 	if (!tab)
 		return (NULL);
 	return (tab);
