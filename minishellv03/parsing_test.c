@@ -257,7 +257,13 @@ int	g_sigvaleur;
 // 	ft_close_fd(all);
 // 	return (0);
 // }
+/////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 
+/*
 //pas encore utiliser
 //attribue les state CMD ou ARG sur les token
 void	ft_assign_cmd_arg_states(t_list **lst)
@@ -365,6 +371,16 @@ int	ft_init_env(t_all **all, char **env)
 	return (0);
 }
 
+void	ft_setup_term(t_all *all)
+{
+
+	if (tcgetattr(STDIN_FILENO, &all->term) == 0)
+	{
+		all->term.c_lflag |= 0001000;
+		tcsetattr(STDIN_FILENO, TCSANOW, &all->term);
+	}
+}
+
 // Initialiser tous les pointeurs à NULL pour ft_free_all
 // Configuration de l'environnement
 // Configuration des signaux avec signal() au lieu de sigaction()
@@ -433,3 +449,4 @@ int	main(int argc, char **argv, char **env)
 	}
 	return (0);
 }
+*/

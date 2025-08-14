@@ -18,14 +18,7 @@ FLAGS = -lreadline
 
 NAME = minishell
 
-# FILE = main.c \
-# ft_split.c \
-# ft_strjoin.c \
-# minishell_exec.c \
-# minishell_free.c \
-# minishell_utils.c
-
-FILE = parsing_test.c \
+FILE = main.c \
 pipex_path.c \
 parsing_dollar.c \
 minishell_utils.c \
@@ -78,7 +71,10 @@ builtin_exit.c\
 exec_check.c\
 exec_launch.c\
 exec_redir.c \
-exec_all.c
+exec_all.c\
+main_init.c\
+main_init_env.c\
+main_loop.c
 
 # cd_test4.c
 
@@ -103,7 +99,7 @@ ${NAME}: ${SRC}
 
 clean: 
 	make -C gnl clean
-	rm -f parsing_test.o \
+	rm -f main.o \
 	pipex_path.o \
 	parsing_dollar.o \
 	minishell_utils.o \
@@ -122,8 +118,6 @@ clean:
 	parsing_redir.o \
 	parsing_lst_utils_2.o \
 	parsing_init.o \
-	cd_test_4.o \
-	cd_test.o \
 	parsing_concatenate.o \
 	exec_check_exit_status.o \
 	signals.o \
@@ -132,7 +126,36 @@ clean:
 	builtin_cd.o \
 	builtin_cd_2.o \
 	builtin_echo.o \
-	builtin_export.o
+	builtin_export.o \
+	builtin_utils.o \
+	builtin_unset.o \
+	builtin_utils_2.o \
+	builtin_if_its.o \
+	builtin_utils_3.o \
+	parsing_get_env.o \
+	parsing_delete_quote.o \
+	parsing_dollar_handle.o \
+	parsing_dollar_handle_quote.o \
+	parsing_parsing_2_double.o \
+	parsing_parsing_2_single.o \
+	parsing_parsing_2_space.o \
+	minishell_err.o \
+	parsing_triple_tab_heredoc.o \
+	parsing_triple_tab_heredoc_2.o \
+	parsing_triple_tab_heredoc_3.o \
+	parsing_triple_tab_init.o \
+	parsing_triple_tab_input.o \
+	parsing_triple_tab_normal.o \
+	parsing_triple_tab_output.o \
+	parsing_triple_tab_pipe.o \
+	builtin_exit.o \
+	exec_check.o \
+	exec_launch.o \
+	exec_redir.o \
+	exec_all.o \
+	main_init.o \
+	main_init_env.o \
+	main_loop.o
 
 
 

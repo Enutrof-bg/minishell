@@ -19,7 +19,7 @@ int	ft_open_pipe(t_commande *t_cmd, t_all **all)
 	int	i;
 
 	if (!t_cmd || !t_cmd->cmd_tab || !all || !*all)
-		return (1);
+		return (ft_free_all(*all), 1);
 	i = 0;
 	while (i < t_cmd->nbr_cmd - 1)
 	{
@@ -34,7 +34,7 @@ int	ft_open_pipe(t_commande *t_cmd, t_all **all)
 				t_cmd->cmd_tab[i].fd[0] = -1;
 				t_cmd->cmd_tab[i].fd[1] = -1;
 			}
-			return (1);
+			return (ft_free_all(*all), 1);
 		}
 		i++;
 	}

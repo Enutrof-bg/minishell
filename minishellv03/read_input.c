@@ -12,9 +12,11 @@
 
 #include "minishell.h"
 
+//if (!(*all)->str) pour EOF CTRL +D
+//if (!(*all)->str[0]) pour chaine vide
 int	ft_read_input(t_all **all)
 {
-	(*all)->str = readline("CacaTest > ");
+	(*all)->str = readline("ChibreCosmiqueGangstaMadara93 > ");
 	if (!(*all)->str)
 	{
 		write(1, "exit\n", 5);

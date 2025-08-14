@@ -211,6 +211,21 @@ void		ft_waitpid(t_commande *t_cmd);
 int			ft_dup(int fd0, int fd1);
 int			ft_close_fd(t_all **all);
 
+//main_init.c
+int			ft_init_value(t_all **all);
+void		ft_setup_signals(void);
+int			ft_initialize_minishell(t_all **all, char **env);
+
+//main_init_env.c
+char		**create_default_env(void);
+int			ft_init_env(t_all **all, char **env);
+
+//main_loop.c
+void		ft_setup_term(t_all *all);
+int			ft_handle_read_input(t_all *all, int result);
+int			ft_handle_parse(t_all *all, int result);
+void		ft_execute_cmd(t_all *all);
+
 //minishell_err.c
 void		ft_err(char *msg1, char *msg2);
 void		ft_err_2(char *msg1, char *msg2);
