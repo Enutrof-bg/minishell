@@ -11,19 +11,20 @@
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
-#define MINISHELL_H
+# define MINISHELL_H
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <readline/readline.h> // pour readline etc
-#include <readline/history.h> // pour readline etc
-#include <sys/types.h>//wait
-#include <sys/wait.h>//wait
-#include <sys/stat.h>//stat
+# include <stdio.h>
+# include <unistd.h>
+# include <stdlib.h>
+# include <fcntl.h>
+# include <limits.h>
+# include <readline/readline.h> // pour readline etc
+# include <readline/history.h> // pour readline etc
+# include <sys/types.h>//wait
+# include <sys/wait.h>//wait
+# include <sys/stat.h>//stat
 # include <signal.h>//signal
+# include <sys/signal.h>
 # include "gnl/get_next_line.h"
 # include <errno.h>
 
@@ -48,6 +49,9 @@
 
 #define PATH_MAX	4096
 
+// #ifdef ECHOCTL
+# define ECHOCTL 0001000
+// #endif
 
 typedef struct s_redir
 {
@@ -248,4 +252,5 @@ void init_exit_handler(int *exit_status);
 void signal_set_exit(int code);
 
 void ft_test(int signum);
+
 #endif
