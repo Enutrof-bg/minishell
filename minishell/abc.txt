@@ -1,0 +1,668 @@
+════════════════════════════════════════════════════════════════════
+   GUIDE COMPLET MINISHELL - ÉTAPE PAR ÉTAPE POUR DÉBUTANTS
+════════════════════════════════════════════════════════════════════
+
+📋 INTRODUCTION
+═══════════════
+Ce guide explique comment reconstruire un minishell (un petit shell comme bash)
+depuis zéro. Chaque étape est expliquée simplement avec son objectif.
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ PHASE 1 : STRUCTURE DE BASE ET INITIALISATION                  │
+└────────────────────────────────────────────────────────────────┘
+
+ÉTAPE 1 : Créer la structure principale du programme
+─────────────────────────────────────────────────────
+📌 Fichiers : main.c, minishell.h
+🎯 But : Avoir un point d'entrée qui lance le shell et affiche un prompt
+
+Ce qu'il faut faire :
+- Créer la fonction main() qui sera le cœur du programme
+- Afficher un prompt (exemple: "minishell> ") pour inviter l'utilisateur
+- Créer une boucle infinie qui attend les commandes de l'utilisateur
+- Permettre de quitter proprement avec exit ou Ctrl+D
+
+
+ÉTAPE 2 : Gérer les variables d'environnement
+──────────────────────────────────────────────
+📌 Fichiers : main_init_env.c
+🎯 But : Récupérer et stocker les variables d'environnement (PATH, HOME, etc.)
+
+Ce qu'il faut faire :
+- Copier l'environnement (char **envp) dans une structure propre
+- Créer des fonctions pour chercher une variable (get_env)
+- Créer des fonctions pour modifier/ajouter des variables (set_env)
+- Stocker tout ça dans une liste chaînée ou tableau
+
+
+ÉTAPE 3 : Installer readline pour la saisie
+────────────────────────────────────────────
+📌 Fichiers : read_input.c
+🎯 But : Permettre à l'utilisateur de taper des commandes avec historique
+
+Ce qu'il faut faire :
+- Utiliser la fonction readline() pour lire l'entrée utilisateur
+- Ajouter chaque commande à l'historique (add_history)
+- Gérer les flèches haut/bas pour naviguer dans l'historique
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ PHASE 2 : PARSING (ANALYSE DE LA COMMANDE) - DÉTAILLÉ         │
+└────────────────────────────────────────────────────────────────┘
+
+ÉTAPE 4 : Tokenisation basique
+───────────────────────────────
+📌 Fichiers : parsing_parsing_1.c, parsing_lst_utils.c
+🎯 But : Découper la ligne de commande en morceaux (tokens)
+
+🔍 EXPLICATION DÉTAILLÉE :
+Le parsing commence par transformer une longue chaîne de caractères en 
+éléments individuels qu'on peut manipuler. C'est comme découper une phrase
+en mots.
+
+📝 EXEMPLES CONCRETS :
+
+Exemple 1 - Commande simple :
+  Entrée :  "ls -la"
+  Tokens :  ["ls"] → ["-la"]
+  
+Exemple 2 - Espaces multiples :
+  Entrée :  "echo    hello     world"
+  Tokens :  ["echo"] → ["hello"] → ["world"]
+  (Les espaces multiples sont ignorés)
+
+Exemple 3 - Avec opérateurs :
+  Entrée :  "cat file.txt > output.txt"
+  Tokens :  ["cat"] → ["file.txt"] → [">"] → ["output.txt"]
+
+⚙️ ALGORITHME :
+1. Parcourir la chaîne caractère par caractère
+2. Si on trouve un espace → créer un nouveau token
+3. Si on trouve un opérateur (<, >, |) → token séparé
+4. Ajouter chaque token dans une liste chaînée
+
+💾 STRUCTURE DE DONNÉES :
+typedef struct s_token {
+    char            *content;    // Le texte du token
+    int             type;        // WORD, PIPE, REDIR_IN, etc.
+    struct s_token  *next;       // Token suivant
+}   t_token;
+
+
+ÉTAPE 5 : Gérer les quotes (guillemets)
+────────────────────────────────────────
+📌 Fichiers : parsing_parsing_2_single.c, parsing_parsing_2_double.c
+🎯 But : Respecter les guillemets simples et doubles comme bash
+
+🔍 EXPLICATION DÉTAILLÉE :
+Les quotes permettent de grouper plusieurs mots en un seul argument et
+de contrôler l'expansion des variables. C'est crucial pour gérer les
+espaces dans les noms de fichiers et protéger certains caractères.
+
+📝 EXEMPLES CONCRETS :
+
+Exemple 1 - Simple quotes (pas d'expansion) :
+  Entrée :  echo 'Hello $USER'
+  Tokens :  ["echo"] → ["Hello $USER"]
+  Résultat affiché : Hello $USER
+  ⚠️ Le $USER n'est PAS remplacé !
+
+Exemple 2 - Double quotes (avec expansion) :
+  Entrée :  echo "Hello $USER"
+  Tokens :  ["echo"] → ["Hello $USER"]
+  Après expansion : ["echo"] → ["Hello kevin"]
+  Résultat affiché : Hello kevin
+  ✅ Le $USER est remplacé par sa valeur !
+
+Exemple 3 - Espaces dans les quotes :
+  Entrée :  echo "un deux trois"
+  Tokens :  ["echo"] → ["un deux trois"]
+  ⚠️ C'est UN SEUL argument, pas trois !
+
+Exemple 4 - Fichier avec espaces :
+  Entrée :  cat "mon fichier.txt"
+  Tokens :  ["cat"] → ["mon fichier.txt"]
+  ✅ Le nom de fichier est bien groupé
+
+Exemple 5 - Mixte :
+  Entrée :  echo 'pas de $USER' "mais si $USER"
+  Tokens :  ["echo"] → ["pas de $USER"] → ["mais si kevin"]
+
+Exemple 6 - Quotes non fermées (erreur) :
+  Entrée :  echo "hello
+  Résultat : Erreur de parsing - quote non fermée
+  💡 Bash affiche : > (attend la suite)
+  💡 Minishell : Affiche une erreur
+
+⚙️ ALGORITHME :
+1. Détecter une quote ouvrante (' ou ")
+2. Continuer à lire jusqu'à trouver la quote fermante
+3. Tout ce qui est entre les quotes = un seul token
+4. Marquer le token avec son type (SINGLE_QUOTE ou DOUBLE_QUOTE)
+5. Si EOF avant la quote fermante → erreur
+
+🎯 ÉTAT À MAINTENIR :
+- in_single_quote : booléen (sommes-nous dans des ' ?)
+- in_double_quote : booléen (sommes-nous dans des " ?)
+- quote_char : quel type de quote a été ouvert
+
+
+ÉTAPE 6 : Expansion des variables ($)
+──────────────────────────────────────
+📌 Fichiers : parsing_dollar.c, parsing_dollar_handle.c
+🎯 But : Remplacer $VARIABLE par sa valeur
+
+🔍 EXPLICATION DÉTAILLÉE :
+L'expansion des variables permet d'utiliser des valeurs dynamiques dans
+les commandes. Le shell remplace $NOM par la valeur de la variable NOM.
+
+📝 EXEMPLES CONCRETS :
+
+Exemple 1 - Variable simple :
+  Commande : echo $USER
+  $USER = "kevin"
+  Après expansion : echo kevin
+  Résultat : kevin
+
+Exemple 2 - Variable au milieu :
+  Commande : echo Bonjour_$USER_bienvenue
+  $USER = "kevin"
+  Après expansion : echo Bonjour_kevin_bienvenue
+  Résultat : Bonjour_kevin_bienvenue
+
+Exemple 3 - Variable inexistante :
+  Commande : echo $VAR_INEXISTANTE
+  Après expansion : echo 
+  Résultat : (ligne vide)
+  💡 Pas d'erreur, juste une chaîne vide
+
+Exemple 4 - $? (code de retour) :
+  Commande précédente : ls /dossier_qui_existe_pas (erreur)
+  Commande : echo $?
+  Résultat : 1 (ou 2, selon l'erreur)
+  
+  Commande précédente : ls (succès)
+  Commande : echo $?
+  Résultat : 0
+
+Exemple 5 - Multiples variables :
+  Commande : echo $USER $HOME $PWD
+  Après expansion : echo kevin /home/kevin /home/kevin/Documents
+  Résultat : kevin /home/kevin /home/kevin/Documents
+
+Exemple 6 - Dans les double quotes :
+  Commande : echo "$USER est dans $PWD"
+  Après expansion : echo "kevin est dans /home/kevin/Documents"
+  Résultat : kevin est dans /home/kevin/Documents
+
+Exemple 7 - Dans les simple quotes (PAS d'expansion) :
+  Commande : echo '$USER est dans $PWD'
+  Après expansion : echo '$USER est dans $PWD'
+  Résultat : $USER est dans $PWD
+  ⚠️ Aucune expansion dans les simple quotes !
+
+Exemple 8 - $ seul :
+  Commande : echo $
+  Résultat : $ (littéral)
+
+Exemple 9 - $$ (PID du shell) :
+  Commande : echo $$
+  Résultat : 12345 (le PID du processus minishell)
+
+⚙️ ALGORITHME D'EXPANSION :
+1. Parcourir le token caractère par caractère
+2. Si on trouve un $ ET qu'on n'est PAS dans des single quotes :
+   a. Extraire le nom de la variable (lettres, chiffres, _)
+   b. Chercher la variable dans l'environnement
+   c. Remplacer $VAR par sa valeur
+   d. Si pas trouvée → remplacer par chaîne vide
+3. Reconstruire le token avec les valeurs remplacées
+
+🎯 CAS SPÉCIAUX À GÉRER :
+- $? → Code retour de la dernière commande
+- $$ → PID du shell
+- $0 à $9 → Arguments du script (pas pour minishell)
+- $ suivi d'un espace → $ littéral
+- $123abc → Variable nommée "123abc" (invalide, devient vide)
+
+💡 ORDRE DE TRAITEMENT :
+1. D'abord identifier les quotes
+2. Puis expanser les variables (sauf dans single quotes)
+3. Enfin supprimer les quotes
+
+
+ÉTAPE 7 : Supprimer les quotes après traitement
+────────────────────────────────────────────────
+📌 Fichiers : parsing_delete_quote.c
+🎯 But : Enlever les guillemets après avoir traité leur contenu
+
+🔍 EXPLICATION DÉTAILLÉE :
+Une fois que les quotes ont servi à grouper les arguments et contrôler
+l'expansion, on doit les retirer. L'utilisateur ne veut pas voir les
+guillemets dans le résultat final.
+
+📝 EXEMPLES CONCRETS :
+
+Exemple 1 - Simple :
+  Avant : ["echo"] → ["\"hello\""]
+  Après : ["echo"] → ["hello"]
+  
+Exemple 2 - Avec espaces :
+  Avant : ["echo"] → ["\"hello world\""]
+  Après : ["echo"] → ["hello world"]
+  💡 L'espace reste car il était protégé par les quotes
+
+Exemple 3 - Simple quotes :
+  Avant : ["echo"] → ["'$USER'"]
+  Après : ["echo"] → ["$USER"]
+  💡 On garde le $USER littéral (pas expansé)
+
+Exemple 4 - Multiples quotes dans un token :
+  Avant : ["echo"] → ["'hello'"world""]
+  Après : ["echo"] → ["helloworld"]
+  💡 Les deux parties sont concaténées
+
+Exemple 5 - Quote à l'intérieur :
+  Avant : ["echo"] → ["\"l'ami\""]
+  Après : ["echo"] → ["l'ami"]
+
+⚙️ ALGORITHME :
+1. Parcourir chaque token
+2. Créer une nouvelle chaîne sans les quotes de délimitation
+3. Garder les caractères entre les quotes
+4. Remplacer le token par la nouvelle chaîne
+
+🔄 PROCESSUS COMPLET DU PARSING (ÉTAPES 4-7) :
+
+Exemple complet : echo "Hello $USER" 'world' > file.txt
+
+│ ÉTAPE 4 - Tokenisation │
+Entrée : echo "Hello $USER" 'world' > file.txt
+Tokens : [echo] ["Hello $USER"] ['world'] [>] [file.txt]
+
+│ ÉTAPE 5 - Identification des quotes │
+[echo] → type: WORD
+["Hello $USER"] → type: DOUBLE_QUOTE
+['world'] → type: SINGLE_QUOTE
+[>] → type: REDIR_OUT
+[file.txt] → type: WORD
+
+│ ÉTAPE 6 - Expansion des variables │
+[echo] → [echo] (pas de $)
+["Hello $USER"] → ["Hello kevin"] (expansion car double quote)
+['world'] → ['world'] (pas d'expansion car single quote)
+[>] → [>] (opérateur)
+[file.txt] → [file.txt] (pas de $)
+
+│ ÉTAPE 7 - Suppression des quotes │
+[echo] → [echo]
+["Hello kevin"] → [Hello kevin]
+['world'] → [world]
+[>] → [>]
+[file.txt] → [file.txt]
+
+│ RÉSULTAT FINAL │
+Commande : echo
+Arguments : ["Hello kevin", "world"]
+Redirection : STDOUT vers "file.txt"
+
+💡 ASTUCE POUR DÉBUGGER :
+Affiche les tokens après chaque étape pour voir la transformation :
+printf("Token %d: [%s] type=%d\n", i, token->content, token->type);
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ PHASE 3 : REDIRECTIONS ET PIPES                                │
+└────────────────────────────────────────────────────────────────┘
+
+ÉTAPE 8 : Détecter les redirections
+────────────────────────────────────
+📌 Fichiers : parsing_redir.c, parsing_triple_tab_input.c, parsing_triple_tab_output.c
+🎯 But : Identifier où rediriger l'entrée/sortie
+
+Types de redirections :
+- < fichier  : Lire depuis un fichier (entrée)
+- > fichier  : Écrire dans un fichier (sortie, écrase)
+- >> fichier : Ajouter à la fin d'un fichier (sortie, append)
+- << délimiteur : Heredoc (lire jusqu'à voir le délimiteur)
+
+Ce qu'il faut faire :
+- Trouver les symboles <, >, >>, << dans les tokens
+- Stocker le type de redirection et le nom du fichier
+- Retirer ces tokens de la liste de commandes
+
+
+ÉTAPE 9 : Gérer les heredocs (<<)
+──────────────────────────────────
+📌 Fichiers : parsing_triple_tab_heredoc.c, parsing_triple_tab_heredoc_2.c
+🎯 But : Lire plusieurs lignes jusqu'à un délimiteur
+
+Ce qu'il faut faire :
+- Lire l'entrée ligne par ligne jusqu'au délimiteur
+- Stocker le contenu dans un fichier temporaire ou pipe
+- Expanser les variables dans le heredoc (sauf si délimiteur entre quotes)
+
+
+ÉTAPE 10 : Gérer les pipes (|)
+───────────────────────────────
+📌 Fichiers : parsing_triple_tab_pipe.c
+🎯 But : Découper la commande en plusieurs commandes reliées par pipes
+
+Ce qu'il faut faire :
+- Détecter le symbole |
+- Séparer : "ls | grep test" → commande1: "ls", commande2: "grep test"
+- Créer une structure pour chaque commande du pipeline
+
+
+ÉTAPE 11 : Créer la structure de commande finale
+─────────────────────────────────────────────────
+📌 Fichiers : parsing_triple_tab.c, parsing_triple_tab_init.c
+🎯 But : Organiser tout dans une structure exploitable
+
+Structure type :
+- Commande (ex: "ls")
+- Arguments (ex: ["-la", "/home"])
+- Redirections d'entrée
+- Redirections de sortie
+- Commande suivante (si pipe)
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ PHASE 4 : BUILTINS (COMMANDES INTÉGRÉES)                       │
+└────────────────────────────────────────────────────────────────┘
+
+ÉTAPE 12 : Implémenter echo
+────────────────────────────
+📌 Fichiers : builtin_echo.c
+🎯 But : Afficher du texte à l'écran
+
+Ce qu'il faut faire :
+- Afficher tous les arguments séparés par des espaces
+- Option -n : Ne pas ajouter de retour à la ligne
+- Gérer les quotes et l'expansion de variables
+
+
+ÉTAPE 13 : Implémenter cd
+──────────────────────────
+📌 Fichiers : builtin_cd.c, builtin_cd_2.c
+🎯 But : Changer de répertoire
+
+Ce qu'il faut faire :
+- Utiliser chdir() pour changer de dossier
+- cd sans argument → aller au HOME
+- cd - → retourner au dossier précédent (OLDPWD)
+- cd .. → remonter d'un niveau
+- Mettre à jour les variables PWD et OLDPWD
+
+
+ÉTAPE 14 : Implémenter pwd
+───────────────────────────
+📌 Fichiers : builtin_utils.c
+🎯 But : Afficher le répertoire courant
+
+Ce qu'il faut faire :
+- Utiliser getcwd() pour obtenir le chemin actuel
+- Afficher ce chemin
+
+
+ÉTAPE 15 : Implémenter export
+──────────────────────────────
+📌 Fichiers : builtin_export.c
+🎯 But : Créer ou modifier des variables d'environnement
+
+Ce qu'il faut faire :
+- export VAR=valeur : Créer/modifier VAR
+- export sans argument : Afficher toutes les variables
+- Gérer les erreurs (nom de variable invalide)
+
+
+ÉTAPE 16 : Implémenter unset
+─────────────────────────────
+📌 Fichiers : builtin_unset.c
+🎯 But : Supprimer des variables d'environnement
+
+Ce qu'il faut faire :
+- unset VAR : Supprimer la variable VAR
+- Chercher la variable dans l'environnement
+- La retirer de la liste
+
+
+ÉTAPE 17 : Implémenter env
+───────────────────────────
+📌 Fichiers : builtin_utils.c
+🎯 But : Afficher toutes les variables d'environnement
+
+Ce qu'il faut faire :
+- Parcourir toutes les variables
+- Afficher au format : NOM=valeur
+
+
+ÉTAPE 18 : Implémenter exit
+────────────────────────────
+📌 Fichiers : builtin_exit.c
+🎯 But : Quitter le shell proprement
+
+Ce qu'il faut faire :
+- exit sans argument : Quitter avec le code de la dernière commande
+- exit N : Quitter avec le code N
+- Gérer les erreurs (exit avec argument non numérique)
+- Libérer toute la mémoire avant de quitter
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ PHASE 5 : EXÉCUTION DES COMMANDES                              │
+└────────────────────────────────────────────────────────────────┘
+
+ÉTAPE 19 : Chercher les commandes dans le PATH
+───────────────────────────────────────────────
+📌 Fichiers : pipex_path.c
+🎯 But : Trouver où se trouve l'exécutable d'une commande
+
+Ce qu'il faut faire :
+- Récupérer la variable PATH (contient les dossiers à chercher)
+- Tester chaque dossier : /usr/bin/ls, /bin/ls, etc.
+- Utiliser access() pour vérifier si le fichier existe et est exécutable
+- Retourner le chemin complet de la commande
+
+
+ÉTAPE 20 : Fork et exec basique
+────────────────────────────────
+📌 Fichiers : exec_launch.c, minishell_exec.c
+🎯 But : Lancer une commande externe (comme ls, grep, cat)
+
+Ce qu'il faut faire :
+- fork() : Créer un processus enfant
+  → Le parent attend, l'enfant exécute la commande
+- execve() : Remplacer le processus enfant par la commande
+- wait() : Le parent attend que l'enfant se termine
+- Récupérer le code de retour (pour $?)
+
+
+ÉTAPE 21 : Gérer les redirections lors de l'exécution
+──────────────────────────────────────────────────────
+📌 Fichiers : exec_redir.c
+🎯 But : Rediriger stdin/stdout vers des fichiers
+
+Ce qu'il faut faire :
+- Avant d'exécuter la commande :
+  → Ouvrir le fichier de redirection avec open()
+  → Utiliser dup2() pour rediriger stdin (0) ou stdout (1)
+  → Exemple : dup2(fd, STDOUT_FILENO) redirige la sortie vers fd
+- < fichier : dup2(fd, STDIN_FILENO)
+- > fichier : dup2(fd, STDOUT_FILENO)
+- Fermer les fd après redirection
+
+
+ÉTAPE 22 : Implémenter les pipes
+─────────────────────────────────
+📌 Fichiers : exec_pipe.c
+🎯 But : Connecter la sortie d'une commande à l'entrée de la suivante
+
+Ce qu'il faut faire :
+- Créer un pipe avec pipe() → donne 2 fd : [lecture, écriture]
+- Fork pour chaque commande
+- Commande 1 : Rediriger stdout vers l'écriture du pipe
+- Commande 2 : Rediriger stdin vers la lecture du pipe
+- Fermer les fd inutilisés dans chaque processus
+- Le parent attend tous les enfants
+
+
+ÉTAPE 23 : Vérifier les erreurs d'exécution
+────────────────────────────────────────────
+📌 Fichiers : exec_check.c, exec_check_exit_status.c
+🎯 But : Gérer les erreurs (commande introuvable, permission refusée)
+
+Ce qu'il faut faire :
+- Vérifier si la commande existe
+- Vérifier si on a les droits d'exécution
+- Afficher des messages d'erreur clairs :
+  → "command not found" si introuvable
+  → "Permission denied" si pas exécutable
+- Retourner le bon code d'erreur (127 pour not found, 126 pour permission)
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ PHASE 6 : SIGNAUX ET GESTION DES ERREURS                       │
+└────────────────────────────────────────────────────────────────┘
+
+ÉTAPE 24 : Gérer les signaux (Ctrl+C, Ctrl+\, Ctrl+D)
+──────────────────────────────────────────────────────
+📌 Fichiers : signals.c
+🎯 But : Réagir correctement aux signaux comme bash
+
+Ce qu'il faut faire :
+- Ctrl+C (SIGINT) : Afficher un nouveau prompt (ne pas quitter)
+- Ctrl+\ (SIGQUIT) : Ne rien faire en mode interactif
+- Ctrl+D (EOF) : Quitter le shell proprement
+- Dans les commandes : Les signaux doivent fonctionner normalement
+
+
+ÉTAPE 25 : Gestion de la mémoire et leaks
+──────────────────────────────────────────
+📌 Fichiers : minishell_free.c, parsing_free.c
+🎯 But : Libérer toute la mémoire allouée (pas de fuites)
+
+Ce qu'il faut faire :
+- Créer des fonctions de free pour chaque structure
+- Libérer les listes chaînées
+- Libérer l'environnement copié
+- Libérer les tokens et commandes parsées
+- Tester avec valgrind pour vérifier les leaks
+
+
+ÉTAPE 26 : Gestion des erreurs
+───────────────────────────────
+📌 Fichiers : minishell_err.c, exec_check.c
+🎯 But : Afficher des messages d'erreur clairs et gérer $?
+
+Ce qu'il faut faire :
+- Créer une fonction pour afficher les erreurs sur stderr
+- Stocker le code de retour de chaque commande
+- Mettre à jour $? après chaque commande
+- Gérer les erreurs de parsing (quotes non fermées, etc.)
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ PHASE 7 : TESTS ET OPTIMISATIONS                               │
+└────────────────────────────────────────────────────────────────┘
+
+ÉTAPE 27 : Tester avec des cas complexes
+─────────────────────────────────────────
+📌 Fichiers : parsing_test.c
+🎯 But : Vérifier que tout fonctionne comme bash
+
+Tests à faire :
+- Commandes simples : ls, pwd, echo
+- Commandes avec arguments : ls -la /home
+- Pipes : ls | grep test | wc -l
+- Redirections : echo "hello" > file.txt
+- Heredocs : cat << EOF
+- Variables : echo $USER $PWD
+- Quotes : echo 'hello $USER' vs echo "hello $USER"
+- Builtins : cd, export, unset, env, exit
+- Signaux : Ctrl+C, Ctrl+D, Ctrl+\
+
+
+ÉTAPE 28 : Vérifier la norme (si projet 42)
+────────────────────────────────────────────
+📌 But : Respecter les règles de codage
+
+Ce qu'il faut faire :
+- Lancer norminette sur tous les fichiers
+- Corriger les erreurs de norme
+- Vérifier les lignes trop longues (max 25 lignes par fonction)
+
+
+ÉTAPE 29 : Optimiser et nettoyer
+─────────────────────────────────
+📌 But : Rendre le code plus propre et efficace
+
+Ce qu'il faut faire :
+- Supprimer le code mort (fonctions inutilisées)
+- Factoriser le code répétitif
+- Ajouter des commentaires aux fonctions complexes
+- Vérifier les cas limites (NULL, strings vides, etc.)
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ BONUS (SI TEMPS DISPONIBLE)                                    │
+└────────────────────────────────────────────────────────────────┘
+
+BONUS 1 : Opérateurs logiques (&& et ||)
+─────────────────────────────────────────
+- cmd1 && cmd2 : Exécuter cmd2 seulement si cmd1 réussit
+- cmd1 || cmd2 : Exécuter cmd2 seulement si cmd1 échoue
+
+BONUS 2 : Wildcards (*)
+────────────────────────
+- ls *.c : Lister tous les fichiers .c
+- Expanser * en liste de fichiers correspondants
+
+BONUS 3 : Sous-shells avec parenthèses
+───────────────────────────────────────
+- (cd /tmp && ls) : Exécuter dans un sous-shell
+- Le cd n'affecte pas le shell principal
+
+
+════════════════════════════════════════════════════════════════════
+📚 RÉSUMÉ DE L'ORDRE DES ÉTAPES
+════════════════════════════════════════════════════════════════════
+
+1. Structure de base (main, boucle, prompt)
+2. Environnement et readline
+3. Parsing : Tokenisation
+4. Parsing : Quotes et variables
+5. Parsing : Redirections et pipes
+6. Builtins (echo, cd, pwd, export, unset, env, exit)
+7. Exécution : PATH, fork/exec
+8. Exécution : Redirections et pipes
+9. Signaux
+10. Gestion mémoire et erreurs
+11. Tests et optimisations
+
+
+════════════════════════════════════════════════════════════════════
+💡 CONSEILS GÉNÉRAUX
+════════════════════════════════════════════════════════════════════
+
+✅ Tester chaque étape avant de passer à la suivante
+✅ Comparer le comportement avec bash en cas de doute
+✅ Utiliser valgrind régulièrement pour traquer les leaks
+✅ Faire des commits git après chaque étape fonctionnelle
+✅ Lire le man des fonctions système (man fork, man execve, etc.)
+✅ Dessiner des schémas pour comprendre les pipes et redirections
+
+🔍 Fonctions système importantes à connaître :
+   - readline, add_history : Lecture de commandes
+   - fork : Créer un processus
+   - execve : Exécuter une commande
+   - wait, waitpid : Attendre un processus
+   - pipe : Créer un tube de communication
+   - dup2 : Dupliquer un descripteur de fichier
+   - open, close, read, write : Manipuler des fichiers
+   - chdir, getcwd : Gérer les répertoires
+   - signal, sigaction : Gérer les signaux
+   - access : Vérifier l'existence/permissions d'un fichier
+
+Bon courage ! 🚀
