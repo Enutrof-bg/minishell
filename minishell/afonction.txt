@@ -1,0 +1,1100 @@
+════════════════════════════════════════════════════════════════════
+   FONCTIONS DE LIBRAIRIE POUR MINISHELL - GUIDE COMPLET
+════════════════════════════════════════════════════════════════════
+
+Ce fichier liste TOUTES les fonctions système et de librairie utiles
+pour le projet minishell, avec leur prototype, leur utilité et des
+exemples d'utilisation concrets.
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ 1. LECTURE ET AFFICHAGE                                        │
+└────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+readline() - Lire une ligne avec historique et édition
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : -lreadline
+📄 Header : <readline/readline.h>
+🔧 Prototype : char *readline(const char *prompt);
+
+✅ Utilité :
+   Affiche un prompt et lit une ligne de l'utilisateur avec:
+   - Édition de ligne (flèches gauche/droite)
+   - Historique (flèches haut/bas)
+   - Autocomplétion (Tab)
+
+📝 Exemple :
+   char *line;
+   
+   line = readline("minishell> ");
+   if (line == NULL)  // Ctrl+D ou erreur
+   {
+       printf("exit\n");
+       exit(0);
+   }
+   printf("Vous avez tapé: %s\n", line);
+   free(line);  // ⚠️ Ne pas oublier de free !
+
+⚠️ Attention : readline() alloue de la mémoire avec malloc()
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+add_history() - Ajouter une commande à l'historique
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : -lreadline
+📄 Header : <readline/history.h>
+🔧 Prototype : void add_history(const char *line);
+
+✅ Utilité :
+   Ajoute une commande à l'historique pour qu'elle soit
+   accessible avec les flèches haut/bas
+
+📝 Exemple :
+   char *line;
+   
+   line = readline("minishell> ");
+   if (line && *line)  // Si la ligne n'est pas vide
+   {
+       add_history(line);  // Ajouter à l'historique
+       // ... traiter la commande
+   }
+   free(line);
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+printf() - Afficher du texte formaté sur stdout
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <stdio.h>
+🔧 Prototype : int printf(const char *format, ...);
+
+✅ Utilité :
+   Afficher du texte formaté sur la sortie standard
+
+📝 Exemple :
+   printf("Bonjour %s!\n", "Kevin");
+   printf("Nombre: %d, Caractère: %c\n", 42, 'A');
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+write() - Écrire dans un descripteur de fichier
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Prototype : ssize_t write(int fd, const void *buf, size_t count);
+
+✅ Utilité :
+   Écrire des bytes dans un fichier ou sur stdout/stderr
+
+📝 Exemple :
+   // Écrire sur stdout (fd = 1)
+   write(1, "Hello\n", 6);
+   
+   // Écrire sur stderr (fd = 2)
+   write(2, "Erreur!\n", 8);
+   
+   // Écrire dans un fichier
+   int fd = open("output.txt", O_WRONLY | O_CREAT, 0644);
+   write(fd, "Contenu\n", 8);
+   close(fd);
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ 2. GESTION DES PROCESSUS                                       │
+└────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+fork() - Créer un nouveau processus
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Prototype : pid_t fork(void);
+
+✅ Utilité :
+   Crée une copie du processus actuel (parent et enfant)
+   Retourne 0 dans l'enfant, PID de l'enfant dans le parent
+
+📝 Exemple :
+   pid_t pid;
+   
+   pid = fork();
+   if (pid == -1)
+   {
+       perror("fork");
+       exit(1);
+   }
+   else if (pid == 0)
+   {
+       // Code du processus ENFANT
+       printf("Je suis l'enfant, PID = %d\n", getpid());
+       exit(0);
+   }
+   else
+   {
+       // Code du processus PARENT
+       printf("Je suis le parent, PID enfant = %d\n", pid);
+       wait(NULL);  // Attendre l'enfant
+   }
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+execve() - Exécuter un programme
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Prototype : int execve(const char *path, char *const argv[], 
+                          char *const envp[]);
+
+✅ Utilité :
+   Remplace le processus actuel par un nouveau programme
+   ⚠️ Ne retourne JAMAIS en cas de succès !
+
+📝 Exemple :
+   char *argv[] = {"ls", "-la", "/home", NULL};
+   char *envp[] = {"PATH=/bin:/usr/bin", NULL};
+   
+   execve("/bin/ls", argv, envp);
+   
+   // Si on arrive ici, c'est qu'il y a eu une erreur
+   perror("execve");
+   exit(127);  // Code d'erreur "command not found"
+
+💡 Exemple complet avec fork :
+   pid_t pid = fork();
+   if (pid == 0)
+   {
+       // Enfant : exécuter ls
+       char *argv[] = {"ls", "-l", NULL};
+       execve("/bin/ls", argv, envp);
+       perror("execve");  // Seulement si erreur
+       exit(127);
+   }
+   wait(NULL);  // Parent attend l'enfant
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+wait() / waitpid() - Attendre la fin d'un processus enfant
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <sys/wait.h>
+🔧 Prototype : 
+   pid_t wait(int *status);
+   pid_t waitpid(pid_t pid, int *status, int options);
+
+✅ Utilité :
+   Attendre qu'un processus enfant se termine et récupérer
+   son code de retour
+
+📝 Exemple avec wait() :
+   int status;
+   pid_t pid;
+   
+   pid = wait(&status);  // Attendre N'IMPORTE QUEL enfant
+   if (WIFEXITED(status))
+   {
+       int exit_code = WEXITSTATUS(status);
+       printf("Enfant terminé avec code %d\n", exit_code);
+   }
+
+📝 Exemple avec waitpid() :
+   int status;
+   pid_t child_pid = fork();
+   
+   if (child_pid == 0)
+       exit(42);  // L'enfant sort avec code 42
+   
+   // Parent attend cet enfant spécifique
+   waitpid(child_pid, &status, 0);
+   printf("Code retour: %d\n", WEXITSTATUS(status));  // 42
+
+🔍 Macros utiles pour status :
+   WIFEXITED(status)    - True si sorti normalement
+   WEXITSTATUS(status)  - Code de retour (0-255)
+   WIFSIGNALED(status)  - True si tué par un signal
+   WTERMSIG(status)     - Numéro du signal
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+exit() - Terminer le processus
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <stdlib.h>
+🔧 Prototype : void exit(int status);
+
+✅ Utilité :
+   Terminer le programme avec un code de retour
+
+📝 Exemple :
+   if (erreur_fatale)
+       exit(1);  // Sortie avec erreur
+   
+   // Tout s'est bien passé
+   exit(0);  // Succès
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+getpid() / getppid() - Obtenir le PID
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Prototype : 
+   pid_t getpid(void);   // PID du processus actuel
+   pid_t getppid(void);  // PID du processus parent
+
+✅ Utilité :
+   Obtenir l'identifiant du processus (pour $$ dans le shell)
+
+📝 Exemple :
+   printf("Mon PID: %d\n", getpid());
+   printf("PID de mon parent: %d\n", getppid());
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ 3. GESTION DES FICHIERS                                        │
+└────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+open() - Ouvrir un fichier
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <fcntl.h>
+🔧 Prototype : int open(const char *path, int flags, mode_t mode);
+
+✅ Utilité :
+   Ouvrir un fichier et obtenir un file descriptor (fd)
+
+📝 Exemples :
+   // Lecture seule
+   int fd = open("file.txt", O_RDONLY);
+   
+   // Écriture (créer si n'existe pas, tronquer si existe)
+   int fd = open("output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+   
+   // Append (ajouter à la fin)
+   int fd = open("log.txt", O_WRONLY | O_CREAT | O_APPEND, 0644);
+   
+   if (fd == -1)
+   {
+       perror("open");
+       return (1);
+   }
+   
+   // ... utiliser fd ...
+   close(fd);
+
+🔍 Flags importants :
+   O_RDONLY    - Lecture seule
+   O_WRONLY    - Écriture seule
+   O_RDWR      - Lecture et écriture
+   O_CREAT     - Créer si n'existe pas
+   O_TRUNC     - Vider le fichier à l'ouverture
+   O_APPEND    - Écrire à la fin
+
+🔍 Permissions (mode) :
+   0644        - rw-r--r-- (propriétaire lit/écrit, autres lisent)
+   0755        - rwxr-xr-x (propriétaire tout, autres lis/exec)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+close() - Fermer un fichier
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Prototype : int close(int fd);
+
+✅ Utilité :
+   Fermer un file descriptor
+
+📝 Exemple :
+   int fd = open("file.txt", O_RDONLY);
+   // ... lire le fichier ...
+   close(fd);
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+read() - Lire depuis un fichier
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Prototype : ssize_t read(int fd, void *buf, size_t count);
+
+✅ Utilité :
+   Lire des bytes depuis un fichier/stdin
+
+📝 Exemple :
+   char buffer[1024];
+   int fd = open("file.txt", O_RDONLY);
+   ssize_t bytes_read;
+   
+   bytes_read = read(fd, buffer, sizeof(buffer) - 1);
+   if (bytes_read > 0)
+   {
+       buffer[bytes_read] = '\0';  // Terminer la chaîne
+       printf("Lu: %s\n", buffer);
+   }
+   close(fd);
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+access() - Vérifier l'accès à un fichier
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Prototype : int access(const char *path, int mode);
+
+✅ Utilité :
+   Vérifier si un fichier existe et/ou si on a les permissions
+
+📝 Exemple :
+   // Vérifier si le fichier existe
+   if (access("file.txt", F_OK) == 0)
+       printf("Le fichier existe\n");
+   
+   // Vérifier si exécutable
+   if (access("/bin/ls", X_OK) == 0)
+       printf("ls est exécutable\n");
+   
+   // Vérifier lecture et écriture
+   if (access("file.txt", R_OK | W_OK) == 0)
+       printf("Fichier lisible et modifiable\n");
+
+🔍 Modes :
+   F_OK    - Le fichier existe
+   R_OK    - Lecture possible
+   W_OK    - Écriture possible
+   X_OK    - Exécution possible
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+unlink() - Supprimer un fichier
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Prototype : int unlink(const char *path);
+
+✅ Utilité :
+   Supprimer un fichier du système de fichiers
+
+📝 Exemple :
+   // Supprimer un fichier temporaire
+   if (unlink("/tmp/heredoc_tmp") == -1)
+       perror("unlink");
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+stat() - Obtenir les informations d'un fichier
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <sys/stat.h>
+🔧 Prototype : int stat(const char *path, struct stat *buf);
+
+✅ Utilité :
+   Obtenir les métadonnées d'un fichier (taille, type, etc.)
+
+📝 Exemple :
+   struct stat file_stat;
+   
+   if (stat("file.txt", &file_stat) == 0)
+   {
+       printf("Taille: %ld bytes\n", file_stat.st_size);
+       
+       if (S_ISDIR(file_stat.st_mode))
+           printf("C'est un dossier\n");
+       else if (S_ISREG(file_stat.st_mode))
+           printf("C'est un fichier régulier\n");
+   }
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ 4. REDIRECTIONS (DUPLICATION DE FD)                            │
+└────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+dup() / dup2() - Dupliquer un file descriptor
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Prototype : 
+   int dup(int oldfd);
+   int dup2(int oldfd, int newfd);
+
+✅ Utilité :
+   Créer une copie d'un fd pour rediriger stdin/stdout/stderr
+
+📝 Exemple - Redirection de sortie (>) :
+   int fd = open("output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+   int stdout_backup = dup(STDOUT_FILENO);  // Sauvegarder stdout
+   
+   dup2(fd, STDOUT_FILENO);  // stdout pointe maintenant vers le fichier
+   close(fd);
+   
+   printf("Ceci va dans output.txt\n");
+   
+   dup2(stdout_backup, STDOUT_FILENO);  // Restaurer stdout
+   close(stdout_backup);
+   printf("Ceci va sur le terminal\n");
+
+📝 Exemple - Redirection d'entrée (<) :
+   int fd = open("input.txt", O_RDONLY);
+   dup2(fd, STDIN_FILENO);  // stdin lit maintenant depuis le fichier
+   close(fd);
+   
+   char buffer[100];
+   scanf("%s", buffer);  // Lit depuis input.txt au lieu du clavier
+
+💡 FD standards :
+   STDIN_FILENO  = 0
+   STDOUT_FILENO = 1
+   STDERR_FILENO = 2
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+pipe() - Créer un tube de communication
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Prototype : int pipe(int pipefd[2]);
+
+✅ Utilité :
+   Créer un pipe pour connecter la sortie d'un processus
+   à l'entrée d'un autre (pour les |)
+
+📝 Exemple simple :
+   int pipefd[2];  // [0] = lecture, [1] = écriture
+   pipe(pipefd);
+   
+   if (fork() == 0)
+   {
+       // Enfant: écrire dans le pipe
+       close(pipefd[0]);  // Fermer la lecture
+       write(pipefd[1], "Hello", 5);
+       close(pipefd[1]);
+       exit(0);
+   }
+   else
+   {
+       // Parent: lire depuis le pipe
+       char buffer[100];
+       close(pipefd[1]);  // Fermer l'écriture
+       read(pipefd[0], buffer, sizeof(buffer));
+       close(pipefd[0]);
+       printf("Reçu: %s\n", buffer);
+       wait(NULL);
+   }
+
+📝 Exemple - Commande avec pipe (ls | grep txt) :
+   int pipefd[2];
+   pipe(pipefd);
+   
+   if (fork() == 0)
+   {
+       // Enfant 1: ls
+       close(pipefd[0]);  // Pas besoin de lire
+       dup2(pipefd[1], STDOUT_FILENO);  // stdout → pipe
+       close(pipefd[1]);
+       execve("/bin/ls", (char*[]){"ls", NULL}, envp);
+   }
+   
+   if (fork() == 0)
+   {
+       // Enfant 2: grep
+       close(pipefd[1]);  // Pas besoin d'écrire
+       dup2(pipefd[0], STDIN_FILENO);  // stdin ← pipe
+       close(pipefd[0]);
+       execve("/bin/grep", (char*[]){"grep", "txt", NULL}, envp);
+   }
+   
+   // Parent
+   close(pipefd[0]);
+   close(pipefd[1]);
+   wait(NULL);
+   wait(NULL);
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ 5. GESTION DES RÉPERTOIRES                                     │
+└────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+chdir() - Changer de répertoire
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Prototype : int chdir(const char *path);
+
+✅ Utilité :
+   Changer le répertoire courant (pour la commande cd)
+
+📝 Exemple :
+   if (chdir("/home/user") == -1)
+   {
+       perror("chdir");
+       return (1);
+   }
+   printf("Répertoire changé avec succès\n");
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+getcwd() - Obtenir le répertoire courant
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Prototype : char *getcwd(char *buf, size_t size);
+
+✅ Utilité :
+   Obtenir le chemin absolu du répertoire actuel (pour pwd)
+
+📝 Exemple :
+   char cwd[1024];
+   
+   if (getcwd(cwd, sizeof(cwd)) != NULL)
+       printf("Répertoire actuel: %s\n", cwd);
+   else
+       perror("getcwd");
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+opendir() / readdir() / closedir() - Lire un répertoire
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <dirent.h>
+🔧 Prototype : 
+   DIR *opendir(const char *name);
+   struct dirent *readdir(DIR *dirp);
+   int closedir(DIR *dirp);
+
+✅ Utilité :
+   Lister les fichiers d'un répertoire (pour bonus wildcards)
+
+📝 Exemple :
+   DIR *dir;
+   struct dirent *entry;
+   
+   dir = opendir(".");
+   if (dir == NULL)
+   {
+       perror("opendir");
+       return (1);
+   }
+   
+   while ((entry = readdir(dir)) != NULL)
+   {
+       // Ignorer . et ..
+       if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, ".."))
+           printf("%s\n", entry->d_name);
+   }
+   
+   closedir(dir);
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ 6. VARIABLES D'ENVIRONNEMENT                                   │
+└────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+getenv() - Obtenir une variable d'environnement
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <stdlib.h>
+🔧 Prototype : char *getenv(const char *name);
+
+✅ Utilité :
+   Récupérer la valeur d'une variable d'environnement
+
+📝 Exemple :
+   char *path = getenv("PATH");
+   if (path)
+       printf("PATH = %s\n", path);
+   else
+       printf("PATH non défini\n");
+   
+   char *home = getenv("HOME");
+   char *user = getenv("USER");
+
+⚠️ Attention : Ne pas modifier la chaîne retournée !
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+environ - Tableau de toutes les variables d'environnement
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <unistd.h>
+🔧 Variable globale : extern char **environ;
+
+✅ Utilité :
+   Accéder à toutes les variables d'environnement
+
+📝 Exemple :
+   extern char **environ;
+   int i = 0;
+   
+   while (environ[i])
+   {
+       printf("%s\n", environ[i]);
+       i++;
+   }
+
+💡 Format : "NOM=valeur"
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ 7. SIGNAUX                                                     │
+└────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+signal() - Gérer un signal (version simple)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <signal.h>
+🔧 Prototype : void (*signal(int sig, void (*handler)(int)))(int);
+
+✅ Utilité :
+   Définir une action quand un signal est reçu
+
+📝 Exemple :
+   void handle_sigint(int sig)
+   {
+       (void)sig;
+       write(1, "\n", 1);
+       // Afficher un nouveau prompt
+   }
+   
+   int main(void)
+   {
+       signal(SIGINT, handle_sigint);  // Ctrl+C
+       signal(SIGQUIT, SIG_IGN);       // Ignorer Ctrl+\
+       
+       while (1)
+       {
+           // Boucle du shell
+       }
+   }
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+sigaction() - Gérer un signal (version avancée)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <signal.h>
+🔧 Prototype : int sigaction(int sig, const struct sigaction *act,
+                             struct sigaction *oldact);
+
+✅ Utilité :
+   Version plus robuste et configurable que signal()
+
+📝 Exemple :
+   void handle_sigint(int sig)
+   {
+       (void)sig;
+       write(1, "\nminishell> ", 12);
+   }
+   
+   int main(void)
+   {
+       struct sigaction sa;
+       
+       sa.sa_handler = handle_sigint;
+       sa.sa_flags = SA_RESTART;  // Redémarrer les appels système
+       sigemptyset(&sa.sa_mask);
+       
+       sigaction(SIGINT, &sa, NULL);
+       
+       // ...
+   }
+
+🔍 Signaux importants :
+   SIGINT  (2)  - Ctrl+C
+   SIGQUIT (3)  - Ctrl+\
+   SIGTERM (15) - Terminaison propre
+   SIGKILL (9)  - Terminaison forcée (non capturable)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+kill() - Envoyer un signal à un processus
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <signal.h>
+🔧 Prototype : int kill(pid_t pid, int sig);
+
+✅ Utilité :
+   Envoyer un signal à un processus spécifique
+
+📝 Exemple :
+   pid_t child_pid = 12345;
+   
+   // Terminer proprement
+   kill(child_pid, SIGTERM);
+   
+   // Forcer l'arrêt
+   kill(child_pid, SIGKILL);
+   
+   // Envoyer SIGINT (comme Ctrl+C)
+   kill(child_pid, SIGINT);
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ 8. GESTION DE LA MÉMOIRE                                       │
+└────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+malloc() - Allouer de la mémoire
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <stdlib.h>
+🔧 Prototype : void *malloc(size_t size);
+
+✅ Utilité :
+   Allouer de la mémoire dynamiquement
+
+📝 Exemple :
+   char *str = malloc(100);
+   if (str == NULL)
+   {
+       perror("malloc");
+       return (1);
+   }
+   strcpy(str, "Hello");
+   // ... utiliser str ...
+   free(str);
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+free() - Libérer de la mémoire
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <stdlib.h>
+🔧 Prototype : void free(void *ptr);
+
+✅ Utilité :
+   Libérer la mémoire allouée par malloc/calloc/realloc
+
+📝 Exemple :
+   char *str = malloc(100);
+   // ... utiliser str ...
+   free(str);
+   str = NULL;  // Bonne pratique
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ 9. MANIPULATION DE CHAÎNES                                     │
+└────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+strlen() - Longueur d'une chaîne
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <string.h>
+🔧 Prototype : size_t strlen(const char *s);
+
+📝 Exemple :
+   char *str = "Hello";
+   printf("Longueur: %zu\n", strlen(str));  // 5
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+strcmp() / strncmp() - Comparer des chaînes
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <string.h>
+🔧 Prototype : 
+   int strcmp(const char *s1, const char *s2);
+   int strncmp(const char *s1, const char *s2, size_t n);
+
+📝 Exemple :
+   if (strcmp(cmd, "exit") == 0)
+       printf("Commande exit détectée\n");
+   
+   if (strncmp(cmd, "echo", 4) == 0)
+       printf("Commande echo\n");
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+strcpy() / strncpy() - Copier une chaîne
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <string.h>
+🔧 Prototype : 
+   char *strcpy(char *dest, const char *src);
+   char *strncpy(char *dest, const char *src, size_t n);
+
+📝 Exemple :
+   char dest[100];
+   strcpy(dest, "Hello");
+   
+   // Plus sûr avec strncpy
+   strncpy(dest, "Hello", sizeof(dest) - 1);
+   dest[sizeof(dest) - 1] = '\0';
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+strdup() - Dupliquer une chaîne
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Système
+📄 Header : <string.h>
+🔧 Prototype : char *strdup(const char *s);
+
+✅ Utilité :
+   Allouer et copier une chaîne (malloc + strcpy)
+
+📝 Exemple :
+   char *original = "Hello";
+   char *copy = strdup(original);
+   
+   // copy est allouée dynamiquement
+   printf("%s\n", copy);
+   free(copy);  // ⚠️ Ne pas oublier !
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+strjoin() - Concaténer deux chaînes (À CODER)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔧 Prototype : char *ft_strjoin(char const *s1, char const *s2);
+
+✅ Utilité :
+   Créer une nouvelle chaîne = s1 + s2
+
+📝 Exemple d'implémentation :
+   char *ft_strjoin(char const *s1, char const *s2)
+   {
+       char *result;
+       size_t len;
+       
+       if (!s1 || !s2)
+           return (NULL);
+       len = strlen(s1) + strlen(s2);
+       result = malloc(len + 1);
+       if (!result)
+           return (NULL);
+       strcpy(result, s1);
+       strcat(result, s2);
+       return (result);
+   }
+   
+   // Utilisation
+   char *path = ft_strjoin("/usr/bin/", "ls");
+   // path = "/usr/bin/ls"
+   free(path);
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+split() - Découper une chaîne (À CODER)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔧 Prototype : char **ft_split(char const *s, char c);
+
+✅ Utilité :
+   Découper une chaîne selon un délimiteur
+
+📝 Exemple :
+   char **paths = ft_split("/bin:/usr/bin:/usr/local/bin", ':');
+   // paths[0] = "/bin"
+   // paths[1] = "/usr/bin"
+   // paths[2] = "/usr/local/bin"
+   // paths[3] = NULL
+   
+   int i = 0;
+   while (paths[i])
+   {
+       printf("%s\n", paths[i]);
+       free(paths[i]);
+       i++;
+   }
+   free(paths);
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ 10. GESTION DES ERREURS                                        │
+└────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+perror() - Afficher un message d'erreur
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <stdio.h>
+🔧 Prototype : void perror(const char *s);
+
+✅ Utilité :
+   Afficher un message d'erreur basé sur errno
+
+📝 Exemple :
+   int fd = open("fichier_inexistant", O_RDONLY);
+   if (fd == -1)
+   {
+       perror("open");  // Affiche: "open: No such file or directory"
+       return (1);
+   }
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+strerror() - Obtenir un message d'erreur
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <string.h>
+🔧 Prototype : char *strerror(int errnum);
+
+✅ Utilité :
+   Obtenir le message d'erreur correspondant à errno
+
+📝 Exemple :
+   int fd = open("fichier_inexistant", O_RDONLY);
+   if (fd == -1)
+   {
+       printf("Erreur: %s\n", strerror(errno));
+       // Affiche: "Erreur: No such file or directory"
+   }
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+errno - Variable globale d'erreur
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <errno.h>
+🔧 Variable : extern int errno;
+
+✅ Utilité :
+   Contient le code d'erreur de la dernière fonction système
+
+📝 Exemple :
+   #include <errno.h>
+   
+   int fd = open("file.txt", O_RDONLY);
+   if (fd == -1)
+   {
+       if (errno == ENOENT)
+           printf("Fichier introuvable\n");
+       else if (errno == EACCES)
+           printf("Permission refusée\n");
+       else
+           printf("Erreur: %s\n", strerror(errno));
+   }
+
+🔍 Codes d'erreur courants :
+   ENOENT   - No such file or directory
+   EACCES   - Permission denied
+   ENOMEM   - Out of memory
+   EINVAL   - Invalid argument
+
+
+┌────────────────────────────────────────────────────────────────┐
+│ 11. CONVERSION ET UTILITAIRES                                  │
+└────────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+atoi() - Convertir chaîne en entier
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <stdlib.h>
+🔧 Prototype : int atoi(const char *str);
+
+📝 Exemple :
+   char *str = "42";
+   int n = atoi(str);  // n = 42
+   
+   // Pour exit
+   if (strcmp(cmd, "exit") == 0)
+   {
+       int code = atoi(args[1]);
+       exit(code);
+   }
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+itoa() - Convertir entier en chaîne (À CODER)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔧 Prototype : char *ft_itoa(int n);
+
+✅ Utilité :
+   Convertir un nombre en chaîne (pour $? par exemple)
+
+📝 Exemple :
+   int exit_code = 127;
+   char *str = ft_itoa(exit_code);  // str = "127"
+   printf("Code: %s\n", str);
+   free(str);
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+isalpha() / isdigit() / isalnum() - Tester un caractère
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Librairie : Standard C
+📄 Header : <ctype.h>
+🔧 Prototype : 
+   int isalpha(int c);  // Lettre ?
+   int isdigit(int c);  // Chiffre ?
+   int isalnum(int c);  // Lettre ou chiffre ?
+
+📝 Exemple :
+   char c = 'A';
+   if (isalpha(c))
+       printf("C'est une lettre\n");
+   
+   // Vérifier si un nom de variable est valide
+   int is_valid_var(char *name)
+   {
+       if (!isalpha(name[0]) && name[0] != '_')
+           return (0);  // Doit commencer par lettre ou _
+       int i = 1;
+       while (name[i])
+       {
+           if (!isalnum(name[i]) && name[i] != '_')
+               return (0);
+           i++;
+       }
+       return (1);
+   }
+
+
+════════════════════════════════════════════════════════════════════
+📚 RÉCAPITULATIF PAR CATÉGORIE
+════════════════════════════════════════════════════════════════════
+
+🔵 LECTURE/AFFICHAGE
+   readline, add_history, printf, write
+
+🔵 PROCESSUS
+   fork, execve, wait, waitpid, exit, getpid
+
+🔵 FICHIERS
+   open, close, read, access, unlink, stat
+
+🔵 REDIRECTIONS
+   dup, dup2, pipe
+
+🔵 RÉPERTOIRES
+   chdir, getcwd, opendir, readdir, closedir
+
+🔵 ENVIRONNEMENT
+   getenv, environ
+
+🔵 SIGNAUX
+   signal, sigaction, kill
+
+🔵 MÉMOIRE
+   malloc, free
+
+🔵 CHAÎNES
+   strlen, strcmp, strcpy, strdup, strjoin (à coder), split (à coder)
+
+🔵 ERREURS
+   perror, strerror, errno
+
+🔵 CONVERSION
+   atoi, itoa (à coder), isalpha, isdigit
+
+
+════════════════════════════════════════════════════════════════════
+💡 CONSEILS IMPORTANTS
+════════════════════════════════════════════════════════════════════
+
+✅ Toujours vérifier les valeurs de retour (-1 pour les erreurs)
+✅ Utiliser perror() pour afficher les erreurs système
+✅ Fermer tous les fd ouverts (close)
+✅ Free toute la mémoire allouée
+✅ Tester avec valgrind pour les leaks
+✅ Lire les man pages : man 2 fork, man 3 malloc, etc.
+   (man 2 = appels système, man 3 = fonctions librairie)
+
+🔍 Commandes utiles pour tester :
+   valgrind --leak-check=full ./minishell
+   strace ./minishell  (voir les appels système)
+   nm minishell | grep U  (voir les fonctions utilisées)
