@@ -41,12 +41,11 @@ int	homemade_cd(char **tab, t_all **all)
 		return (ft_err(tab[0], "too many arguments"), 1);
 	if (tab[1])
 	{
-		if (is_cd(tab[0]) && (ft_strcmp(tab[1], "-") == 0))
+		if (ft_strcmp(tab[1], "-") == 0)
 			return (cd_oldpwd(all));
-		if (is_cd(tab[0]) && (ft_strcmp(tab[1], "/") == 0))
+		if (ft_strcmp(tab[1], "/") == 0)
 			return (cd_root(all));
-		if (is_cd(tab[0]) && tab[1])
-			return (ft_cd_change_dir(all, tab[1]));
+		return (ft_cd_change_dir(all, tab[1]));
 	}
 	return (1);
 }

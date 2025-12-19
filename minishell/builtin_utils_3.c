@@ -54,6 +54,7 @@ int	is_only_n(char *str)
 	{
 		if (str[i] != 'n')
 			return (0);
+
 		i++;
 	}
 	return (1);
